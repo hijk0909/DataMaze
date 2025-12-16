@@ -10,6 +10,8 @@ const HP_BAR_WIDTH = 720;
 const HP_BAR_HEIGHT = 80;
 const HP_BAR_PADDING = 5;
 
+const PITCH_MAX = 1;
+
 export class Player extends Movable {
 
     constructor(scene){
