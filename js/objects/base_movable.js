@@ -1,6 +1,6 @@
-// _movable.js
+// base_movable.js
 import { GLOBALS } from '../GameConst.js';
-import { Drawable } from "./_drawable.js";
+import { Drawable } from "./base_drawable.js";
 
 export class Movable extends Drawable {
 

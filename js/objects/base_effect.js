@@ -1,5 +1,5 @@
-// _effect.js
-import { Drawable } from "./_drawable.js";
+// base_effect.js
+import { Drawable } from "./base_drawable.js";
 
 export class Effect extends Drawable {
 

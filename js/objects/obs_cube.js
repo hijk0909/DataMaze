@@ -1,6 +1,6 @@
 // obs_cube.js
 import { MyMath } from "../utils/MathUtils.js";
-import { Obstacle } from "./_obstacle.js";
+import { Obstacle } from "./base_obstacle.js";
 
 export class Obs_Cube extends Obstacle {
 

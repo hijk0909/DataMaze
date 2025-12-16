@@ -1,6 +1,6 @@
 // eff_firework.js
 import { GameState } from "../GameState.js";
-import { Effect } from "./_effect.js";
+import { Effect } from "./base_effect.js";
 
 export class Eff_Firework extends Effect {
 

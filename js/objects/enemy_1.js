@@ -1,7 +1,7 @@
 // enemy_1.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
-import { Enemy } from "./_enemy.js";
+import { Enemy } from "./base_enemy.js";
 
 export class Enemy_1 extends Enemy {
 

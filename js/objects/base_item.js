@@ -1,5 +1,5 @@
-// _item.js
-import { Drawable } from "./_drawable.js";
+// base_item.js
+import { Drawable } from "./base_drawable.js";
 
 export class Item extends Drawable {
 

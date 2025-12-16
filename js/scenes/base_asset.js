@@ -1,4 +1,4 @@
-// _asset.js
+// base_asset.js
 import { GameState } from '../GameState.js';
 
 export class Asset {

@@ -1,6 +1,6 @@
-// _enemy.js
+// base_enemy.js
 import { GameState } from "../GameState.js";
-import { Movable } from "./_movable.js";
+import { Movable } from "./base_movable.js";
 
 const FLASH_TIME = 0.15; //秒
 

@@ -1,7 +1,7 @@
 // player.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
-import { Movable } from "./_movable.js";
+import { Movable } from "./base_movable.js";
 import { MyMath } from "../utils/MathUtils.js";
 import { Eff_Dust} from "./eff_dust.js";
 

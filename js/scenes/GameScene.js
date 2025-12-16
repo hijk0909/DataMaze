@@ -1,7 +1,7 @@
 // scenes/GameScene.js
 import { GameState } from "../GameState.js";
 import { MyInput } from '../utils/InputUtils.js';
-import { Scene } from "./_scene.js";
+import { Scene } from "./base_scene.js";
 import { GameAsset } from "./game_asset.js";
 import { Map } from "./game_map.js";
 import { Exec } from "./game_exec.js";

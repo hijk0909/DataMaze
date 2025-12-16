@@ -1,5 +1,5 @@
 // _obstacle.js
-import { Drawable } from "./_drawable.js";
+import { Drawable } from "./base_drawable.js";
 
 export class Obstacle extends Drawable {
 

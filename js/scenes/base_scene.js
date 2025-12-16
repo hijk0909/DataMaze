@@ -1,4 +1,4 @@
-// _scene.js
+// base_scene.js
 export class Scene {
 
     constructor(game){

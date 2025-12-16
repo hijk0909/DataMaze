@@ -1,5 +1,5 @@
 import { Game } from "../main.js";
-import { Scene } from "./_scene.js";
+import { Scene } from "./base_scene.js";
 import { GameScene } from "./GameScene.js";
 import { MyAudio } from "../utils/AudioUtil.js"
 

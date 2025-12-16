@@ -1,4 +1,4 @@
-// drawable.js
+// base_drawable.js
 export class Drawable {
 
     constructor(scene){

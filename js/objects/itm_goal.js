@@ -1,6 +1,6 @@
 // itm_goal.js
 import { GameState } from "../GameState.js";
-import { Item } from "./_item.js";
+import { Item } from "./base_item.js";
 import { Eff_Text } from './eff_text.js';
 
 const COOLDOWN_INTERVAL = 60;

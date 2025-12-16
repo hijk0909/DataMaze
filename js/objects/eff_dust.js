@@ -1,6 +1,6 @@
 // eff_dust.js
 import { GameState } from "../GameState.js";
-import { Effect } from "./_effect.js";
+import { Effect } from "./base_effect.js";
 
 const EFF_PERIOD_DUST = 120;
 const BASE_ALPHA = 0.5;
