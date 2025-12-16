@@ -13,16 +13,16 @@ export class Enemy_1 extends Enemy {
         this.mass = 0.1;
     }
 
-    create(container, position){
+    create(position){
 
+        const container = GameState.asset.mesh.enemy_1;
         const inst = container.instantiateModelsToScene(
             (name) => name + "_enemy_" + this.id
         );
 
-        const root = inst.rootNodes[0];
-        root.scaling = new BABYLON.Vector3(0.8, 0.8, 0.8);
-        root.scaling.z = Math.abs(root.scaling.z);
-        this.mesh = root;
+        this.mesh = inst.rootNodes[0];
+        this.mesh.scaling = new BABYLON.Vector3(0.8, 0.8, 0.8);
+        this.mesh.scaling.z = Math.abs(this.mesh.scaling.z);
         this.mesh.position = position.clone();
 
         this.mesh.checkCollisions = true; //障害物との衝突判定

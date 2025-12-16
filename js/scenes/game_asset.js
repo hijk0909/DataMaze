@@ -20,15 +20,14 @@ export class GameAsset extends Asset {
         this.mesh.player = glb1.meshes.find(m => m.name === "__root__");
 
         // 敵機モデル
-        const enemy_1 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
-            "./assets/models/", "enemy_1.glb", this.scene
-        );
-        this.mesh.enemy_1 = enemy_1;
+        this.mesh.enemy_1 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "enemy_1.glb", this.scene);
 
-        const enemy_2 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
-            "./assets/models/", "enemy_2.glb", this.scene
-        );
-        this.mesh.enemy_2 = enemy_2;
+        this.mesh.enemy_2 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "enemy_2.glb", this.scene);
+
+        this.mesh.enemy_3 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "enemy_3.glb", this.scene);
 
         // ■ テクスチャ
         const ptx = new BABYLON.Texture("./assets/textures/flare.png", this.scene);

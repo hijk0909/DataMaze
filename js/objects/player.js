@@ -10,7 +10,7 @@ const HP_BAR_WIDTH = 720;
 const HP_BAR_HEIGHT = 80;
 const HP_BAR_PADDING = 5;
 
-const PITCH_MAX = 1;
+const DUST_INTERVAL = 5;
 
 export class Player extends Movable {
 
@@ -22,8 +22,17 @@ export class Player extends Movable {
         this.decel = 0.94;
         this.max_speed = 0.1;
 
-        this.hp_max = 100;
-        this.hp = 80;
+        this.yaw_speed = 0.0;
+        this.yaw_max_speed = 0.04;
+        this.yaw_accel = 0.003;
+        this.yaw_decel = 0.94;
+
+        this.roll_max = 0.1;
+
+        this.dust_counter = 0;
+
+        this.hp_max = 200;
+        this.hp = 200;
 
         // TBNフレーム
         this.forward = new BABYLON.Vector3(0, 0, 1);
@@ -85,6 +94,9 @@ export class Player extends Movable {
     }
 
     create_dust(direction){
+        this.dust_counter -= 1;
+        if (this.dust_counter > 0) return;
+        this.dust_counter = DUST_INTERVAL;
 
         const position = this.mesh.position
             .add(direction.scale(2 + Math.random() * 1))
@@ -101,31 +113,31 @@ export class Player extends Movable {
 
         // キー操作による回転処理
         if (GameState.inputKey["arrowleft"] || GameState.inputPad.left || GameState.inputMouse.left){
-            this.change_yaw(-0.04);
+            this.yaw_speed = Math.max(this.yaw_speed - this.yaw_accel, - this.yaw_max_speed);
             this.create_dust(this.right.scale(-1));
         }
         if (GameState.inputKey["arrowright"] || GameState.inputPad.right || GameState.inputMouse.right){
-            this.change_yaw(0.04);
+            this.yaw_speed = Math.min(this.yaw_speed + this.yaw_accel, this.yaw_max_speed);
             this.create_dust(this.right);
         }
         if (GameState.inputKey["arrowup"] || GameState.inputPad.up || GameState.inputMouse.up){
             this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
             // this.change_pitch(-0.04);
-            this.create_dust(this.forward);
+            this.create_dust(this.forward.scale(2));
         }
         if (GameState.inputKey["arrowdown"] || GameState.inputPad.down || GameState.inputMouse.down){
             this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel * -1));
             // this.change_pitch(0.04);
             this.create_dust(this.zero);
         }
-        if (GameState.inputKey["q"]){
-            this.change_roll(-0.03);
-        }
-        if (GameState.inputKey["w"]){
-            this.change_roll(0.03);
-        }
+        // if (GameState.inputKey["q"]){
+        //     this.change_roll(-0.03);
+        // }
+        // if (GameState.inputKey["w"]){
+        //     this.change_roll(0.03);
+        // }
         if (GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel)){
-            this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
+            // this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
         }
 
         // 速度制限・減速
@@ -133,6 +145,11 @@ export class Player extends Movable {
             this.velocity_new.normalize().scaleInPlace(this.max_speed);
         }
         this.velocity_new.scaleInPlace(this.decel);
+        // 回転速度の減速と回転
+        this.yaw_speed *= this.yaw_decel;
+        this.change_yaw(this.yaw_speed);
+        // 見た目のroll（演出用）
+        const roll = (this.yaw_speed / this.yaw_max_speed) * this.roll_max;
 
         // 移動
         this.mesh.moveWithCollisions(this.velocity_new);
@@ -141,6 +158,11 @@ export class Player extends Movable {
         // 上下の動きを制限
         if (this.mesh.position.y < GLOBALS.MOVABLE.Y.MIN) this.mesh.position.y = GLOBALS.MOVABLE.Y.MIN;
         if (this.mesh.position.y > GLOBALS.MOVABLE.Y.MAX) this.mesh.position.y = GLOBALS.MOVABLE.Y.MAX;
+
+        // 停止時にdust生成
+        if (this.velocity.length() < 0.1 && this.yaw_speed < 0.001){
+                this.create_dust(this.forward);
+        }
 
         // カメラを追随
         const distance = 0; // 自機からカメラまでの距離
@@ -156,7 +178,7 @@ export class Player extends Movable {
         const backward = this.forward.scale(-distance);
         const cameraPosition = this.mesh.position.add(backward);
         camera.position = cameraPosition;
-        camera.upVector = this.up;
+        camera.upVector = this.compute_rolled_up(this.forward, this.up, roll);
 
         // this.mesh.lookAt(cameraTarget);
 
@@ -215,6 +237,18 @@ export class Player extends Movable {
             this.up = this.up.rotateByQuaternionToRef(rotation, this.up);
             this.right = this.right.rotateByQuaternionToRef(rotation, this.right);
         }
+    }
+
+    // [回転計算] forward周りに up方向を roll分回転させる
+    compute_rolled_up(forward, up, roll) {
+        if (Math.abs(roll) < 1e-6) {
+            return up.clone();
+        }
+        const q = BABYLON.Quaternion.RotationAxis(forward, -roll);
+        const rolledUp = new BABYLON.Vector3();
+        up.rotateByQuaternionToRef(q, rolledUp);
+        rolledUp.normalize();
+        return rolledUp;
     }
 
     dispose(){

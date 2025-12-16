@@ -10,10 +10,11 @@ export class UI {
     }
 
     create(){
+        // SCORE
         const scoreText = new BABYLON.GUI.TextBlock();
         scoreText.text = "SCORE 0";
         scoreText.color = "white";
-        scoreText.fontSize = 72;
+        scoreText.fontSize = "72px";
         scoreText.width = "600px"; // 適切な幅
         scoreText.height = "100px"; // 適切な幅
         scoreText.paddingTop = "10px";
@@ -23,10 +24,11 @@ export class UI {
         this.ui.addControl(scoreText);
         this.scoreText = scoreText;
 
+        // MAP
         const mapText = new BABYLON.GUI.TextBlock();
         mapText.text = GameState.map;
         mapText.fontFamily = "monospace, 'MS Gothic', 'Osaka Monospace', 'Courier New', Consolas";
-        mapText.fontSize = 24;
+        mapText.fontSize = "24px";
         mapText.color ="rgb(128, 255, 0)";
         mapText.alpha = 0.5;
         mapText.width = "800px"; // 適切な幅

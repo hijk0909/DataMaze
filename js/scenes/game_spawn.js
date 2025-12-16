@@ -8,6 +8,7 @@ import { Itm_Feed } from "../objects/itm_feed.js";
 import { Itm_Goal } from "../objects/itm_goal.js";
 import { Enemy_1 } from "../objects/enemy_1.js";
 import { Enemy_2 } from "../objects/enemy_2.js";
+import { Enemy_3 } from "../objects/enemy_3.js";
 
 export class Spawn {
     constructor(scene) {
@@ -79,20 +80,36 @@ export class Spawn {
             const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
             pos.y = GLOBALS.MOVABLE.Y.INIT;
             const enemy = new Enemy_1(scene);
-            enemy.create(GameState.asset.mesh.enemy_1, pos);
+            enemy.create(pos);
             GameState.enemies.push(enemy);
         }
+
+        // enemy_3
+        for (let i = 0; i < 4; i++){
+            if (available_for_enemy_positions.length === 0) break;
+            const enemy_position = available_for_enemy_positions.pop();
+            used_positions.add(`${enemy_position.x},${enemy_position.y}`);
+            const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
+            pos.y = GLOBALS.MOVABLE.Y.INIT;
+            const enemy = new Enemy_3(scene);
+            enemy.create(pos);
+            GameState.enemies.push(enemy);
+        }
+
         // enemy_2
-        for (let i = 0; i < 20; i++){
+        for (let i = 0; i < 12; i++){
             if (available_for_enemy_positions.length === 0) break;
             const enemy_position = available_for_enemy_positions.pop();
             used_positions.add(`${enemy_position.x},${enemy_position.y}`);
             const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
             pos.y = GLOBALS.MOVABLE.Y.INIT;
             const enemy = new Enemy_2(scene);
-            enemy.create(GameState.asset.mesh.enemy_2, pos);
+            enemy.create(pos);
             GameState.enemies.push(enemy);
         }
+
+
+
 
         available_positions = all_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
 

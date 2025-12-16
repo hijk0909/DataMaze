@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "1.3c",
-    DATE : "2025.10.5",
+    VERSION : "0.0d",
+    DATE : "2025.12.16",
 
     MAP : {
         SEG : {
