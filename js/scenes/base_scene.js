@@ -4,13 +4,15 @@ export class Scene {
     constructor(game){
         this.game = game;
         this.scene = new BABYLON.Scene(game.engine);
-        this.initialize();
     }
 
     async initialize(){
         this.setup();
+        // console.log("Base_scene:setuped");
         await this.preload();
+        // console.log("Base_scene:preloaded");
         this.create();
+        // console.log("Base_scene:created");
     }
 
     // シーン開始時、preload前に実施すべきコード（カメラ生成等）
@@ -26,7 +28,7 @@ export class Scene {
     }
 
     update(){
-        this.scene.render();
+
     }
 
     dispose(){

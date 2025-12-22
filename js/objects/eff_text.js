@@ -1,8 +1,10 @@
 // eff_text.js
 import { GameState } from "../GameState.js";
+import { MyMath } from "../utils/MathUtils.js";
 import { Effect } from "./base_effect.js";
 
 const EFF_PERIOD_TEXT =120;
+const PADDING = 30;
 
 export class Eff_Text extends Effect {
 
@@ -13,26 +15,51 @@ export class Eff_Text extends Effect {
         this.textObject = null;
     }
 
-    create(pos, text){
+    create(pos, text, color="#ffffff"){
         this.pos = pos;
+        this.screen_pos = null;
         this.text = text;
 
         super.create(null); // meshは存在しない
         this.counter = EFF_PERIOD_TEXT;
+        this.screen_pos = MyMath.world_to_screen(pos, this.scene);
 
         this.textObject = new BABYLON.GUI.TextBlock();
         const tobj = this.textObject;
         tobj.text = text;
-        tobj.color = "#ffff00";
-        tobj.alpha = 1.0;
+        tobj.color = color;
+        tobj.alpha = 0.0;
         tobj.fontSize = 72;
-        GameState.ui.addControl(tobj);
+        tobj.resizeToFit = true;
+        tobj.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        tobj.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+
+        tobj.onAfterDrawObservable.addOnce(() => {
+            const iw = GameState.ui_manager.ui.idealWidth;
+            const ih = GameState.ui_manager.ui.idealHeight;
+            const tw = tobj.widthInPixels;
+            const th = tobj.heightInPixels;
+            let x = this.screen_pos.x;
+            let y = this.screen_pos.y;
+            if (this.screen_pos.z < 0.0 || this.screen_pos.z > 1.0){
+                x = iw /2 - tw /2;
+                y = ih /2 - th /2;
+            }
+            const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+            x = clamp(x, tw + PADDING, iw - tw - PADDING);
+            y = clamp(y, th + PADDING, ih - th - PADDING);
+            tobj.left = this.screen_pos.x = x;
+            tobj.top = this.screen_pos.y = y;
+            tobj.alpha = 1.0;
+            // console.log("Draw2:",iw, ih, tw, th, x, y);
+        });
+        GameState.ui_manager.ui.addControl(tobj);
     }
 
     update(){
         super.update();
         const t = EFF_PERIOD_TEXT - this.counter;
-        this.textObject.top = getBouncingY(t, this.pos.y, 80, 60);
+        this.textObject.top = getBouncingY(t, this.screen_pos.y, 80, 60);
         const dur = 20;
         if ( this.counter < dur ){
             const r = dur - this.counter;
@@ -50,7 +77,9 @@ export class Eff_Text extends Effect {
     dispose(){
         super.dispose();
         if ( this.textObject ){
-            GameState.ui.removeControl(this.textObject);
+            if (GameState.ui_manager){
+                GameState.ui_manager.ui.removeControl(this.textObject);
+            }
             this.textObject.dispose();
             this.textObject = null;
         }

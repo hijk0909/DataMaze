@@ -1,4 +1,5 @@
 // scenes/GameScene.js
+import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { MyInput } from '../utils/InputUtils.js';
 import { Scene } from "./base_scene.js";
@@ -7,10 +8,19 @@ import { Map } from "./game_map.js";
 import { Exec } from "./game_exec.js";
 import { Spawn } from "./game_spawn.js";
 import { UI } from "./UI.js";
+import { TitleScene } from "./TitleScene.js";
+import { GameOverScene } from "./GameOverScene.js";
+import { GameClearScene } from "./GameClearScene.js";
 
 export class GameScene extends Scene {
     constructor(game) {
         super(game);
+        this.map = null;
+        this.spawn = null;
+        this.isInitialized = false;
+        this.stage_state_count = 0;
+
+        GameState.stage_state = GLOBALS.STAGE_STATE.START;
     }
 
     // ■ セットアップ
@@ -18,7 +28,7 @@ export class GameScene extends Scene {
         // Camera
         const camera = new BABYLON.FreeCamera("FreeCam", new BABYLON.Vector3(0, 5, -8), this.scene);
         camera.inputs.clear();
-        camera.fov = 1.4; // 視野角の調整（任意）
+        camera.fov = 1.4; // 視野角
         camera.minZ = 0.1;
         camera.attachControl(this.game.canvas, true);
         GameState.camera = camera;
@@ -26,12 +36,14 @@ export class GameScene extends Scene {
 
     // ■ プリロード
     async preload(){
+        // console.log("GameScene.preload");
         GameState.asset = new GameAsset(this.scene);
         await GameState.asset.preload();
     }
 
     // ■ 初期生成
     create() {
+        // console.log("GameScene.create");
         const scene = this.scene;
 
         // Light
@@ -72,55 +84,150 @@ export class GameScene extends Scene {
         // シーン内の当たり判定の有効化
         scene.collisionsEnabled = true;
 
-        // フィールドの生成
-        this.map = new Map(scene);
-
-        // UI面の生成
-        GameState.ui = new UI();
+        // UI画面の生成
+        GameState.ui_manager = new UI();
 
         // 入力ユーティリティの生成
         this.my_input = new MyInput(scene, this.game);
-        // this.my_input.registerNextAction(() => this.toggle_pause());
+        this.my_input.registerNextAction(() => this.toggle_pause());
 
         // 実行用クラスの生成
         this.exec = new Exec(scene);
-        
-        // オブジェクト生成クラスの生成と初期配置の実行
-        this.spawn = new Spawn(scene);
-        this.spawn.dispose();
-        this.spawn.initial_placement();
 
-        // SPACキー → TitleSceneに遷移
-        this.scene.actionManager.registerAction(
-            new BABYLON.ExecuteCodeAction(
-                { trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 32 }, // スペースキーのASCIIコードは 32
-                () => {
-                    GameState.ui.dispose();
-                    import("./TitleScene.js").then(module => {
-                        const TitleScene = module.TitleScene;
-                        this.game.sceneManager.changeScene(new TitleScene(this.game));
-                    });
-                }
-            )
-        );
-
-        // ゲームスタート
-        GameState.asset.bgm.main.play(true);
     }
 
     update(time, delta){
+        // if (!this.isInitialized){
+        //     console.log("not initialized");
+        //     return;
+        // } 
+        // console.log("GameState.stage_state:", GameState.stage_state);
+        const delta_sec = delta / 1000;
 
-        if (this.exec){
-            this.exec.update(time, delta);
+        // ■ステージステータスによる状態遷移
+        if (GameState.stage_state === GLOBALS.STAGE_STATE.START){
+            // ◆開始（ステージの初期化処理）
+            // マップ生成
+            if (this.map_manager){
+                this.map_manager.dispose();
+                this.map_manager = null;
+            }
+            this.map_manager = new Map(this.scene);
+            // ミニマップ生成
+            GameState.ui_manager.dispose_minimap();
+            GameState.ui_manager.create_minimap();
+            // 敵やアイテムの配置
+            if (this.spawn){
+                this.spawn.dispose();
+                this.spawn = null;
+            }
+            this.spawn = new Spawn(this.scene);
+            this.spawn.initial_placement();
+            // [STATUS_MSG]
+            GameState.ui_manager.show_status_message(`GET READY\nSTAGE ${GameState.stage}`);
+            // [TRANSIT]
+            this.stage_state_count = 5;
+            GameState.stage_state = GLOBALS.STAGE_STATE.STARTING;
+        } else if (GameState.stage_state === GLOBALS.STAGE_STATE.STARTING){
+            // ◆開始期間
+            // [COUNTER]
+            this.stage_state_count -= delta_sec;
+            if (this.stage_state_count < 0){
+                GameState.stage_state = GLOBALS.STAGE_STATE.PLAYING;
+                // [STATUS_MSG]
+                GameState.ui_manager.hide_status_message();
+                // [SOUND]
+                GameState.asset.bgm.main.play(true);
+            }
+        } else if (GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
+            // ◆プレイ中
+            if (GameState.player && GameState.player.hp <= 0){
+                GameState.player.alive = false;
+                GameState.stage_state = GLOBALS.STAGE_STATE.FAIL;
+            }
+        } else if (GameState.stage_state === GLOBALS.STAGE_STATE.FAIL){
+            // ◆失敗
+            // [STATUS_MSG]
+            GameState.ui_manager.show_status_message(`GAME OVER`,"#ff0000");
+            // [TRANSIT]
+            this.stage_state_count = 4;
+            GameState.stage_state = GLOBALS.STAGE_STATE.FAILED;
+        } else if (GameState.stage_state === GLOBALS.STAGE_STATE.FAILED){
+            // ◆失敗期間
+            // [COUNTER]
+            this.stage_state_count -= delta_sec;
+            if (this.stage_state_count < 0){
+                // [TRANSIT]
+                this.game.sceneManager.changeScene(new GameOverScene(this.game));
+            }
+        } else if (GameState.stage_state === GLOBALS.STAGE_STATE.CLEAR){
+            // ◆ステージクリア
+            if (GameState.stage === GLOBALS.STAGE_MAX){
+                // [STATUS_MSG]
+                GameState.ui_manager.show_status_message(`ALL CLEAR`,"#ff8020");
+                // [TRANSIT]
+                GameState.stage_state = GLOBALS.STAGE_STATE.ALL_CLEARED;
+                this.stage_state_count = 4;
+            } else {
+                // [STATUS_MSG]
+                GameState.ui_manager.show_status_message(`STAGE CLEAR`,"#00ffff");
+                // [TRANSIT]
+                GameState.stage_state = GLOBALS.STAGE_STATE.CLEARED;
+                this.stage_state_count = 2;
+            }
+        } else if (GameState.stage_state === GLOBALS.STAGE_STATE.CLEARED){
+            // ◆ステージクリア期間
+            // [COUNTER]
+            this.stage_state_count -= delta_sec;
+            if (this.stage_state_count < 0){
+                GameState.stage++;
+                // [TRANSIT]
+                GameState.stage_state = GLOBALS.STAGE_STATE.START;
+            }
+        } else if (GameState.stage_state === GLOBALS.STAGE_STATE.ALL_CLEARED){
+            // ◆全面クリア期間
+            // [COUNTER]
+            this.stage_state_count -= delta_sec;
+            if (this.stage_state_count < 0){
+                GameState.stge++; // [ALL]
+                // [TRANSIT]
+                this.game.sceneManager.changeScene(new GameClearScene(this.game));
+            }
+        } else if (GameState.stage_state === GLOBALS.STAGE_STATE.PAUSE){
+            // ◆一時停止期間
         }
-        if (this.my_input){
-            this.my_input.update(time, delta);
-        }
-        if (this.map){
-            this.map.update(time, delta);
-        }   
 
-        // 空の時間経過
+        // ■ ゲームロジックの実行
+        if (GameState.stage_state !== GLOBALS.STAGE_STATE.PAUSE){
+            if (this.exec){
+                this.exec.update(time, delta);
+            }
+            if (this.map_manager){
+                this.map_manager.update(time, delta);
+            }
+            if (this.my_input){
+                this.my_input.update(time, delta);
+            }
+        }
+
+        // ■ UIの表示更新
+        if (GameState.ui_manager){
+            GameState.ui_manager.update(time, delta);
+        }
+
+        // 隠しキー
+        if (GameState.inputKey && GameState.inputKey["a"]){
+            this.map_manager.show_all();
+        }
+        if (GameState.inputKey && GameState.inputKey["q"]){
+            // import("./TitleScene.js").then(module => {
+            //     const TitleScene = module.TitleScene;
+            //     this.game.sceneManager.changeScene(new TitleScene(this.game));
+            // });
+            this.game.sceneManager.changeScene(new TitleScene(this.game));
+        }
+
+        // 空の時間経過（消去予定）
         this.sky_time += this.sky_speed * delta / 1000;
         // console.log("sky_time", this.sky_time);
         if (this.sky_time > 1) this.sky_time -= 2;
@@ -131,16 +238,55 @@ export class GameScene extends Scene {
         super.update();
     }
 
-    dispose() {
-        if (this.player){
-            this.player.dispose();
+    // ポーズ処理
+    toggle_pause(){
+        if (GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
+            // [SOUND]
+            GameState.asset.bgm.main.pause();
+            // [STATUS_MSG]
+            GameState.ui_manager.show_status_message(`PAUSE`);
+            // [TRANSIT]
+            GameState.stage_state = GLOBALS.STAGE_STATE.PAUSE;
+            // console.log("pause");
+        } else if ( GameState.stage_state === GLOBALS.STAGE_STATE.PAUSE){
+            // [SOUND]
+            GameState.asset.bgm.main.resume();
+            // [STATUS_MSG]
+            GameState.ui_manager.hide_status_message();
+            // [TRANSIT]
+            GameState.stage_state = GLOBALS.STAGE_STATE.PLAYING;
+            // console.log("resume");
         }
+    }
+
+    dispose() {
         if (GameState.asset){
             GameState.asset.dispose();
+            GameState.asset = null;
         }
-        if (this.map){
-            this.map.dispose();
+        if (GameState.ui_manager){
+            GameState.ui_manager.dispose();
+            GameState.ui_manager = null;
         }
-        this.scene.dispose();
+        if (this.map_manager){
+            this.map_manager.dispose();
+            this.map_manager = null;
+        }
+        if (this.spawn){
+            this.spawn.dispose();
+            this.spawn = null;
+        }
+
+        if (this.my_input){
+            this.my_input.dispose();
+            this.my_input = null;
+        }
+
+        if (GameState.camera){
+            GameState.camera.dispose();
+            GameState.camera = null;
+        }
+
+        super.dispose();
     }
 }

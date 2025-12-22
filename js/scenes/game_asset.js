@@ -2,7 +2,7 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from '../GameState.js';
 import { Asset } from './base_asset.js';
-import { MyAudio } from "../utils/AudioUtil.js"
+import { MyAudio } from "../utils/AudioUtils.js"
 
 export class GameAsset extends Asset {
     constructor(scene) {
@@ -10,15 +10,14 @@ export class GameAsset extends Asset {
     }
 
     async preload(){
-
+        // console.log("asset.preload.start");
         // ■ blender モデル
         // 自機モデル
-        const glb1 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+        this.container.player = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "player_ball.glb", this.scene
         );
-        glb1.addAllToScene();
-        this.mesh.player = glb1.meshes.find(m => m.name === "__root__");
-
+        this.container.player.addAllToScene();
+        this.mesh.player = this.container.player.meshes.find(m => m.name === "__root__");
         // 敵機モデル
         this.mesh.enemy_1 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "enemy_1.glb", this.scene);
@@ -34,13 +33,25 @@ export class GameAsset extends Asset {
         ptx.hasAlpha = true;
         this.texture.particle = ptx;
 
-        const sky = new BABYLON.Texture("./assets/textures/sky.jpg", this.scene);
-        this.texture.sky = sky;
-
         const cw = new BABYLON.Texture("./assets/textures/corridor_wall.png", this.scene);
         cw.wrapU = BABYLON.Texture.WRAP_MODE;
         cw.wrapV = BABYLON.Texture.WRAP_MODE;
         this.texture.corridor_wall = cw;
+
+        const rw = new BABYLON.Texture("./assets/textures/room_wall.png", this.scene);
+        rw.wrapU = BABYLON.Texture.WRAP_MODE;
+        rw.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.room_wall = rw;
+
+        const rx = new BABYLON.Texture("./assets/textures/room_exit.png", this.scene);
+        this.texture.room_exit = rx;
+
+        const obs = new BABYLON.Texture("./assets/textures/obstacle.png", this.scene);
+        this.texture.obstacle = obs;
+
+        const gl = new BABYLON.Texture("./assets/textures/goal_light.png", this.scene);
+        gl.hasAlpha = true;
+        this.texture.goal_light = gl;
 
         // ■ スプライト
         this.sprite.dust = new BABYLON.SpriteManager(
@@ -61,6 +72,7 @@ export class GameAsset extends Asset {
 
         this.jingle.gameover = await MyAudio.load( "./assets/audio/jingle/jingle_game_over.mp3" );
         this.jingle.gameover.setVolume(0.8);
+        // console.log("asset.preload:end");
     }
 
     dispose(){

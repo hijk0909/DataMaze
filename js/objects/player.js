@@ -5,7 +5,7 @@ import { Movable } from "./base_movable.js";
 import { MyMath } from "../utils/MathUtils.js";
 import { Eff_Dust} from "./eff_dust.js";
 
-const HP_RECOVERY = -0.01;
+const HP_RECOVERY = +0.005;
 const HP_BAR_WIDTH = 720;
 const HP_BAR_HEIGHT = 80;
 const HP_BAR_PADDING = 5;
@@ -17,13 +17,13 @@ export class Player extends Movable {
     constructor(scene){
         super(scene);
         this.radius = 0.6;
-        this.mass = 1;
-        this.accel = 0.02;
+        this.mass = GameState.player_stats.mass;
+        this.accel = GameState.player_stats.accel;
         this.decel = 0.94;
-        this.max_speed = 0.1;
+        this.speed_max = GameState.player_stats.speed_max;
 
         this.yaw_speed = 0.0;
-        this.yaw_max_speed = 0.04;
+        this.yaw_speed_max = 0.04;
         this.yaw_accel = 0.003;
         this.yaw_decel = 0.94;
 
@@ -31,8 +31,8 @@ export class Player extends Movable {
 
         this.dust_counter = 0;
 
-        this.hp_max = 200;
-        this.hp = 200;
+        this.hp_max = GameState.player_stats.hp_max;
+        this.hp = GameState.player_stats.hp;
 
         // TBNフレーム
         this.forward = new BABYLON.Vector3(0, 0, 1);
@@ -40,9 +40,24 @@ export class Player extends Movable {
         this.right = BABYLON.Vector3.Cross(this.up, this.forward).normalize();
         this.zero = new BABYLON.Vector3(0,0,0);
 
-        // HP
+        // HPバー
         this.hpFrame = null;
         this.hpFill = null;
+    }
+
+    create(mesh, pos){
+        this.mesh = mesh;
+
+        this.mesh.position = pos;
+        this.mesh.checkCollisions = true; //障害物との衝突判定
+        this.mesh.ellipsoid = new BABYLON.Vector3(0.5, 0.5, 0.5);
+        this.mesh.setEnabled(false);
+
+        // ジオメトリ情報の強制再計算
+        this.mesh.computeWorldMatrix(true);
+        this.mesh.refreshBoundingInfo(true);
+
+        this.create_hp_bar();
     }
 
     create_hp_bar(){
@@ -57,7 +72,7 @@ export class Player extends Movable {
         this.hpFrame.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         this.hpFrame.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
         this.hpFrame.top = "-40px"; // padding
-        GameState.ui.addControl(this.hpFrame);
+        GameState.ui_manager.ui.addControl(this.hpFrame);
 
         // 中身の色
         this.hpFill = new BABYLON.GUI.Rectangle();
@@ -78,21 +93,6 @@ export class Player extends Movable {
         }
     }
 
-    create(mesh, pos){
-        this.mesh = mesh;
-
-        this.mesh.position = pos;
-        this.mesh.checkCollisions = true; //障害物との衝突判定
-        this.mesh.ellipsoid = new BABYLON.Vector3(0.5, 0.5, 0.5);
-        this.mesh.setEnabled(false);
-
-        // ジオメトリ情報の強制再計算
-        this.mesh.computeWorldMatrix(true);
-        this.mesh.refreshBoundingInfo(true);
-
-        this.create_hp_bar();
-    }
-
     create_dust(direction){
         this.dust_counter -= 1;
         if (this.dust_counter > 0) return;
@@ -111,45 +111,42 @@ export class Player extends Movable {
 
     update(time, delta){
 
-        // キー操作による回転処理
-        if (GameState.inputKey["arrowleft"] || GameState.inputPad.left || GameState.inputMouse.left){
-            this.yaw_speed = Math.max(this.yaw_speed - this.yaw_accel, - this.yaw_max_speed);
-            this.create_dust(this.right.scale(-1));
-        }
-        if (GameState.inputKey["arrowright"] || GameState.inputPad.right || GameState.inputMouse.right){
-            this.yaw_speed = Math.min(this.yaw_speed + this.yaw_accel, this.yaw_max_speed);
-            this.create_dust(this.right);
-        }
-        if (GameState.inputKey["arrowup"] || GameState.inputPad.up || GameState.inputMouse.up){
-            this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
-            // this.change_pitch(-0.04);
-            this.create_dust(this.forward.scale(2));
-        }
-        if (GameState.inputKey["arrowdown"] || GameState.inputPad.down || GameState.inputMouse.down){
-            this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel * -1));
-            // this.change_pitch(0.04);
-            this.create_dust(this.zero);
-        }
-        // if (GameState.inputKey["q"]){
-        //     this.change_roll(-0.03);
-        // }
-        // if (GameState.inputKey["w"]){
-        //     this.change_roll(0.03);
-        // }
-        if (GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel)){
-            // this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
+        if (this.alive){
+            // キー操作による回転処理
+            if (GameState.inputKey["arrowleft"] || GameState.inputPad.left || GameState.inputMouse.left){
+                this.yaw_speed = Math.max(this.yaw_speed - this.yaw_accel, - this.yaw_speed_max);
+                this.create_dust(this.right.scale(-1));
+            }
+            if (GameState.inputKey["arrowright"] || GameState.inputPad.right || GameState.inputMouse.right){
+                this.yaw_speed = Math.min(this.yaw_speed + this.yaw_accel, this.yaw_speed_max);
+                this.create_dust(this.right);
+            }
+            if (GameState.inputKey["arrowup"] || GameState.inputPad.up || GameState.inputMouse.up){
+                this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
+                // this.change_pitch(-0.04);
+                this.create_dust(this.forward.scale(2));
+            }
+            if (GameState.inputKey["arrowdown"] || GameState.inputPad.down || GameState.inputMouse.down){
+                this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel * -1));
+                // this.change_pitch(0.04);
+                this.create_dust(this.zero);
+            }
+            // アクションキー
+            if (GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel)){
+                // this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
+            }
         }
 
         // 速度制限・減速
-        if (this.velocity_new.length() > this.max_speed) {
-            this.velocity_new.normalize().scaleInPlace(this.max_speed);
+        if (this.velocity_new.length() > this.speed_max) {
+            this.velocity_new.normalize().scaleInPlace(this.speed_max);
         }
         this.velocity_new.scaleInPlace(this.decel);
         // 回転速度の減速と回転
         this.yaw_speed *= this.yaw_decel;
         this.change_yaw(this.yaw_speed);
         // 見た目のroll（演出用）
-        const roll = (this.yaw_speed / this.yaw_max_speed) * this.roll_max;
+        const roll = (this.yaw_speed / this.yaw_speed_max) * this.roll_max;
 
         // 移動
         this.mesh.moveWithCollisions(this.velocity_new);
@@ -165,7 +162,7 @@ export class Player extends Movable {
         }
 
         // カメラを追随
-        const distance = 0; // 自機からカメラまでの距離
+        const distance = 0.2; // 自機の背後にカメラを置く距離
         // 注視点が近いと、カメラ自体が移動した瞬間に生じる視線方向の不連続な変化を
         // Babylon.js が補正するせいか、動きにビクつきが生じる。注視点を遠くに離す
         // ことで、カメラ移動の視線方向の変化を穏やかにし、問題を緩和している。
@@ -251,14 +248,29 @@ export class Player extends Movable {
         return rolledUp;
     }
 
+    set_player_stats(){
+        GameState.player_stats.hp = this.hp;
+        GameState.player_stats.hp_max = this.hp_max;
+        GameState.player_stats.mass = this.mass;
+        GameState.plyaer_accel = this.accel;
+        GameState.player_speed_max = this.speed_max;
+    }
+
     dispose(){
+        // dispose前に必要なクラス変数をグローバル変数にコピー
+        this.set_player_stats();
+        // オブジェクトの解放
         if (this.hpFrame) {
-            GameState.ui.removeControl(this.hpFrame);
+            if (GameState.ui_manager){
+                GameState.ui_manager.ui.removeControl(this.hpFrame);
+            }
             this.hpFrame.dispose();
             this.hpFrame = null;
         }
         if (this.hpFill) {
-            GameState.ui.removeControl(this.hpFill);
+            if (GameState.ui_manager){
+                GameState.ui_manager.ui.removeControl(this.hpFill);
+            }
             this.hpFill.dispose();
             this.hpFill = null;
         }

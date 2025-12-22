@@ -4,6 +4,14 @@ import { GameState } from '../GameState.js';
 
 export class MyMath {
 
+    static shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+          return array;
+    }
+
     static cell_to_world(cell_x, cell_y){
         if (cell_x >= GLOBALS.MAP.CELL.SIZE || cell_y >= GLOBALS.MAP.CELL.SIZE){
             return null;
@@ -15,21 +23,35 @@ export class MyMath {
         return new BABYLON.Vector3(x, 0, z);
     }
 
-    // static get_random_room_floor(){
-    //     const i = Math.floor(Math.random() * GameState.rooms.length);
-    //     const room = GameState.rooms[i];
-    //     // console.log("room", room);
-    //     // 外枠を除いた幅の中から床の位置を選ぶ
-    //     const offset_x = Math.floor(Math.random() * (room.w - 2)) + 1;
-    //     const offset_y = Math.floor(Math.random() * (room.h - 2)) + 1;
-    //     return {cell_x : room.x + offset_x, cell_y : room.y + offset_y};
-    // }
 
-    static shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-          }
-          return array;
+    static world_to_cell(world_vec) {
+        const scale = GLOBALS.MAP.CELL.SCALE;
+        const offset = (GLOBALS.MAP.CELL.SIZE * scale) / 2;
+        // const cell_x = (world_vec.x + offset) / scale - 0.5;
+        const cell_x = (world_vec.x + offset) / scale;
+        // const cell_y = ((-world_vec.z + offset) / scale) - 0.5;
+        const cell_y = ((-world_vec.z + offset) / scale);
+        return { x: cell_x, y: cell_y };
+    }
+
+    static world_to_screen(world_pos, scene) {
+        const rw = GameState.game.engine.getRenderWidth();
+        const rh = GameState.game.engine.getRenderHeight();
+        const iw = GameState.ui_manager.ui.idealWidth;
+        const ih = GameState.ui_manager.ui.idealHeight;
+        const screen_pos = BABYLON.Vector3.Project(
+            world_pos,
+            BABYLON.Matrix.Identity(),
+            scene.getTransformMatrix(),
+            GameState.camera.viewport.toGlobal(rw, rh)
+        );
+
+        // let x = (screen_Pos.x - rw / 2) * (iw / rw) + iw / 2;
+        // let y = (screen_pos.y - rh / 2 + (ih -rh)/2) * (ih / rh) * (ih / rh) + ih / 2;
+        // let x = (screen_pos.x - rw/2) * (iw/rw) + iw / 2;
+        // let y = (screen_pos.y - rh/2 + (ih -rh)/2)*(ih/rh) + ih / 2;
+        screen_pos.x = screen_pos.x * (iw / rw);
+        screen_pos.y = screen_pos.y * (iw / rw);
+        return screen_pos;
     }
 }

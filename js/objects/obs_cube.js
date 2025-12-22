@@ -1,5 +1,5 @@
 // obs_cube.js
-import { MyMath } from "../utils/MathUtils.js";
+import { GameState } from "../GameState.js";
 import { Obstacle } from "./base_obstacle.js";
 
 export class Obs_Cube extends Obstacle {
@@ -12,6 +12,9 @@ export class Obs_Cube extends Obstacle {
         this.mesh = BABYLON.MeshBuilder.CreateBox("obs_cube", { size: 1 }, this.scene);
         this.mesh.position = pos;
         this.mesh.checkCollisions = true;
+        const obsMaterial = new BABYLON.StandardMaterial("obsMaterial", this.scene); 
+        obsMaterial.diffuseTexture = GameState.asset.texture.obstacle;
+        this.mesh.material = obsMaterial;
         super.create();
     }
 

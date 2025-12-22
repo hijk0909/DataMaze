@@ -34,9 +34,10 @@ export class Itm_Feed extends Item {
     activate(){
         this.alive = false;
         GameState.add_score(100);
-        GameState.player.add_hp(5);
+        const recov = Math.floor(Math.random()*5)*10 + 10;
+        GameState.player.add_hp(recov);
         const eff = new Eff_Text(this.scene);
-        eff.create(this.mesh.position, "HP +5");
+        eff.create(this.mesh.position, `HP +${recov}`);
         GameState.effects.push(eff);
         GameState.asset.play_se("powerup");
     }

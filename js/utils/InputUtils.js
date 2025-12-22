@@ -7,6 +7,7 @@ export class MyInput {
         this.game = game;
         this.pad = null;
         this.gamepadManager = new BABYLON.GamepadManager();
+        this.key_observer = null;
         this.create();
     }
 
@@ -64,56 +65,28 @@ export class MyInput {
 
     findCompatiblePad() {
         const gamepads = this.gamepadManager.gamepads;
-        
+
         for (let i = 0; i < gamepads.length; i++) {
             const pad = gamepads[i];
-            if (!pad) continue;
+            if (!pad || !pad.browserGamepad?.buttons) continue;
 
-            // Xbox/PlayStation系のゲームパッド
-            if (pad.type === BABYLON.Gamepad.XBOX || 
-                pad.type === BABYLON.Gamepad.POSE_ENABLED) {
-                
-                // ボタンの存在確認
-                const hasMainButton = this.checkButton(pad, 0); // Aボタン
-                const hasDPad = 
-                    this.checkButton(pad, 12) && // 上
-                    this.checkButton(pad, 13) && // 下
-                    this.checkButton(pad, 14) && // 左
-                    this.checkButton(pad, 15);   // 右
+            const buttons = pad.browserGamepad.buttons;
+            const hasMainButton = buttons[0] !== undefined;
+            const hasStartButton = buttons[9] !== undefined;
+            const hasDPad =
+                buttons[12] !== undefined &&
+                buttons[13] !== undefined &&
+                buttons[14] !== undefined &&
+                buttons[15] !== undefined;
 
-                if (hasMainButton && hasDPad) {
-                    console.log(`Selected Gamepad: ${pad.id}`);
-                    return pad;
-                }
-            } else {
-                // 汎用ゲームパッド
-                const browserGamepad = pad.browserGamepad;
-                if (browserGamepad && browserGamepad.buttons) {
-                    const buttons = browserGamepad.buttons;
-                    const hasMainButton = buttons[0] !== undefined;
-                    const hasDPad = 
-                        buttons[12] !== undefined &&
-                        buttons[13] !== undefined &&
-                        buttons[14] !== undefined &&
-                        buttons[15] !== undefined;
-
-                    if (hasMainButton && hasDPad) {
-                        console.log(`Selected Gamepad: ${pad.id}`);
-                        return pad;
-                    }
-                }
+            if (hasMainButton && hasDPad && hasStartButton) {
+                console.log(`Selected Gamepad: ${pad.id}`);
+                return pad;
             }
         }
+
         console.warn("No compatible Gamepad found.");
         return null;
-    }
-
-    checkButton(pad, buttonIndex) {
-        // Babylon.jsのゲームパッドオブジェクトからボタン情報を取得
-        if (pad.browserGamepad && pad.browserGamepad.buttons) {
-            return pad.browserGamepad.buttons[buttonIndex] !== undefined;
-        }
-        return false;
     }
 
     getPadInput(){
@@ -147,7 +120,6 @@ export class MyInput {
 
         return;
     }
-
 
     handleMouseEvent(evt){
         const canvas = this.game.canvas;
@@ -192,11 +164,38 @@ export class MyInput {
 
     }
 
+    registerNextAction(callback) {
+        // キーボード入力の監視
+        this.key_observer = this.scene.onKeyboardObservable.add((kbInfo) => {
+            if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.code === "Space") {
+                callback();
+            }
+        });
+        // ゲームパッドの接続とボタン監視
+        if (!this.pad){
+            this.pad = this.findCompatiblePad();
+        }
+        if (this.pad){
+            this.button_observer = this.pad.onButtonDownObservable.add((button, state) => {
+                if (button === 9) { // STARTボタン
+                    callback();
+                }
+            });
+        }
+    }
+
     update() {
         this.getPadInput();
     }
 
     dispose(){
-
+        if (this.key_observer){
+            this.scene.onKeyboardObservable.remove(this.key_observer);
+            this.key_observer = null;
+        }
+        if (this.pad && this.button_observer) {
+            this.pad.onButtonDownObservable.remove(this.button_observer);
+            this.button_observer = null;
+        }
     }
 }

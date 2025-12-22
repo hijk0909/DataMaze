@@ -1,13 +1,12 @@
-// TitleScene.js
+// GameClearScene.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Game } from "../main.js";
 import { Scene } from "./base_scene.js";
-import { GameScene } from "./GameScene.js";
-import { MyAudio } from "../utils/AudioUtils.js"
+import { TitleScene } from "./TitleScene.js";
 import { MyInput } from "../utils/InputUtils.js"
 
-export class TitleScene extends Scene {
+export class GameClearScene extends Scene {
     constructor(game) {
         super(game);
         this.my_input = null;
@@ -24,7 +23,7 @@ export class TitleScene extends Scene {
     }
 
     async preload(){
-        this.image = new BABYLON.GUI.Image("myImage", "./assets/textures/title.jpg");
+        this.image = new BABYLON.GUI.Image("myImage", "./assets/textures/game_clear.jpg");
     }
 
     create(){
@@ -33,7 +32,7 @@ export class TitleScene extends Scene {
 
         // Input
         this.my_input = new MyInput(scene, this.game);
-        this.my_input.registerNextAction(() => this.start_game());
+        this.my_input.registerNextAction(() => this.return_to_title());
 
         // Image
         this.image.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
@@ -46,30 +45,22 @@ export class TitleScene extends Scene {
 
         // Text
         this.text = new BABYLON.GUI.TextBlock();
-        this.text.text = "START GAME\nPUSH SPACE KEY";
+        this.text.text = "ALL CLEAR\nPUSH SPACE KEY";
         this.text.color = "white";
         this.text.fontSize = 80;
         this.ui.addControl(this.text);
-
-        // AudioEngine の強制初期化
-        this.audio = new MyAudio();
     }
 
-    start_game(){
-        // ユーザ操作後にオーディオ初期化
-        MyAudio.initialize();
-        // ゲームパラメータの初期化
-        GameState.reset();
-        // ゲーム画面に遷移
-        Game.sceneManager.changeScene(new GameScene(Game));
-        // console.log("TitleScene: scene changed");
+    return_to_title(){
+        // タイトル画面に遷移
+        Game.sceneManager.changeScene(new TitleScene(Game));
     }
+
     update(){
         super.update();
     }
 
     dispose() {
-        // console.log("TitleScene: dispose");
         if (this.camera){
             this.camera.dispose();
             this.camera = null;
@@ -91,6 +82,5 @@ export class TitleScene extends Scene {
             this.image = null;
         }
         super.dispose();
-        // console.log("TitleScene Diposed");
     }
 }

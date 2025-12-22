@@ -23,8 +23,22 @@ export class Movable extends Drawable {
         this.velocity_new = this.velocity_new.add(impulse);
     }
 
-    add_damage(damage){
+    add_damage(damage, relative){
         this.damage += damage * GLOBALS.DAMAGE_RATIO;
+
+        // 追加ダメージの計算
+        let collisionDir = relative.normalize();
+        let forwardLocal = new BABYLON.Vector3(0, 0, -1); // ローカル前面（-z軸）
+        let forwardWorld = this.mesh.getDirection(forwardLocal.normalize());
+        let dotProduct = BABYLON.Vector3.Dot(collisionDir, forwardWorld);
+
+        // console.log("add_damage:dotProduct:", dotProduct);
+
+        let additionalDamage = 0;
+        if (dotProduct < 0) {
+            additionalDamage = Math.floor(Math.abs(dotProduct) * damage * GLOBALS.ADDITIONAL_DAMAGE_RATIO); // 正の内積: 側面/背面から → 追加ダメージ
+        }
+        return additionalDamage;
     }
 
     add_hp(hp){

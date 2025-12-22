@@ -2,6 +2,7 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from '../GameState.js';
 import { Eff_Firework } from '../objects/eff_firework.js';
+import { Eff_Text } from '../objects/eff_text.js';
 
 const IMPULSE_RATIO = 10;
 
@@ -29,17 +30,18 @@ export class Exec {
             }
 
             // 敵と自機との当たり判定
-            this.check_collision(enemy, GameState.player, true);
-
-            if (enemy.hp <= 0){
-                enemy.alive = false;
-                GameState.add_score(1000);
-                const eff = new Eff_Firework(this.scene);
-                eff.create(enemy.mesh.position);
-                GameState.effects.push(eff);
-                GameState.asset.play_se("explosion", enemy);
+            if (GameState.player.alive){
+                this.check_collision(enemy, GameState.player, true);
+                // check_collision の第３引数 == ture　はダメージ判定あり
+                if (enemy.hp <= 0){
+                    enemy.alive = false;
+                    GameState.add_score(1000);
+                    const eff = new Eff_Firework(this.scene);
+                    eff.create(enemy.mesh.position);
+                    GameState.effects.push(eff);
+                    GameState.asset.play_se("explosion", enemy);
+                }
             }
-
         }
 
         // 敵同士の当たり判定
@@ -122,12 +124,26 @@ export class Exec {
                 const impulse = (2 * dot) / (obj1.mass + obj2.mass) * GLOBALS.IMPULSE_RATIO;
                 obj1.add_impulse(normal.scale(impulse * obj2.mass * (-1)));
                 obj2.add_impulse(normal.scale(impulse * obj1.mass));
+                // ◆ 敵と自機との当たり判定
                 if (dmg_flg){
-                    GameState.asset.play_se("collision", obj1);
+                    // obj1 = 敵、obj2 = 自機 であること
+                    GameState.asset.play_se("collision", obj1); // 3D音声
                     // console.log("obj1:", obj1.mesh.position, GameState.enemies.length);
-                    obj1.add_damage(Math.abs(impulse * obj2.mass));
-                    obj1.flash();
-                    obj2.add_damage(Math.abs(impulse * obj1.mass));
+                    const enemy_additional_damage = obj1.add_damage(Math.abs(impulse * obj2.mass), relative.scale(-1));
+                    if ( enemy_additional_damage > 0){
+                        // console.log("ATTACK +",enemy_additional_damage, "/", Math.abs(impulse * obj2.mass));
+                        const eff = new Eff_Text(this.scene);
+                        eff.create(obj1.mesh.position, `BACKSTUB! +${enemy_additional_damage}`, "#ffffff");
+                        GameState.effects.push(eff);
+                    }
+                    obj1.flash(); // 点滅させる
+                    const player_additional_damage = obj2.add_damage(Math.abs(impulse * obj1.mass), relative.scale(-1));
+                    if  ( player_additional_damage > 0){
+                        // console.log("DAMAGE +",player_additional_damage, "/",Math.abs(impulse * obj1.mass));
+                        const eff = new Eff_Text(this.scene);
+                        eff.create(obj2.mesh.position, `BACKSTUBBED -${player_additional_damage}`, "#ff0000");
+                        GameState.effects.push(eff);
+                    }
                 }
             }
         }

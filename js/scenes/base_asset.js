@@ -6,6 +6,7 @@ export class Asset {
     constructor(scene){
         this.scene = scene;
 
+        this.container = {};
         this.mesh = {};
         this.texture = {};
         this.sprite = {};
@@ -17,6 +18,7 @@ export class Asset {
     async preload(){
     }
 
+    // 3D定位つきSE再生
     play_se(name, obj = null){
         const sound = this.se[name];
         if (!sound) return;
@@ -42,11 +44,12 @@ export class Asset {
     }
 
     dispose(){
-        for (const group of [this.mesh, this.texture, this.sprite]) {
+        for (const group of [this.mesh, this.texture, this.sprite, this.container]) {
             // console.log("asset:dispose:object", group);
             for (const key in group){
                 const object = group[key];
                 if (object){
+                    // console.log("dispose.object:", object);
                     object.dispose();
                     group[key] = null;
                 }

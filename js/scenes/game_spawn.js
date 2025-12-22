@@ -34,6 +34,7 @@ export class Spawn {
     }
 
     initial_placement(){
+
         const scene = this.scene;
 
         // 配列の準備
@@ -45,12 +46,13 @@ export class Spawn {
         GameState.rooms.forEach((room, idx) => {
             for (let y = room.y + 1; y < room.y + room.h - 1; y++) {
                 for (let x = room.x + 1; x < room.x + room.w - 1; x++) {
-                    if (GameState.map[y][x] === GLOBALS.MAP.ELEMENT.FLOOR) continue;
+                    // if (GameState.map[y][x] === GLOBALS.MAP.ELEMENT.FLOOR) continue;
                     all_positions.push({ x, y });
                     if (idx != 0) available_for_enemy_positions.push({ x, y });
                 }
             }
         });
+
         MyMath.shuffle(all_positions);
         MyMath.shuffle(available_for_enemy_positions);
 
@@ -107,9 +109,6 @@ export class Spawn {
             enemy.create(pos);
             GameState.enemies.push(enemy);
         }
-
-
-
 
         available_positions = all_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
 

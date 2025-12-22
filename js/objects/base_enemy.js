@@ -1,10 +1,11 @@
 // base_enemy.js
 import { GameState } from "../GameState.js";
 import { Movable } from "./base_movable.js";
+import { MyMath } from "../utils/MathUtils.js";
 
 const FLASH_TIME = 0.15; //秒
 
-const OFFSET_Y = 5;
+const HP_OFFSET_Y = 0.5;
 const HP_BAR_WIDTH = 160;
 const HP_BAR_HEIGHT = 20;
 const HP_BAR_PADDING = 30;
@@ -39,6 +40,7 @@ export class Enemy extends Movable {
     }
 
     create_hp_bar(){
+
         // 外枠
         this.hpFrame = new BABYLON.GUI.Rectangle();
         this.hpFrame.width = `${HP_BAR_WIDTH}px`;
@@ -48,7 +50,8 @@ export class Enemy extends Movable {
         this.hpFrame.background = "transparent";
         this.hpFrame.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         this.hpFrame.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        GameState.ui.addControl(this.hpFrame);
+        GameState.ui_manager.ui.addControl(this.hpFrame);
+        // this.hpFrame.linkWithMesh(this.hpNode);
 
         // 中身色 (左合わせ)
         this.hpFill = new BABYLON.GUI.Rectangle();
@@ -58,7 +61,8 @@ export class Enemy extends Movable {
         this.hpFill.thickness = 0;
         this.hpFill.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         this.hpFill.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        GameState.ui.addControl(this.hpFill);
+        this.hpFrame.addControl(this.hpFill);
+
     }
 
     is_occluded_by_terrain() {
@@ -78,15 +82,6 @@ export class Enemy extends Movable {
     }
 
     update_hp_bar(){
-        // カメラの視錐台に入っているか
-        // GameState.camera.getViewMatrix(); // ビュー行列を計算
-        // this.mesh.computeWorldMatrix(true);
-        // if (!this.mesh.isInFrustum(GameState.camera.frustumPlanes)){
-        //     console.log("not in frustum");
-        //      this.hpFrame.isVisible = false;
-        //      this.hpFill.isVisible = false;
-        //      return;
-        // }
 
         // 壁の影に隠れていないか
         if (this.is_occluded_by_terrain()){
@@ -95,51 +90,44 @@ export class Enemy extends Movable {
             return;
         }
 
-        const worldPos = this.mesh.position.clone();
-        worldPos.y += this.radius;  // キャラの頭の位置へ
+        const world_pos = this.mesh.position.clone();
+        world_pos.y += HP_OFFSET_Y;
+        const screen_pos = MyMath.world_to_screen(world_pos, this.scene);
 
-        // 3D → スクリーン座標
-        const screenPos = BABYLON.Vector3.Project(
-            worldPos,
-            BABYLON.Matrix.Identity(),
-            this.scene.getTransformMatrix(),
-            GameState.camera.viewport.toGlobal(
-                GameState.game.engine.getRenderWidth(),
-                GameState.game.engine.getRenderHeight()
-            )
-        );
-
-        if (screenPos.z < 0.0 || screenPos.z > 1.0) {
+        // [本体] 3D → スクリーン座標
+        // const screen_pos = BABYLON.Vector3.Project(
+        //     world_pos,
+        //     BABYLON.Matrix.Identity(),
+        //     this.scene.getTransformMatrix(),
+        //     GameState.camera.viewport.toGlobal(rw, rh)
+        // );
+        // 視錐体の near と far の範囲内ではない場合は表示しない
+        if (screen_pos.z < 0.0 || screen_pos.z > 1.0) {
             this.hpFrame.isVisible = false;
             this.hpFill.isVisible = false;
             return;
         }
-
         this.hpFrame.isVisible = true;
         this.hpFill.isVisible = true;
 
-        let x = screenPos.x;
-        let y = screenPos.y - OFFSET_Y;
+        let x = screen_pos.x;
+        let y = screen_pos.y;
 
-        const w = GameState.game.engine.getRenderWidth();
-        const h = GameState.game.engine.getRenderHeight();
-
+        const iw = GameState.ui_manager.ui.idealWidth;
+        const ih = GameState.ui_manager.ui.idealHeight;
         const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-
-        x = clamp(x, HP_BAR_WIDTH / 2 + HP_BAR_PADDING, w - HP_BAR_WIDTH / 2 - HP_BAR_PADDING);
-        y = clamp(y, HP_BAR_HEIGHT / 2 + HP_BAR_PADDING, h - HP_BAR_HEIGHT / 2 - HP_BAR_PADDING);
+        x = clamp(x, HP_BAR_WIDTH  + HP_BAR_PADDING, iw - HP_BAR_WIDTH - HP_BAR_PADDING);
+        y = clamp(y, HP_BAR_HEIGHT + HP_BAR_PADDING, ih - HP_BAR_HEIGHT- HP_BAR_PADDING);
 
         // 外枠の位置
         this.hpFrame.left = x - HP_BAR_WIDTH / 2;
-        this.hpFrame.top = y;
+        this.hpFrame.top = y - HP_BAR_HEIGHT / 2;
 
         // 残り HP 比率
         const ratio = this.hp / this.hp_max;
         const barWidth = HP_BAR_WIDTH * ratio;
 
         // 黄色バーの位置と幅
-        this.hpFill.left = x - HP_BAR_WIDTH / 2;
-        this.hpFill.top = y;
         this.hpFill.width = `${barWidth}px`;
     }
 
@@ -162,12 +150,16 @@ export class Enemy extends Movable {
 
     dispose(){
         if (this.hpFrame) {
-            GameState.ui.removeControl(this.hpFrame);
+            if (GameState.ui_manager){
+                GameState.ui_manager.ui.removeControl(this.hpFrame);
+            }
             this.hpFrame.dispose();
             this.hpFrame = null;
         }
         if (this.hpFill) {
-            GameState.ui.removeControl(this.hpFill);
+            if (GameState.ui_manager){
+                GameState.ui_manager.ui.removeControl(this.hpFill);
+            }
             this.hpFill.dispose();
             this.hpFill = null;
         }

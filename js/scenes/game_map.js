@@ -1,37 +1,53 @@
 // game_map.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from '../GameState.js';
+import { MyMath } from '../utils/MathUtils.js';
 
 export class Map {
     constructor(scene) {
         this.scene = scene;
-        this.material_cage = null;
-        this.material_corridor_wall = null;
+        this.material = {};
+        this.texture = {};
+        this.mesh = {};
 
         this.create();
     }
 
     create(){
+      // console.log("Map:create:start");
       this.create_materials();
       this.create_map();
+      GameState.explored_map = Array.from({ length: GLOBALS.MAP.CELL.SIZE }, () => 
+        Array(GLOBALS.MAP.CELL.SIZE).fill(false)
+      );
 
+      this.mesh.cages = [];
       for (let i = 0; i < GameState.rooms.length; i++){
         this.create_cage(GameState.rooms[i]);
       }
+      // console.log("Map:create:end");
     }
 
-    // マテリアルの生成（updateで変更を加える対象）
+    // マテリアルの生成
     create_materials(){
       // 部屋の檻
-      this.material_cage = new BABYLON.StandardMaterial("lineMaterial", this.scene);
-      this.material_cage.emissiveColor = new BABYLON.Color3(0.2, 0.8, 0.2); // 自己発光
-      this.material_cage.disableLighting = true;
-      this.material_cage.fogEnabled = false;
+      this.material.cage = new BABYLON.StandardMaterial("lineMaterial", this.scene);
+      this.material.cage.emissiveColor = new BABYLON.Color3(0.2, 0.8, 0.2); // 自己発光
+      this.material.cage.disableLighting = true;
+      this.material.cage.fogEnabled = false;
 
       // 通路の壁
-      this.material_corridor_wall = new BABYLON.StandardMaterial(`matCorridorWall`, this.scene);
-      this.material_corridor_wall.diffuseTexture = GameState.asset.texture.corridor_wall;
+      this.material.corridor_wall = new BABYLON.StandardMaterial(`matCorridorWall`, this.scene);
+      this.material.corridor_wall.diffuseTexture = GameState.asset.texture.corridor_wall;
       // this.material_corridor_wall.emissiveTexture = GameState.asset.texture.corridor_wall;
+
+      // 部屋の壁
+      this.material.room_wall = new BABYLON.StandardMaterial(`matRoomWall`, this.scene);
+      this.material.room_wall.diffuseTexture = GameState.asset.texture.room_wall;
+
+      // 出入口の壁
+      this.material.room_exit = new BABYLON.StandardMaterial(`matRoomExit`, this.scene);
+      this.material.room_exit.diffuseTexture = GameState.asset.texture.room_exit;
     }
 
     // 格子状のカゴを生成
@@ -111,8 +127,9 @@ export class Map {
             ]);
         }
 
-        const cage = BABYLON.MeshBuilder.CreateLineSystem("grid", { lines: lines }, this.scene);
-        cage.material = this.material_cage;
+        const cage = BABYLON.MeshBuilder.CreateLineSystem("cage", { lines: lines }, this.scene);
+        cage.material = this.material.cage;
+        this.mesh.cages.push(cage);
 
         // const glowLayer = new BABYLON.GlowLayer("glow", scene);
         // glowLayer.addIncludedOnlyMesh(grid);
@@ -121,87 +138,138 @@ export class Map {
     // マップの生成
     create_map(){
       const result = generateDungeon();
-      asciiPrint(result.map);
+      // create_map_ascii(result.map);
+      create_minimap_bitmap(result.map, this.scene);
+      GameState.map = result.map;
 
       const scene = this.scene;
-      let mapSelected, rectangles, tmpMeshes, material;
+      let mapSelected, rectangles, tmpMeshes;
 
       // 通路：天井・床
       mapSelected = map_selecter(result.map, [0,4]);
       rectangles = greedyTileMaxRectangles(mapSelected);
 
-      const mat_corridor_floor = new BABYLON.StandardMaterial(`matCorridorFloor`, scene);
-      mat_corridor_floor.diffuseColor = new BABYLON.Color3(0.7, 0.5, 0.5);
-      tmpMeshes = makeBoxesForRectangles(rectangles, -0.5, 0.0, scene, mat_corridor_floor);
-      const mesh_corridor_floor = mergeMeshGroup(tmpMeshes, "meshCorridorFloor", scene);
+      this.material.corridor_floor = new BABYLON.StandardMaterial(`matCorridorFloor`, scene);
+      this.material.corridor_floor.diffuseColor = new BABYLON.Color3(0.7, 0.5, 0.5);
+      tmpMeshes = makeBoxesForRectangles(rectangles, -0.5, 0.0, scene, this.material.corridor_floor);
+      this.mesh.corridor_floor = mergeMeshGroup(tmpMeshes, "meshCorridorFloor", scene);
 
-      const mat_corridor_ceiling = new BABYLON.StandardMaterial(`matCorridorCeiling`, scene);
-      mat_corridor_ceiling.diffuseColor = new BABYLON.Color3(0.7, 0.5, 0.5);
-      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.CORRIDOR.HEIGHT, GLOBALS.MAP.CORRIDOR.HEIGHT + 0.5, scene, mat_corridor_ceiling);
-      const mesh_corridor_ceiling = mergeMeshGroup(tmpMeshes, "meshCorridorCeiling", scene);
+      this.material.corridor_ceiling = new BABYLON.StandardMaterial(`matCorridorCeiling`, scene);
+      this.material.corridor_ceiling.diffuseColor = new BABYLON.Color3(0.7, 0.5, 0.5);
+      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.CORRIDOR.HEIGHT, GLOBALS.MAP.CORRIDOR.HEIGHT + 0.5, scene, this.material.corridor_ceiling);
+      this.mesh.corridor_ceiling = mergeMeshGroup(tmpMeshes, "meshCorridorCeiling", scene);
 
       // 通路：壁
       mapSelected = map_selecter(result.map, [0]);
       rectangles = greedyTileMaxRectangles(mapSelected);
-      tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.CORRIDOR.HEIGHT, scene, this.material_corridor_wall, true);
-      const mesh_soil = mergeMeshGroup(tmpMeshes, "meshCorridorWall", scene);
-      mesh_soil.isTerrain = true;
+      tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.CORRIDOR.HEIGHT, scene, this.material.corridor_wall, true);
+      this.mesh.soil = mergeMeshGroup(tmpMeshes, "meshCorridorWall", scene);
+      this.mesh.soil.isTerrain = true;
 
       // 部屋：天井・床
       mapSelected = map_selecter(result.map, [2,3]);
       rectangles = greedyTileMaxRectangles(mapSelected);
 
-      const mat_room_floor = new BABYLON.StandardMaterial(`matRoomFloor`, scene);
-      mat_room_floor.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
-      tmpMeshes = makeBoxesForRectangles(rectangles, -0.5, 0.0, scene, mat_room_floor);
-      const mesh_room_floor = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
+      this.material.room_floor = new BABYLON.StandardMaterial(`matRoomFloor`, scene);
+      this.material.room_floor.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
+      tmpMeshes = makeBoxesForRectangles(rectangles, -0.5, 0.0, scene, this.material.room_floor);
+      this.mesh.room_floor = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
 
-      const mat_room_ceiling = new BABYLON.StandardMaterial(`matRoomCeiling`, scene);
-      mat_room_ceiling.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
-      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.ROOM.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT + 0.5, scene, mat_room_ceiling);
-      const mesh_room_ceiling = mergeMeshGroup(tmpMeshes, "meshRoomCeiling", scene);
+      this.material.room_ceiling = new BABYLON.StandardMaterial(`matRoomCeiling`, scene);
+      this.material.room_ceiling.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
+      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.ROOM.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT + 0.5, scene, this.material.room_ceiling);
+      this.mesh.room_ceiling = mergeMeshGroup(tmpMeshes, "meshRoomCeiling", scene);
 
       // 部屋：壁
       mapSelected = map_selecter(result.map, [1]);
       rectangles = greedyTileMaxRectangles(mapSelected);
-      const mat_room_wall = new BABYLON.StandardMaterial(`matRoomWall`, scene);
-      mat_room_wall.diffuseColor = new BABYLON.Color3(0.7, 0.8 ,1.0);
-      mat_room_wall.specularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
-      mat_room_wall.specularPower = 128; // defalut = 64
-      tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.ROOM.HEIGHT, scene, mat_room_wall);
-      const mesh_room_wall = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
-      mesh_room_wall.isTerrain = true;
+      // const mat_room_wall = new BABYLON.StandardMaterial(`matRoomWall`, scene);
+      // mat_room_wall.diffuseColor = new BABYLON.Color3(0.7, 0.8 ,1.0);
+      // mat_room_wall.specularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
+      //  mat_room_wall.specularPower = 128; // defalut = 64
+      tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room_wall, true);
+      this.mesh.room_wall = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
+      this.mesh.room_wall.isTerrain = true;
 
       // 部屋：出入口
       mapSelected = map_selecter(result.map, [3]);
       rectangles = greedyTileMaxRectangles(mapSelected);
-      const mat_room_exit = new BABYLON.StandardMaterial(`matRoomExit`, scene);
-      mat_room_exit.diffuseColor = new BABYLON.Color3(0.2, 1.0, 0.8);
-      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.CORRIDOR.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT, scene, mat_room_exit);
-      const mesh_room_exit = mergeMeshGroup(tmpMeshes, "meshRoomExit", scene);
+      // const mat_room_exit = new BABYLON.StandardMaterial(`matRoomExit`, scene);
+      // mat_room_exit.diffuseColor = new BABYLON.Color3(0.2, 1.0, 0.8);
+      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.CORRIDOR.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room_exit, false);
+      this.mesh.room_exit = mergeMeshGroup(tmpMeshes, "meshRoomExit", scene);
     }
 
+    show_all(){
+      const ctx = GameState.minimap_bitmap.getContext();
+      for (let y = 0; y < GameState.map.length; y++) {
+          for (let x = 0; x < GameState.map[y].length; x++) {
+             draw_cell(x, y, GameState.map[y][x], ctx);
+          }
+      }   
+      GameState.minimap_bitmap.update();
+    }
 
     update(time, delta){
-      if (this.material_cage){
-        const v = 0.8 + 0.2 * Math.sin(time / 500);
-        this.material_cage.emissiveColor.set(0.2*v, 0.8*v, 0.2*v);
+      if (this.material.cage){
+        const v = 0.8 + 0.2 * Math.sin(time / 1200);
+        this.material.cage.emissiveColor.set(0.20*v, 0.32*v, 0.20*v);
       }
-      if (this.material_corridor_wall){
+      if (this.material.corridor_wall){
         const v = 0.5 + 0.5 * Math.sin(time / 800);
-        this.material_corridor_wall.emissiveColor.set(1.0*v, 0.8*v, 0.1*v);
+        this.material.corridor_wall.emissiveColor.set(1.0*v, 0.8*v, 0.1*v);
+      }
+      if (this.material.room_exit){
+        const v = 0.5 + 0.5 * Math.sin(time / 400);
+        this.material.room_exit.emissiveColor.set(1.0*v, 1.0*v, 1.0*v);
+      }
+      if (GameState.explored_map && GameState.player){
+        update_exploration(GameState.player.mesh.position);
       }
     }
 
     dispose(){
-      if (this.material_cage){
-        this.material_cage.dispose();
-        this.material_cage = null;
-      }      
-    }
+        // 描画要素
+        for (const group of [this.mesh, this.texture, this.material]) {
+          for (const key in group) {
+            const object = group[key];
+            if (object) {
+              // 配列かどうかを判定
+              if (Array.isArray(object)) {
+                  object.forEach(item => {
+                  if (item && typeof item.dispose === 'function') {
+                        item.dispose();
+                  }});
+                group[key] = null; 
+              } 
+              else if (typeof object.dispose === 'function') {
+                object.dispose();
+                group[key] = null;
+              }
+            }
+          }
+        } // End of for(group)
+
+        // [DEBUG] disposeしきれていない object の確認
+        // const remaining = this.scene.meshes.filter(m => m.name === "cage");
+        // console.log("残っている 'cage' メッシュの数:", remaining.length);
+
+        // グローバル変数
+        if (GameState.map){
+            GameState.map = null;
+        }
+        if (GameState.explored_map){
+            GameState.explored_map = null;
+        }
+        if (GameState.rooms){
+            GameState.rooms = null;
+        }
+        if (GameState.minimap_bitmap){
+            GameState.minimap_bitmap.dispose();
+            GameState.minimap_bitmap = null;
+        }
+    } // End of dispose
 }
-
-
 
 // -------------------------------
 // マップ生成用の定数
@@ -586,9 +654,7 @@ function generateDungeon() {
     return { map, segHasRoom, segRoomRect, segEmptyConnect, validEdges };
 }
 
-// -------------------------------
 // 「特定要素だけ true」の配列を返すヘルパー関数
-// -------------------------------
 function map_selecter(map, values) {
   // values を Set に変換して高速に判定できるようにする
   const valueSet = new Set(values);
@@ -678,9 +744,7 @@ function findLargestRectangle(grid) {
   return { x: best.x, y: best.y, w: best.w, h: best.h, area: best.area };
 }
 
-//------------------------------------------------------
 // 矩形配列から、メッシュ配列を生成する
-//------------------------------------------------------
 function makeBoxesForRectangles(rects, h0, h1, scene, material, UV = false) {
     const meshes = [];
     const height = h1 - h0;
@@ -724,9 +788,7 @@ function makeBoxesForRectangles(rects, h0, h1, scene, material, UV = false) {
       return meshes;
 }
 
-//------------------------------------------------------
 // 多数のメッシュ → 1メッシュに統合（GPU負荷を下げる）
-//------------------------------------------------------
 function mergeMeshGroup(meshes, name, scene) {
     if (meshes.length === 0) return null;
 
@@ -745,25 +807,131 @@ function mergeMeshGroup(meshes, name, scene) {
     return merged;
 }
 
+function draw_cell(x, y, type, ctx){
+  const CELL_SIZE = GLOBALS.MAP.BITMAP.CELL_SIZE;
 
-// -------------------------------
-// ASCII 表示（指定の全角文字マップ）
-// -------------------------------
-function asciiPrint(map) {
-    const glyph = {
-      [GLOBALS.MAP.ELEMENT.EMPTY]: "＿",     // 全角スペース
-      [GLOBALS.MAP.ELEMENT.WALL]: "■",
-      [GLOBALS.MAP.ELEMENT.FLOOR]: "・",
-      [GLOBALS.MAP.ELEMENT.EXIT]: "＋",
-      [GLOBALS.MAP.ELEMENT.CORRIDOR]: "□"
-    };
-    let s = "";
-    for (let y = 0; y < map.length; y++) {
-      for (let x = 0; x < map[y].length; x++) {
-        s += glyph[map[y][x]] || "　";
+  const px = x * CELL_SIZE;
+  const py = y * CELL_SIZE;
+
+  ctx.fillStyle = "rgb(128,255,0)";
+  ctx.strokeStyle = "rgb(128,255,0)";
+  ctx.lineWidth = 1;
+
+  switch (type) {
+    case GLOBALS.MAP.ELEMENT.WALL:
+        ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
+        break;
+
+    case GLOBALS.MAP.ELEMENT.FLOOR:
+        ctx.beginPath();
+        ctx.arc(
+            px + CELL_SIZE / 2,
+            py + CELL_SIZE / 2,
+            CELL_SIZE * 0.1,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        break;
+
+    case GLOBALS.MAP.ELEMENT.EXIT:
+        ctx.beginPath();
+        ctx.moveTo(px + CELL_SIZE / 2, py);
+        ctx.lineTo(px + CELL_SIZE / 2, py + CELL_SIZE);
+        ctx.moveTo(px, py + CELL_SIZE / 2);
+        ctx.lineTo(px + CELL_SIZE, py + CELL_SIZE / 2);
+        ctx.stroke();
+        break;
+
+    case GLOBALS.MAP.ELEMENT.CORRIDOR:
+        ctx.strokeRect(px + 0.5, py + 0.5, CELL_SIZE - 1, CELL_SIZE - 1);
+        break;
+    // EMPTY → 何も描かない
+  }
+}
+
+// ミニマップのBITMAP 表示
+function create_minimap_bitmap(map, scene) {
+
+  const texW = GLOBALS.MAP.CELL.SIZE * GLOBALS.MAP.BITMAP.CELL_SIZE;
+  const texH = GLOBALS.MAP.CELL.SIZE * GLOBALS.MAP.BITMAP.CELL_SIZE;
+
+  GameState.minimap_bitmap = new BABYLON.DynamicTexture(
+    "minimapTexture", { width: texW, height: texH }, scene, false );
+
+  const ctx = GameState.minimap_bitmap.getContext();
+  ctx.clearRect(0, 0, texW, texH);
+
+  GameState.minimap_bitmap.update();
+}
+
+function update_exploration(player_pos) {
+    const cell = MyMath.world_to_cell(player_pos);
+    const ctx = GameState.minimap_bitmap.getContext();
+    let updated = false;
+
+    // 未探索かつ部屋内部なら部屋内の全てを描画して探索済
+    if (!!GameState.explored_map[Math.floor(cell.y)][Math.floor(cell.x)]){
+      for (let i = 0; i < GameState.rooms.length; i++){
+        const room = GameState.rooms[i];
+        if ( (room.x + 1 < cell.x) && ( cell.x < room.x + room.w - 1) &&
+            (room.y + 1 < cell.y) && ( cell.y < room.y + room.h - 1) ){
+          for (let y = room.y; y < room.y + room.h; y++) {
+              for (let x = room.x; x < room.x + room.w; x++) {
+                draw_cell(x, y, GameState.map[y][x], ctx);
+                GameState.explored_map[y][x] = true;
+              }
+          }
+          updated = true;
+          break;
+        }
       }
-      s += "\n";
     }
-    // console.log(s);
-    GameState.map = s;
+
+    // 自機を中心とした3x3の範囲をループ
+    if (!updated){
+      for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+              const tx = Math.floor(cell.x + dx);
+              const ty = Math.floor(cell.y + dy);
+
+              // マップの範囲内かつ未探索の場合
+              if (isValidCell(tx, ty) && !GameState.explored_map[ty][tx]) {
+                  // 描画実行
+                  draw_cell(tx, ty, GameState.map[ty][tx], ctx);
+                  GameState.explored_map[ty][tx] = true;
+                  updated = true;
+              }
+          }
+      }
+    }
+
+    if (updated) {
+        GameState.minimap_bitmap.update();
+    }
+}
+
+function isValidCell(x, y) {
+    return x >= 0 && x < GLOBALS.MAP.CELL.SIZE && y >= 0 && y < GLOBALS.MAP.CELL.SIZE;
+}
+
+
+// ASCII 表示（指定の全角文字マップ）
+function create_map_ascii(map) {
+  const glyph = {
+    [GLOBALS.MAP.ELEMENT.EMPTY]: "＿",     // 全角スペース
+    [GLOBALS.MAP.ELEMENT.WALL]: "■",
+    [GLOBALS.MAP.ELEMENT.FLOOR]: "・",
+    [GLOBALS.MAP.ELEMENT.EXIT]: "＋",
+    [GLOBALS.MAP.ELEMENT.CORRIDOR]: "□"
+  };
+  let s = "";
+  for (let y = 0; y < map.length; y++) {
+    for (let x = 0; x < map[y].length; x++) {
+      s += glyph[map[y][x]] || "　";
+    }
+    s += "\n";
+  }
+  // console.log(s);
+  GameState.map_text = s;
 }
