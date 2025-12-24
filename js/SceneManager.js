@@ -1,20 +1,25 @@
+import {UITransition} from "./scenes/UITransition.js";
+
 export class SceneManager {
     constructor(engine, canvas) {
         this.engine = engine;
         this.canvas = canvas;
         this.currentScene = null;
         this.isChangingScene = false; 
+        this.ui_transition = new UITransition(engine);
     }
 
     async changeScene(newScene) {
         if (this.isChangingScene) return;  // 二重遷移防止
         // 呼び出し側は await せず（fire & forget)、その後に何も処理はしないこと
         this.isChangingScene = true;
+        this.ui_transition.show_loading();
         if (this.currentScene) {
             this.currentScene.dispose();
         }
         this.currentScene = newScene;
         await this.currentScene.initialize();
+        this.ui_transition.hide_loading();
         this.currentScene.isInitialized = true;
         this.isChangingScene = false;
         this.canvas.focus();
@@ -27,5 +32,6 @@ export class SceneManager {
             }
             this.currentScene.scene.render();
         }
+        this.ui_transition.scene.render();
     }
 }

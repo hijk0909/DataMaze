@@ -1,0 +1,59 @@
+// bullet.js
+import { GameState } from "../GameState.js";
+import { Drawable } from "./base_drawable.js";
+import { Eff_Extinction } from "./eff_extinction.js";
+
+const BULLET_SPEED = 0.13;
+const BULLET_SIZE = 0.50;
+const BULLET_STRENGTH = 5;
+const BULLET_ALPHA = 0.5;
+
+export class Bullet extends Drawable {
+
+    constructor(scene){
+        super(scene);
+        this.sprite = null;
+        this.direction = null;
+        this.speed = BULLET_SPEED;
+        this.radius = BULLET_SIZE;
+        this.strength = BULLET_STRENGTH;
+    }
+
+    create(pos, velocity){
+        super.create(null); // meshは存在しない
+
+        this.sprite = new BABYLON.Sprite("dust", GameState.asset.sprite.bullet);
+        this.sprite.size = BULLET_SIZE;
+        // this.sprite.color = new BABYLON.Color4(0.3, 0.9, 1.0, 0);
+        this.sprite.position = pos.clone();
+        this.sprite.color.a = BULLET_ALPHA;
+
+        this.direction = velocity.normalize();
+        this.speed = BULLET_SPEED;
+    }    
+
+    update(time, delta){
+        super.update();
+
+        const moveDist = this.speed;
+        const ray = new BABYLON.Ray(
+            this.sprite.position, this.direction, moveDist
+        );
+        const hit = this.scene.pickWithRay(ray, mesh => mesh.isTerrain === true);
+        if (hit && hit.hit) {
+            this.alive = false;
+            const eff = new Eff_Extinction(this.scene);
+            eff.create(this.sprite.position);
+            GameState.effects.push(eff);
+        } else {
+            this.sprite.position.addInPlace(this.direction.scale(moveDist));
+        }        
+    }
+
+    dispose(){
+        super.dispose();
+        if (this.sprite){
+            this.sprite.dispose();
+        }
+    }
+}

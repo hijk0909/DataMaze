@@ -11,6 +11,7 @@ import { UI } from "./UI.js";
 import { TitleScene } from "./TitleScene.js";
 import { GameOverScene } from "./GameOverScene.js";
 import { GameClearScene } from "./GameClearScene.js";
+import { Wipe } from "../utils/DrawUtils.js";
 
 export class GameScene extends Scene {
     constructor(game) {
@@ -25,13 +26,19 @@ export class GameScene extends Scene {
 
     // ■ セットアップ
     setup(){
-        // Camera
+        // Camera(main)
         const camera = new BABYLON.FreeCamera("FreeCam", new BABYLON.Vector3(0, 5, -8), this.scene);
         camera.inputs.clear();
         camera.fov = 1.4; // 視野角
         camera.minZ = 0.1;
         camera.attachControl(this.game.canvas, true);
+        camera.layerMask &= ~GLOBALS.MASK_UI;
         GameState.camera = camera;
+        // camera(ui)
+        const uiCamera = new BABYLON.FreeCamera("uiCam", BABYLON.Vector3.Zero(), this.scene);
+        uiCamera.layerMask = GLOBALS.MASK_UI;
+
+        this.scene.activeCameras = [camera, uiCamera];
     }
 
     // ■ プリロード
@@ -94,6 +101,8 @@ export class GameScene extends Scene {
         // 実行用クラスの生成
         this.exec = new Exec(scene);
 
+        // ワイプの生成
+        this.wipe = new Wipe(scene, GameState.camera);
     }
 
     update(time, delta){
@@ -125,8 +134,12 @@ export class GameScene extends Scene {
             this.spawn.initial_placement();
             // [STATUS_MSG]
             GameState.ui_manager.show_status_message(`GET READY\nSTAGE ${GameState.stage}`);
+            // [WIPE]
+            this.wipe.wipe_in(3000);
+            // [SOUND]
+            GameState.asset.jingle.stagestart.play(false);
             // [TRANSIT]
-            this.stage_state_count = 5;
+            this.stage_state_count = 2.5;
             GameState.stage_state = GLOBALS.STAGE_STATE.STARTING;
         } else if (GameState.stage_state === GLOBALS.STAGE_STATE.STARTING){
             // ◆開始期間
@@ -149,6 +162,8 @@ export class GameScene extends Scene {
             // ◆失敗
             // [STATUS_MSG]
             GameState.ui_manager.show_status_message(`GAME OVER`,"#ff0000");
+            // [WIPE]
+            this.wipe.wipe_out(4000);
             // [TRANSIT]
             this.stage_state_count = 4;
             GameState.stage_state = GLOBALS.STAGE_STATE.FAILED;
@@ -165,15 +180,23 @@ export class GameScene extends Scene {
             if (GameState.stage === GLOBALS.STAGE_MAX){
                 // [STATUS_MSG]
                 GameState.ui_manager.show_status_message(`ALL CLEAR`,"#ff8020");
+                // [SOUND]
+                GameState.asset.jingle.stageclear.play(false);
                 // [TRANSIT]
                 GameState.stage_state = GLOBALS.STAGE_STATE.ALL_CLEARED;
                 this.stage_state_count = 4;
+                // [WIPE]
+                this.wipe.wipe_out(4000);
             } else {
                 // [STATUS_MSG]
                 GameState.ui_manager.show_status_message(`STAGE CLEAR`,"#00ffff");
+                // [SOUND]
+                GameState.asset.jingle.stageclear.play(false);
                 // [TRANSIT]
                 GameState.stage_state = GLOBALS.STAGE_STATE.CLEARED;
                 this.stage_state_count = 2;
+                // [WIPE]
+                this.wipe.wipe_out(2000);
             }
         } else if (GameState.stage_state === GLOBALS.STAGE_STATE.CLEARED){
             // ◆ステージクリア期間
@@ -220,11 +243,13 @@ export class GameScene extends Scene {
             this.map_manager.show_all();
         }
         if (GameState.inputKey && GameState.inputKey["q"]){
-            // import("./TitleScene.js").then(module => {
-            //     const TitleScene = module.TitleScene;
-            //     this.game.sceneManager.changeScene(new TitleScene(this.game));
-            // });
             this.game.sceneManager.changeScene(new TitleScene(this.game));
+        }
+        if (GameState.inputKey && GameState.inputKey["o"]){
+            this.game.sceneManager.changeScene(new GameOverScene(this.game));
+        }
+        if (GameState.inputKey && GameState.inputKey["c"]){
+            this.game.sceneManager.changeScene(new GameClearScene(this.game));
         }
 
         // 空の時間経過（消去予定）

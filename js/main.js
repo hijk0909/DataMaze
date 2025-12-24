@@ -54,8 +54,36 @@ function set_shader(){
         gl_FragColor = vec4(tex.rgb, tex.a * alpha * flow);
     }
     `;
-}
 
+    BABYLON.Effect.ShadersStore["wipeFragmentShader"] = `
+        precision highp float;
+
+        varying vec2 vUV;
+        uniform sampler2D textureSampler; // 元の3D画面
+        uniform vec2 center;
+        uniform float radius;
+        uniform float alpha;
+        uniform float aspectRatio;
+
+        void main(void) {
+            // アスペクト比を補正
+            vec2 uv = vUV;
+            uv.y /= aspectRatio;
+            vec2 correctedCenter = center;
+            correctedCenter.y /= aspectRatio;
+
+            float dist = distance(uv, correctedCenter);
+            float mask = step(radius, dist);
+
+            vec4 baseColor = texture2D(textureSampler, vUV);
+            vec4 wipeColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+            // maskが1なら黒(wipeColor)、0なら元の色(baseColor)を混ぜる
+            // alphaを使ってワイプ全体の透明度を制御（wipe_out の チラツキ対策）
+            gl_FragColor = mix(baseColor, wipeColor, mask * alpha);
+        }
+    `;
+}
 
 async function startGame() {
 

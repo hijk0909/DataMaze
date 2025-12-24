@@ -10,6 +10,7 @@ export class GameClearScene extends Scene {
     constructor(game) {
         super(game);
         this.my_input = null;
+        this.jingle = {};
     }
 
     setup(){
@@ -23,7 +24,7 @@ export class GameClearScene extends Scene {
     }
 
     async preload(){
-        this.image = new BABYLON.GUI.Image("myImage", "./assets/textures/game_clear.jpg");
+
     }
 
     create(){
@@ -35,6 +36,7 @@ export class GameClearScene extends Scene {
         this.my_input.registerNextAction(() => this.return_to_title());
 
         // Image
+        this.image = new BABYLON.GUI.Image("myImage", "./assets/textures/game_clear.jpg");
         this.image.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         this.image.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
         this.image.top = 100;
@@ -80,6 +82,10 @@ export class GameClearScene extends Scene {
         if (this.image){
             this.image.dispose();
             this.image = null;
+        }
+        if (this.jingle.gameclear){
+            this.jingle.gameclear.dispose();
+            this.jingle.gameclear = null;
         }
         super.dispose();
     }

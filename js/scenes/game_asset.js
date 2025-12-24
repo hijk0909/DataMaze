@@ -57,6 +57,12 @@ export class GameAsset extends Asset {
         this.sprite.dust = new BABYLON.SpriteManager(
             "dustSprites", "./assets/textures/dust.png", 2000, { width: 64, height: 64 }, this.scene);
 
+        this.sprite.extinction = new BABYLON.SpriteManager(
+            "dustSprites", "./assets/textures/extinction.png", 100, { width: 64, height: 64 }, this.scene);
+
+        this.sprite.bullet = new BABYLON.SpriteManager(
+            "dustSprites", "./assets/textures/bullet.png", 2000, { width: 64, height: 64 }, this.scene);
+            
         // ■　音声
         this.bgm.main = await MyAudio.load( "./assets/audio/bgm/bgm_main.mp3");
         this.bgm.main.setVolume(0.8);
@@ -70,8 +76,11 @@ export class GameAsset extends Asset {
         this.se.collision = await MyAudio.load( "./assets/audio/se/se_collision.mp3" );
         this.se.collision.setVolume(0.4);
 
-        this.jingle.gameover = await MyAudio.load( "./assets/audio/jingle/jingle_game_over.mp3" );
-        this.jingle.gameover.setVolume(0.8);
+        this.jingle.stagestart = await MyAudio.load( "./assets/audio/jingle/jingle_stage_start.mp3" );
+        this.jingle.stagestart.setVolume(0.8);
+
+        this.jingle.stageclear = await MyAudio.load( "./assets/audio/jingle/jingle_stage_clear.mp3" );
+        this.jingle.stageclear.setVolume(0.8);
         // console.log("asset.preload:end");
     }
 

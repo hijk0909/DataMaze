@@ -3,6 +3,7 @@ import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Item } from "./base_item.js";
 import { Eff_Text } from './eff_text.js';
+import { Eff_Firework } from './eff_firework.js';
 
 const COOLDOWN_INTERVAL = 60;
 
@@ -10,7 +11,7 @@ export class Itm_Goal extends Item {
 
     constructor(scene){
         super(scene);
-        this.count = 0;
+        this.activated = false;
         this.goal_light_mesh = null;
         this.time = 0;
     }
@@ -74,12 +75,23 @@ export class Itm_Goal extends Item {
     }
 
     activate(){
-        if (this.count <= 0){
-            this.count = COOLDOWN_INTERVAL;
+        if (!this.activated){
+            this.activated = true;
+            // [TEXT]
             const eff = new Eff_Text(this.scene);
             eff.create(this.mesh.position, "GOAL");
             GameState.effects.push(eff);
             GameState.asset.bgm.main.fadeOut();
+
+            // 敵を強制的に全滅
+            for (let i = GameState.enemies.length - 1; i >= 0; i--) {
+                const enemy = GameState.enemies[i];
+                enemy.alive = false;
+                const eff = new Eff_Firework(this.scene);
+                eff.create(enemy.mesh.position);
+                GameState.effects.push(eff);
+            }
+            GameState.asset.se.explosion.play();
             // [TRANIST]
             GameState.stage_state = GLOBALS.STAGE_STATE.CLEAR;
         }
@@ -87,7 +99,6 @@ export class Itm_Goal extends Item {
 
     update(time, delta){
         super.update(time, delta);
-        if (this.count > 0) this.count--;
     }
 
     dispose(){

@@ -111,6 +111,7 @@ export class Spawn {
         }
 
         available_positions = all_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
+        MyMath.shuffle(available_positions);
 
         // [ITM] 餌
         // console.log("[ITEM] available_positions", available_positions);

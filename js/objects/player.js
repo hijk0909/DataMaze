@@ -3,12 +3,15 @@ import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Movable } from "./base_movable.js";
 import { MyMath } from "../utils/MathUtils.js";
-import { Eff_Dust} from "./eff_dust.js";
+import { Eff_Dust } from "./eff_dust.js";
+import { Bullet } from "./bullet.js";
 
 const HP_RECOVERY = +0.005;
 const HP_BAR_WIDTH = 720;
 const HP_BAR_HEIGHT = 80;
 const HP_BAR_PADDING = 5;
+
+const BULLET_COOLDOWN_INTERVAL = 10;
 
 const DUST_INTERVAL = 5;
 
@@ -43,6 +46,9 @@ export class Player extends Movable {
         // HPバー
         this.hpFrame = null;
         this.hpFill = null;
+
+        // 自弾
+        this.cooldown = BULLET_COOLDOWN_INTERVAL;
     }
 
     create(mesh, pos){
@@ -104,7 +110,6 @@ export class Player extends Movable {
         const velocity = BABYLON.Vector3.Random().scale(2).subtractFromFloats(1, 1, 1).scale(0.005);
 
         const eff = new Eff_Dust(this.scene);
-        // eff.create(position, velocity);
         eff.create(position, velocity);
         GameState.effects.push(eff);
     }
@@ -133,7 +138,13 @@ export class Player extends Movable {
             }
             // アクションキー
             if (GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel)){
-                // this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
+                if (this.cooldown <= 0){
+                    this.cooldown = BULLET_COOLDOWN_INTERVAL;
+
+                    const eff = new Bullet(this.scene);
+                    eff.create(this.mesh.position, this.forward);
+                    GameState.bullets.push(eff);
+                }
             }
         }
 
@@ -177,8 +188,6 @@ export class Player extends Movable {
         camera.position = cameraPosition;
         camera.upVector = this.compute_rolled_up(this.forward, this.up, roll);
 
-        // this.mesh.lookAt(cameraTarget);
-
         // メッシュの向き：TBN → 回転行列 → クオータニオン設定
         const tempMatrix = new BABYLON.Matrix();
         tempMatrix.copyFrom(BABYLON.Matrix.FromValues(
@@ -191,6 +200,9 @@ export class Player extends Movable {
 
         this.hp = Math.min(this.hp_max, this.hp + HP_RECOVERY);
         this.update_hp_bar();
+
+        // 連射のクールダウン
+        this.cooldown = Math.max(this.cooldown - 1, 0);
 
         super.update(time, delta);
     }

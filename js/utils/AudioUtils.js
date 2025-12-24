@@ -1,4 +1,6 @@
 // AudioUtil.js
+import { GLOBALS } from '../GameConst.js';
+import { GameState } from '../GameState.js';
 
 export class MyAudio {
 
@@ -268,8 +270,37 @@ class SoundInstance {
         this.play(this.isLooping);
     }
 
-    dispose(){
+    // 3D定位つきSE再生
+    play_3D(obj, scene){
+        if (this.isPlaying) { this.stop(); }
+        if (obj !== null){
+            // 3D → スクリーン座標
+            const screenPos = BABYLON.Vector3.Project(
+                obj.mesh.position,
+                BABYLON.Matrix.Identity(),
+                scene.getTransformMatrix(),
+                GameState.camera.viewport.toGlobal(
+                    GameState.game.engine.getRenderWidth(),
+                    GameState.game.engine.getRenderHeight()
+                )
+            );
+            const renderWidth = GameState.game.engine.getRenderWidth();
+            const normalizedX = ((screenPos.x / renderWidth) - 0.5) * 2;
+            const clampedX = Math.max(-1, Math.min(1, normalizedX));
+            this.setPan(clampedX);
+        }
+        this.play(false);
+    }
 
+
+    dispose(){
+        this.stop();
+        if (this.source) {
+            this.source.disconnect();
+            this.source = null;
+        }
+        this.audioBuffer = null;
+        // this.audioContext = null;
     }
 }
 

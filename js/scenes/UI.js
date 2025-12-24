@@ -12,7 +12,8 @@ const MSG_OFFSET_Y = -100;
 
 export class UI {
     constructor() {
-        this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
+        this.ui.layer.layerMask = GLOBALS.MASK_UI;
         this.ui.idealWidth = 1920;
         this.ui.idealHeight = 1080;
         this.ui.renderAtIdealSize = true;

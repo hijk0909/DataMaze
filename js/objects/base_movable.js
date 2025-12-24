@@ -37,12 +37,19 @@ export class Movable extends Drawable {
         let additionalDamage = 0;
         if (dotProduct < 0) {
             additionalDamage = Math.floor(Math.abs(dotProduct) * damage * GLOBALS.ADDITIONAL_DAMAGE_RATIO); // 正の内積: 側面/背面から → 追加ダメージ
+            this.damage += additionalDamage;
         }
         return additionalDamage;
     }
 
     add_hp(hp){
         this.hp = Math.min(this.hp + hp, this.hp_max);
+        return  this.hp;
+    }
+
+    subtract_hp(hp){
+        this.hp = Math.max(this.hp - hp, 0);
+        return this.hp;
     }
 
     update(time, delta){

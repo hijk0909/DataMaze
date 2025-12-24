@@ -4,12 +4,14 @@ import { GameState } from "../GameState.js";
 import { Game } from "../main.js";
 import { Scene } from "./base_scene.js";
 import { TitleScene } from "./TitleScene.js";
-import { MyInput } from "../utils/InputUtils.js"
+import { MyInput } from "../utils/InputUtils.js";
+import { MyAudio } from "../utils/AudioUtils.js";
 
 export class GameOverScene extends Scene {
     constructor(game) {
         super(game);
         this.my_input = null;
+        this.jingle = {};
     }
 
     setup(){
@@ -23,7 +25,8 @@ export class GameOverScene extends Scene {
     }
 
     async preload(){
-        this.image = new BABYLON.GUI.Image("myImage", "./assets/textures/game_over.jpg");
+        this.jingle.gameover = await MyAudio.load( "./assets/audio/jingle/jingle_game_over.mp3" );
+        this.jingle.gameover.setVolume(0.8);
     }
 
     create(){
@@ -35,6 +38,7 @@ export class GameOverScene extends Scene {
         this.my_input.registerNextAction(() => this.return_to_title());
 
         // Image
+        this.image = new BABYLON.GUI.Image("myImage", "./assets/textures/game_over.jpg");
         this.image.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         this.image.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
         this.image.top = 100;
@@ -49,6 +53,9 @@ export class GameOverScene extends Scene {
         this.text.color = "white";
         this.text.fontSize = 80;
         this.ui.addControl(this.text);
+
+        // Sound
+        this.jingle.gameover.play(false);
     }
 
     return_to_title(){
@@ -80,6 +87,10 @@ export class GameOverScene extends Scene {
         if (this.image){
             this.image.dispose();
             this.image = null;
+        }
+        if (this.jingle.gameover){
+            this.jingle.gameover.dispose();
+            this.jingle.gameover = null;
         }
         super.dispose();
     }

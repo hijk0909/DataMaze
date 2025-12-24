@@ -39,10 +39,13 @@ export class MyMath {
         const rh = GameState.game.engine.getRenderHeight();
         const iw = GameState.ui_manager.ui.idealWidth;
         const ih = GameState.ui_manager.ui.idealHeight;
+
+        const transformMatrix = GameState.camera.getTransformationMatrix();
+
         const screen_pos = BABYLON.Vector3.Project(
             world_pos,
             BABYLON.Matrix.Identity(),
-            scene.getTransformMatrix(),
+            transformMatrix,
             GameState.camera.viewport.toGlobal(rw, rh)
         );
 
@@ -52,6 +55,7 @@ export class MyMath {
         // let y = (screen_pos.y - rh/2 + (ih -rh)/2)*(ih/rh) + ih / 2;
         screen_pos.x = screen_pos.x * (iw / rw);
         screen_pos.y = screen_pos.y * (iw / rw);
+        // screen_pos.y = screen_pos.y * (ih / rh);
         return screen_pos;
     }
 }

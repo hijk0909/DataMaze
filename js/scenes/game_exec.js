@@ -2,6 +2,7 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from '../GameState.js';
 import { Eff_Firework } from '../objects/eff_firework.js';
+import { Eff_Extinction } from '../objects/eff_extinction.js';
 import { Eff_Text } from '../objects/eff_text.js';
 
 const IMPULSE_RATIO = 10;
@@ -39,7 +40,7 @@ export class Exec {
                     const eff = new Eff_Firework(this.scene);
                     eff.create(enemy.mesh.position);
                     GameState.effects.push(eff);
-                    GameState.asset.play_se("explosion", enemy);
+                    GameState.asset.se.explosion.play_3D(enemy, this.scene);
                 }
             }
         }
@@ -53,6 +54,43 @@ export class Exec {
             }
         }
 
+        // 自弾の管理
+        for (let i = GameState.bullets.length - 1; i >= 0; i--) {
+            const bullet = GameState.bullets[i];
+
+            bullet.update(time, delta);
+
+            if (!bullet.isAlive()) {
+                bullet.dispose();
+                GameState.bullets.splice(i, 1);
+                continue;
+            }
+
+            // 自弾と敵との当たり判定
+            for (let j = 0; j < GameState.enemies.length; j++){
+                const enemy = GameState.enemies[j];
+                if (this.check_bullet_hit(bullet, enemy)){
+                    bullet.alive = false;
+
+                    const eff_ext = new Eff_Extinction(this.scene);
+                    eff_ext.create(bullet.sprite.position);
+                    GameState.effects.push(eff_ext);
+
+                    enemy.subtract_hp(bullet.strength);
+                    enemy.flash();
+
+                    if (enemy.hp <= 0){
+                        enemy.alive = false;
+                        GameState.add_score(1000);
+                        const eff = new Eff_Firework(this.scene);
+                        eff.create(enemy.mesh.position);
+                        GameState.effects.push(eff);
+                        GameState.asset.se.explosion.play_3D(enemy, this.scene);
+                    } 
+                }
+            }
+        }
+        
         // アイテムの管理
         for (let i = GameState.items.length - 1; i >= 0; i--) {
             const item = GameState.items[i];
@@ -98,6 +136,13 @@ export class Exec {
 
     } // End of update
 
+    // 自弾と敵の当たり判定
+    check_bullet_hit(bullet, enemy){
+        const distance = BABYLON.Vector3.Distance(bullet.sprite.position, enemy.mesh.position);
+        // console.log("bullet_hit:", distance, bullet.radius, enemy.radius);
+        return (distance < bullet.radius + enemy.radius);
+    }
+
     // Movableクラス間の当たり判定
     check_collision(obj1, obj2, dmg_flg){
         const distance = BABYLON.Vector3.Distance(obj1.mesh.position, obj2.mesh.position);
@@ -127,7 +172,7 @@ export class Exec {
                 // ◆ 敵と自機との当たり判定
                 if (dmg_flg){
                     // obj1 = 敵、obj2 = 自機 であること
-                    GameState.asset.play_se("collision", obj1); // 3D音声
+                    GameState.asset.se.collision.play_3D(obj1, this.scene); // 3D音声
                     // console.log("obj1:", obj1.mesh.position, GameState.enemies.length);
                     const enemy_additional_damage = obj1.add_damage(Math.abs(impulse * obj2.mass), relative.scale(-1));
                     if ( enemy_additional_damage > 0){

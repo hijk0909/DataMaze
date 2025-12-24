@@ -40,6 +40,7 @@ export const GameState = {
     items : [],
     obstacles : [],
     effects : [],
+    bullets : [],
 
     // プレイヤーの状態
     player_stats : {
