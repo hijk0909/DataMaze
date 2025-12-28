@@ -24,7 +24,7 @@ export class Eff_Firework extends Effect {
         particleSystem.maxSize = 0.3;
 
         // エミッターの位置を設定 (花火が始まる位置)
-        particleSystem.emitter = position; 
+        particleSystem.emitter = position.clone();
         
         // パーティクルの生存期間 (秒)
         particleSystem.minLifeTime = 0.4;

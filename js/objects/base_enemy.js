@@ -5,7 +5,7 @@ import { MyMath } from "../utils/MathUtils.js";
 
 const FLASH_TIME = 0.15; //秒
 
-const HP_OFFSET_Y = 0.5;
+const HP_OFFSET_Y = 0.2;
 const HP_BAR_WIDTH = 160;
 const HP_BAR_HEIGHT = 20;
 const HP_BAR_PADDING = 30;
@@ -91,7 +91,7 @@ export class Enemy extends Movable {
         }
 
         const world_pos = this.mesh.position.clone();
-        world_pos.y += HP_OFFSET_Y;
+        world_pos.y += this.radius + HP_OFFSET_Y;
         const screen_pos = MyMath.world_to_screen(world_pos, this.scene);
 
         // [本体] 3D → スクリーン座標

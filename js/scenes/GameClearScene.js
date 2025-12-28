@@ -18,8 +18,8 @@ export class GameClearScene extends Scene {
         this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0,2,-5), this.scene);
         // [UI]
         this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-        this.ui.idealWidth = 1920;
-        this.ui.idealHeight = 1080;
+        this.ui.idealWidth = GLOBALS.UI.WIDTH;
+        this.ui.idealHeight = GLOBALS.UI.HEIGHT;
         this.ui.renderAtIdealSize = true;
     }
 

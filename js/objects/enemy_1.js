@@ -13,12 +13,10 @@ export class Enemy_1 extends Enemy {
         this.mass = 0.1;
     }
 
-    create(position){
+    create(position, id){
 
         const container = GameState.asset.mesh.enemy_1;
-        const inst = container.instantiateModelsToScene(
-            (name) => name + "_enemy_" + this.id
-        );
+        const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_1_${id}` );
 
         this.mesh = inst.rootNodes[0];
         this.mesh.scaling = new BABYLON.Vector3(0.8, 0.8, 0.8);

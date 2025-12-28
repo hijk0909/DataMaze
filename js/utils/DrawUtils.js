@@ -1,4 +1,5 @@
 // DrawUtils.js
+import { GLOBALS } from '../GameConst.js';
 
 export class Wipe {
     constructor(scene, camera) {
@@ -60,4 +61,58 @@ export class Wipe {
             }
         });
     }
+}
+
+const PADDING = 30;
+
+export class MyDraw {
+
+    static set_text_center(tobj, offset_x = 0, offset_y = 0){
+        tobj.resizeToFit = true;
+        tobj.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        tobj.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        tobj.alpha = 0.0;
+        tobj._markAsDirty();
+
+        tobj.onAfterDrawObservable.addOnce(() => {
+            const iw = GLOBALS.UI.WIDTH;
+            const ih = GLOBALS.UI.HEIGHT;
+            const tw = tobj.widthInPixels;
+            const th = tobj.heightInPixels;
+            let x = iw /2 - tw /2 + offset_x;
+            let y = ih /2 - th /2 + offset_y;
+            const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+            x = clamp(x, PADDING, iw - tw - PADDING);
+            y = clamp(y, PADDING, ih - th - PADDING);
+            tobj.left = x;
+            tobj.top = y;
+            tobj.alpha = 1.0;
+            // console.log("MyDraw.set_text_center 2:",iw, ih, tw, th, x, y);
+        });
+    }
+
+    static set_text_position(tobj, x, y){
+        tobj.resizeToFit = true;
+        tobj.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        tobj.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        tobj.alpha = 0.0;
+        tobj._markAsDirty();
+
+        tobj.onAfterDrawObservable.addOnce(() => {
+            const iw = GLOBALS.UI.WIDTH;
+            const ih = GLOBALS.UI.HEIGHT;
+            const tw = tobj.widthInPixels;
+            const th = tobj.heightInPixels;
+            x -= tw /2;
+            y -= th /2;
+            const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+            x = clamp(x, PADDING, iw - tw - PADDING);
+            y = clamp(y, PADDING, ih - th - PADDING);
+            tobj.left = x;
+            tobj.top = tobj.top_base = y;
+            tobj.alpha = 1.0;
+            // console.log("MyDraw.set_text_position 2:",iw, ih, tw, th, x, y);
+        });
+    }
+
 }

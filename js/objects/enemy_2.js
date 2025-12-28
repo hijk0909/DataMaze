@@ -13,12 +13,10 @@ export class Enemy_2 extends Enemy {
         this.mass = 0.03;
     }
 
-    create(position){
+    create(position, id){
 
         const container = GameState.asset.mesh.enemy_2;
-        const inst = container.instantiateModelsToScene(
-            (name) => name + "_enemy_" + this.id
-        );
+        const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_2_${id}` );
 
         this.mesh = inst.rootNodes[0];
         this.mesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
@@ -26,6 +24,14 @@ export class Enemy_2 extends Enemy {
         this.mesh.position = position.clone();
 
         this.mesh.checkCollisions = true; //障害物との衝突判定
+
+
+        // アニメーション
+        this.anim_fly = inst.animationGroups.find(group => group.name === `fly_enemy_2_${id}`);
+        if (this.anim_fly) {
+            this.anim_fly.start(true); // ループ再生
+            this.anim_fly.speedRatio = 3.0;
+        }
 
         super.create();
     }

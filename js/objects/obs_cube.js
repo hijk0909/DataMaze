@@ -10,7 +10,7 @@ export class Obs_Cube extends Obstacle {
 
     create(pos){
         this.mesh = BABYLON.MeshBuilder.CreateBox("obs_cube", { size: 1 }, this.scene);
-        this.mesh.position = pos;
+        this.mesh.position = pos.clone();
         this.mesh.checkCollisions = true;
         const obsMaterial = new BABYLON.StandardMaterial("obsMaterial", this.scene); 
         obsMaterial.diffuseTexture = GameState.asset.texture.obstacle;

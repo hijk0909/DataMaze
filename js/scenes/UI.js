@@ -3,6 +3,7 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { MyMath } from '../utils/MathUtils.js';
+import { MyDraw } from '../utils/DrawUtils.js';
 
 const FONT_SIZE = 48;
 const FONT_HEIGHT = "52px";
@@ -14,8 +15,8 @@ export class UI {
     constructor() {
         this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
         this.ui.layer.layerMask = GLOBALS.MASK_UI;
-        this.ui.idealWidth = 1920;
-        this.ui.idealHeight = 1080;
+        this.ui.idealWidth = GLOBALS.UI.WIDTH;
+        this.ui.idealHeight = GLOBALS.UI.HEIGHT;
         this.ui.renderAtIdealSize = true;
         this.scoreText = null;
         this.hpText = null;
@@ -33,61 +34,87 @@ export class UI {
         panel.paddingTop  = "10px";
         panel.paddingLeft = "10px";
         panel.spacing = FONT_SPACING; //行間(px)
+        panel.fontFamily = "MyGameFont";
         this.ui.addControl(panel);
         this.panel = panel;
 
+        let tobj = null;
         // SCORE
-        const scoreText = new BABYLON.GUI.TextBlock();
-        scoreText.text = "SCORE 0";
-        scoreText.color = "white";
-        scoreText.fontSize = FONT_SIZE;
-        scoreText.height = FONT_HEIGHT;
-        scoreText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.addControl(scoreText);
-        this.scoreText = scoreText;
+        tobj = new BABYLON.GUI.TextBlock();
+        tobj.text = "SCORE 0";
+        tobj.color = "white";
+        tobj.fontSize = FONT_SIZE;
+        tobj.height = FONT_HEIGHT;
+        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panel.addControl(tobj);
+        this.scoreText = tobj;
 
         // HP
-        const hpText = new BABYLON.GUI.TextBlock();
-        hpText.text = "HP 0";
-        hpText.color = "white";
-        hpText.fontSize = FONT_SIZE;
-        hpText.height = FONT_HEIGHT;
-        hpText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.addControl(hpText);
-        this.hpText = hpText;
+        tobj = new BABYLON.GUI.TextBlock();
+        tobj.text = "HP 0";
+        tobj.color = "white";
+        tobj.fontSize = FONT_SIZE;
+        tobj.height = FONT_HEIGHT;
+        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panel.addControl(tobj);
+        this.hpText = tobj;
 
         // MASS
-        const massText = new BABYLON.GUI.TextBlock();
-        massText.text = "MASS 0";
-        massText.color = "white";
-        massText.fontSize = FONT_SIZE;
-        massText.height = FONT_HEIGHT;
-        massText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.addControl(massText);
-        this.massText = massText;
+        tobj = new BABYLON.GUI.TextBlock();
+        tobj.text = "MASS 0";
+        tobj.color = "white";
+        tobj.fontSize = FONT_SIZE;
+        tobj.height = FONT_HEIGHT;
+        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panel.addControl(tobj);
+        this.massText = tobj;
+
+        // RELOAD TIME
+        tobj = new BABYLON.GUI.TextBlock();
+        tobj.text = "RELOAD 0";
+        tobj.color = "cyan";
+        tobj.fontSize = FONT_SIZE;
+        tobj.height = FONT_HEIGHT;
+        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panel.addControl(tobj);
+        this.reloadTimeText = tobj;
+
+        // FIRE POWER
+        tobj = new BABYLON.GUI.TextBlock();
+        tobj.text = "RELOAD 0";
+        tobj.color = "cyan";
+        tobj.fontSize = FONT_SIZE;
+        tobj.height = FONT_HEIGHT;
+        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panel.addControl(tobj);
+        this.firePowerText = tobj;
 
         // ◆ ステータスメッセージ
-        this.statusMessageText = new BABYLON.GUI.TextBlock();
-        this.statusMessageText.alpha = 0.0;
-        this.statusMessageText.fontSize = FONT_MSG_SIZE;
-        this.statusMessageText.resizeToFit = true;
-        this.statusMessageText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        this.statusMessageText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        this.ui.addControl(this.statusMessageText);
+        tobj = new BABYLON.GUI.TextBlock();
+        tobj.alpha = 0.0;
+        tobj.fontSize = FONT_MSG_SIZE;
+        this.ui.addControl(tobj);
+        this.statusMessageText = tobj;
     }
 
     show_status_message(str, color="#ffffff"){
         this.statusMessageText.text = str;
         this.statusMessageText.color = color;
-        this.statusMessageText.onAfterDrawObservable.addOnce(() => {
-            const iw = GameState.ui_manager.ui.idealWidth;
-            const ih = GameState.ui_manager.ui.idealHeight;
-            const tw = this.statusMessageText.widthInPixels;
-            const th = this.statusMessageText.heightInPixels;
-            this.statusMessageText.left = iw /2 - tw /2;
-            this.statusMessageText.top = ih /2 - th /2 + MSG_OFFSET_Y;
-            this.statusMessageText.alpha = 1.0;
-        });
+        this.statusMessageText.fontFamily = "MyGameFont";
+        this.statusMessageText.fontSize = 80;
+        MyDraw.set_text_center(this.statusMessageText, 0, MSG_OFFSET_Y);
+
+        // this.statusMessageText.alpha = 0.0;
+        // this.statusMessageText._markAsDirty();
+        // this._statusMessageObserver = this.statusMessageText.onAfterDrawObservable.addOnce(() => {
+        //     const iw = GameState.ui_manager.ui.idealWidth;
+        //     const ih = GameState.ui_manager.ui.idealHeight;
+        //     const tw = this.statusMessageText.widthInPixels;
+        //     const th = this.statusMessageText.heightInPixels;
+        //     this.statusMessageText.left = iw /2 - tw /2;
+        //     this.statusMessageText.top = ih /2 - th /2 + MSG_OFFSET_Y;
+        //     this.statusMessageText.alpha = 1.0;        
+        // });
     }
 
     hide_status_message(){
@@ -192,8 +219,10 @@ export class UI {
     update(time, delta){
         this.scoreText.text = `SCORE: ${GameState.score}`;
         if (GameState.player){
-            this.hpText.text = `HP: ${Math.floor(GameState.player.hp)} / ${GameState.player.hp_max}`;
+            this.hpText.text = `HP: ${Math.floor(GameState.player.hp)} / ${GameState.player.hp_max} (${GameState.player.hp_delta})`;
             this.massText.text = `MASS: ${GameState.player.mass.toFixed(1)} `;
+            this.reloadTimeText.text = `Reload Time: ${GameState.player.reload_time.toFixed(1)}`;
+            this.firePowerText.text = `Fire Power: ${GameState.player.fire_power.toFixed(1)}`;
             this.update_minimap();
         }
     }

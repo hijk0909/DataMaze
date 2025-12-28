@@ -9,6 +9,7 @@ export class Movable extends Drawable {
         this.radius = 0.5; //衝突判定用の半径
         this.velocity =  new BABYLON.Vector3(0, 0, 0);
         this.mass = 1;
+        this.mass_max = 10;
         this.velocity_new = new BABYLON.Vector3(0, 0, 0);
         this.hp = 100;
         this.hp_max = 100;
@@ -45,6 +46,11 @@ export class Movable extends Drawable {
     add_hp(hp){
         this.hp = Math.min(this.hp + hp, this.hp_max);
         return  this.hp;
+    }
+
+    add_mass(mass){
+        this.mass = Math.min(this.mass + mass, this.mass_max);
+        return this.mass;
     }
 
     subtract_hp(hp){

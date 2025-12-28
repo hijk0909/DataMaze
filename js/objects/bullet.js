@@ -16,20 +16,21 @@ export class Bullet extends Drawable {
         this.direction = null;
         this.speed = BULLET_SPEED;
         this.radius = BULLET_SIZE;
-        this.strength = BULLET_STRENGTH;
     }
 
-    create(pos, velocity){
+    create(pos, velocity, pow = GameState.player_stats.fire_power){
         super.create(null); // meshは存在しない
 
-        this.sprite = new BABYLON.Sprite("dust", GameState.asset.sprite.bullet);
+        this.sprite = new BABYLON.Sprite("bullet", GameState.asset.sprite.bullet);
         this.sprite.size = BULLET_SIZE;
         // this.sprite.color = new BABYLON.Color4(0.3, 0.9, 1.0, 0);
         this.sprite.position = pos.clone();
         this.sprite.color.a = BULLET_ALPHA;
 
-        this.direction = velocity.normalize();
+        this.direction = velocity.clone().normalize();
         this.speed = BULLET_SPEED;
+
+        this.strength = pow
     }    
 
     update(time, delta){

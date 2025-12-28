@@ -46,9 +46,12 @@ export const GameState = {
     player_stats : {
         hp : 0,
         hp_max : 0,
+        hp_delta : 0,
         mass : 0 ,
         accel : 0,
-        speed_max : 0
+        speed_max : 0,
+        reload_time : 0.5,
+        fire_power : 1
     },
         
     reset(){
@@ -57,9 +60,12 @@ export const GameState = {
         this.stage_state = GLOBALS.STAGE_STATE.START;
         this.player_stats.hp = GLOBALS.PLAYER_INIT_STATUS.HP_MAX;
         this.player_stats.hp_max = GLOBALS.PLAYER_INIT_STATUS.HP_MAX;
+        this.player_stats.hp_delta = GLOBALS.PLAYER_INIT_STATUS.HP_DELTA;
         this.player_stats.mass =  GLOBALS.PLAYER_INIT_STATUS.MASS;
         this.player_stats.accel =  GLOBALS.PLAYER_INIT_STATUS.ACCEL;
         this.player_stats.speed_max =  GLOBALS.PLAYER_INIT_STATUS.SPEED_MAX;
+        this.player_stats.reload_time = GLOBALS.PLAYER_INIT_STATUS.RELOAD_TIME;
+        this.player_stats.fire_power = GLOBALS.PLAYER_INIT_STATUS.FIRE_POWER;
     },
 
     add_score(score){

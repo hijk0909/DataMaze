@@ -6,12 +6,9 @@ import { MyMath } from "../utils/MathUtils.js";
 import { Eff_Dust } from "./eff_dust.js";
 import { Bullet } from "./bullet.js";
 
-const HP_RECOVERY = +0.005;
 const HP_BAR_WIDTH = 720;
 const HP_BAR_HEIGHT = 80;
 const HP_BAR_PADDING = 5;
-
-const BULLET_COOLDOWN_INTERVAL = 10;
 
 const DUST_INTERVAL = 5;
 
@@ -20,22 +17,17 @@ export class Player extends Movable {
     constructor(scene){
         super(scene);
         this.radius = 0.6;
-        this.mass = GameState.player_stats.mass;
-        this.accel = GameState.player_stats.accel;
-        this.decel = 0.94;
-        this.speed_max = GameState.player_stats.speed_max;
 
+        this.load_player_stats();
+
+        this.decel = 0.94;
         this.yaw_speed = 0.0;
         this.yaw_speed_max = 0.04;
         this.yaw_accel = 0.003;
         this.yaw_decel = 0.94;
-
         this.roll_max = 0.1;
 
         this.dust_counter = 0;
-
-        this.hp_max = GameState.player_stats.hp_max;
-        this.hp = GameState.player_stats.hp;
 
         // TBNフレーム
         this.forward = new BABYLON.Vector3(0, 0, 1);
@@ -48,7 +40,7 @@ export class Player extends Movable {
         this.hpFill = null;
 
         // 自弾
-        this.cooldown = BULLET_COOLDOWN_INTERVAL;
+        this.cooldown = 0;
     }
 
     create(mesh, pos){
@@ -139,10 +131,10 @@ export class Player extends Movable {
             // アクションキー
             if (GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel)){
                 if (this.cooldown <= 0){
-                    this.cooldown = BULLET_COOLDOWN_INTERVAL;
+                    this.cooldown = this.reload_time;
 
                     const eff = new Bullet(this.scene);
-                    eff.create(this.mesh.position, this.forward);
+                    eff.create(this.mesh.position, this.forward, this.fire_power);
                     GameState.bullets.push(eff);
                 }
             }
@@ -198,11 +190,11 @@ export class Player extends Movable {
         ));
         BABYLON.Quaternion.FromRotationMatrixToRef(tempMatrix, this.mesh.rotationQuaternion);
 
-        this.hp = Math.min(this.hp_max, this.hp + HP_RECOVERY);
+        this.hp = Math.max(1, Math.min(this.hp_max, this.hp + GameState.player_stats.hp_delta * delta / 1000));
         this.update_hp_bar();
 
         // 連射のクールダウン
-        this.cooldown = Math.max(this.cooldown - 1, 0);
+        this.cooldown = Math.max(this.cooldown - delta / 1000, 0);
 
         super.update(time, delta);
     }
@@ -260,17 +252,39 @@ export class Player extends Movable {
         return rolledUp;
     }
 
-    set_player_stats(){
+    shot_rapid(rapid){
+        this.reload_time = Math.max(0.1, this.reload_time - rapid);
+    }
+
+    shot_power(pow){
+        this.fire_power = Math.min(10, this.fire_power + pow);
+    }
+
+    load_player_stats(){
+        this.hp = GameState.player_stats.hp;
+        this.hp_max = GameState.player_stats.hp_max;
+        this.hp_delta = GameState.player_stats.hp_delta;
+        this.mass = GameState.player_stats.mass;
+        this.accel = GameState.player_stats.accel;
+        this.speed_max = GameState.player_stats.speed_max;
+        this.reload_time = GameState.player_stats.reload_time;
+        this.fire_power = GameState.player_stats.fire_power;
+    }
+
+    save_player_stats(){
         GameState.player_stats.hp = this.hp;
         GameState.player_stats.hp_max = this.hp_max;
+        GameState.player_stats.hp_delta = this.hp_delta;
         GameState.player_stats.mass = this.mass;
-        GameState.plyaer_accel = this.accel;
-        GameState.player_speed_max = this.speed_max;
+        GameState.player_stats.accel = this.accel;
+        GameState.player_stats.speed_max = this.speed_max;
+        GameState.player_stats.reload_time = this.reload_time;
+        GameState.player_stats.fire_power = this.fire_power;
     }
 
     dispose(){
         // dispose前に必要なクラス変数をグローバル変数にコピー
-        this.set_player_stats();
+        this.save_player_stats();
         // オブジェクトの解放
         if (this.hpFrame) {
             if (GameState.ui_manager){

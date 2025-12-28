@@ -7,7 +7,7 @@ export class Enemy_3 extends Enemy {
 
     constructor(scene){
         super(scene);
-        this.radius = 0.3;
+        this.radius = 0.7;
         this.max_speed = 0.02;
         this.accel = 0.003;
         this.mass = 0.5;
@@ -17,12 +17,10 @@ export class Enemy_3 extends Enemy {
         this.turn_speed = 0.7;
     }
 
-    create(position){
+    create(position, id){
 
         const container = GameState.asset.mesh.enemy_3;
-        const inst = container.instantiateModelsToScene(
-            (name) => name + "_enemy_" + this.id
-        );
+        const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_3_${id}` );
 
         this.mesh = inst.rootNodes[0];
         this.mesh.ellipsoid = new BABYLON.Vector3(1.2, 0.8, 1.2);
@@ -32,6 +30,14 @@ export class Enemy_3 extends Enemy {
 
         this.mesh.checkCollisions = true; //障害物との衝突判定
         this.mesh.rotationQuaternion = null; //クオータニオンは使わない（オイラー角で回転制御)
+
+        // アニメーション
+        // console.log("enemy 3 anim:", inst.animationGroups);
+        this.anim_walk = inst.animationGroups.find(group => group.name === `walk_enemy_3_${id}`);
+        if (this.anim_walk) {
+            this.anim_walk.start(true); // ループ再生
+            this.anim_walk.speedRatio = 1.1;
+        }
 
         super.create();
     }

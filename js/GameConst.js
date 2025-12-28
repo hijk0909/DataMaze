@@ -2,10 +2,15 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.2",
-    DATE : "2025.12.24",
+    VERSION : "0.3",
+    DATE : "2025.12.28",
 
     MASK_UI : 0x10000000,
+    UI : {
+        WIDTH : 1920,
+        HEIGHT : 1080,
+        FONT_RATIO : 1.7
+    },
 
     STAGE_MAX : 5,
 
@@ -56,9 +61,12 @@ export const GLOBALS = {
 
     PLAYER_INIT_STATUS : {
         HP_MAX : 200,
+        HP_DELTA : -0.5,
         MASS : 1,
         ACCEL : 0.02,
-        SPEED_MAX : 0.1
+        SPEED_MAX : 0.1,
+        RELOAD_TIME : 1.0,
+        FIRE_POWER : 4.5
     },
 
     MOVABLE : {

@@ -6,6 +6,7 @@ import { Scene } from "./base_scene.js";
 import { GameScene } from "./GameScene.js";
 import { MyAudio } from "../utils/AudioUtils.js"
 import { MyInput } from "../utils/InputUtils.js"
+import { MyDraw } from "../utils/DrawUtils.js"
 
 export class TitleScene extends Scene {
     constructor(game) {
@@ -18,13 +19,16 @@ export class TitleScene extends Scene {
         this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0,2,-5), this.scene);
         // [UI]
         this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-        this.ui.idealWidth = 1920;
-        this.ui.idealHeight = 1080;
+        this.ui.idealWidth = GLOBALS.UI.WIDTH;
+        this.ui.idealHeight = GLOBALS.UI.HEIGHT;
         this.ui.renderAtIdealSize = true;
     }
 
     async preload(){
         this.image = new BABYLON.GUI.Image("myImage", "./assets/textures/title.jpg");
+        // await document.fonts.load('12px "MyGameFont"');
+        // await document.fonts.ready;
+        // console.log("Font loaded!");
     }
 
     create(){
@@ -40,15 +44,17 @@ export class TitleScene extends Scene {
         this.image.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
         this.image.top = 100;
         this.image.onImageLoadedObservable.add(() => {
-             this.image.width = this.image.domImage.width + "px";
-             this.image.height = this.image.domImage.height + "px"; });
+        this.image.width = this.image.domImage.width + "px";
+        this.image.height = this.image.domImage.height + "px"; });
         this.ui.addControl(this.image);
 
         // Text
         this.text = new BABYLON.GUI.TextBlock();
         this.text.text = "START GAME\nPUSH SPACE KEY";
         this.text.color = "white";
+        this.text.fontFamily = "MyGameFont";
         this.text.fontSize = 80;
+        MyDraw.set_text_center(this.text, 0, 100);
         this.ui.addControl(this.text);
 
         // AudioEngine の強制初期化
