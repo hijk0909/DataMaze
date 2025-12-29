@@ -14,7 +14,7 @@ export class Enemy_3 extends Enemy {
         this.hp_max = 250;
         this.hp = 250;
 
-        this.turn_speed = 0.7;
+        this.turn_speed = 0.6;
     }
 
     create(position, id){
@@ -56,7 +56,6 @@ export class Enemy_3 extends Enemy {
 
         // 上下の動きを制限
         this.mesh.position.y = GLOBALS.MOVABLE.Y.MIN;
-
 
         // 向きの制御
         // 現在の forward

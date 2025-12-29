@@ -33,6 +33,10 @@ export const GameState = {
     minimap_ascii : null,
     minimap_bitmap : null,
     rooms : null,
+    bag_items : null,
+    init_enemies : 0, // ステージ開始時の敵数
+    init_items : 0, //ステージ開始時のアイテム数
+    start_time : 0, //ゲーム開始時の時刻
 
     // キャラクター
     player : null,
@@ -50,22 +54,23 @@ export const GameState = {
         mass : 0 ,
         accel : 0,
         speed_max : 0,
-        reload_time : 0.5,
-        fire_power : 1
+        shot_speed : 1,
+        shot_power : 1
     },
         
     reset(){
         this.score = 0;
         this.stage = 1;
+        this.bag = null; 
         this.stage_state = GLOBALS.STAGE_STATE.START;
-        this.player_stats.hp = GLOBALS.PLAYER_INIT_STATUS.HP_MAX;
-        this.player_stats.hp_max = GLOBALS.PLAYER_INIT_STATUS.HP_MAX;
-        this.player_stats.hp_delta = GLOBALS.PLAYER_INIT_STATUS.HP_DELTA;
-        this.player_stats.mass =  GLOBALS.PLAYER_INIT_STATUS.MASS;
-        this.player_stats.accel =  GLOBALS.PLAYER_INIT_STATUS.ACCEL;
-        this.player_stats.speed_max =  GLOBALS.PLAYER_INIT_STATUS.SPEED_MAX;
-        this.player_stats.reload_time = GLOBALS.PLAYER_INIT_STATUS.RELOAD_TIME;
-        this.player_stats.fire_power = GLOBALS.PLAYER_INIT_STATUS.FIRE_POWER;
+        this.player_stats.hp = GLOBALS.PLAYER_STATS.INIT.HP_MAX;
+        this.player_stats.hp_max = GLOBALS.PLAYER_STATS.INIT.HP_MAX;
+        this.player_stats.hp_delta = GLOBALS.PLAYER_STATS.INIT.HP_DELTA;
+        this.player_stats.mass =  GLOBALS.PLAYER_STATS.INIT.MASS;
+        this.player_stats.accel =  GLOBALS.PLAYER_STATS.INIT.ACCEL;
+        this.player_stats.speed_max =  GLOBALS.PLAYER_STATS.INIT.SPEED_MAX;
+        this.player_stats.shot_speed = GLOBALS.PLAYER_STATS.INIT.SHOT_SPEED;
+        this.player_stats.shot_power = GLOBALS.PLAYER_STATS.INIT.SHOT_POWER;
     },
 
     add_score(score){

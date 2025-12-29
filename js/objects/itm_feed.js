@@ -9,7 +9,7 @@ export class Itm_Feed extends Item {
         super(scene);
     }
 
-    create(pos){
+    create(pos, id){
 
         // [Mesh] 球
         this.mesh = BABYLON.MeshBuilder.CreateSphere( `sphere`, 

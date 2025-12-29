@@ -91,6 +91,9 @@ export class GameScene extends Scene {
         // シーン内の当たり判定の有効化
         scene.collisionsEnabled = true;
 
+        // ゲーム開始時刻の記録
+        GameState.start_time = Date.now();
+
         // UI画面の生成
         GameState.ui_manager = new UI();
 
@@ -103,6 +106,10 @@ export class GameScene extends Scene {
 
         // ワイプの生成
         this.wipe = new Wipe(scene, GameState.camera);
+
+        // [DEBUG]
+        GameState.ui_manager.add_item("test item");
+        GameState.ui_manager.add_item("dedocode stemmbidas");
     }
 
     update(time, delta){
@@ -123,8 +130,8 @@ export class GameScene extends Scene {
             }
             this.map_manager = new Map(this.scene);
             // ミニマップ生成
-            GameState.ui_manager.dispose_minimap();
-            GameState.ui_manager.create_minimap();
+            GameState.ui_manager.minimap.dispose();
+            GameState.ui_manager.minimap.create();
             // 敵やアイテムの配置
             if (this.spawn){
                 this.spawn.dispose();

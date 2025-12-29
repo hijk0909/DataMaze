@@ -16,7 +16,7 @@ export class Itm_Goal extends Item {
         this.time = 0;
     }
 
-    create(pos){
+    create(pos, id){
         const radius = 1.0;
         const height = 2.0;
 

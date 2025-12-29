@@ -131,10 +131,10 @@ export class Player extends Movable {
             // アクションキー
             if (GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel)){
                 if (this.cooldown <= 0){
-                    this.cooldown = this.reload_time;
+                    this.cooldown = 1 / this.shot_speed;
 
                     const eff = new Bullet(this.scene);
-                    eff.create(this.mesh.position, this.forward, this.fire_power);
+                    eff.create(this.mesh.position, this.forward, this.shot_power);
                     GameState.bullets.push(eff);
                 }
             }
@@ -252,12 +252,17 @@ export class Player extends Movable {
         return rolledUp;
     }
 
-    shot_rapid(rapid){
-        this.reload_time = Math.max(0.1, this.reload_time - rapid);
+    // プレイヤーステータス変更
+    add_speed_max(spd){
+        this.speed_max = Math.min(GLOBALS.PLAYER_STATS.LIMIT.SPEED_MAX, this.speed_max + spd);
     }
 
-    shot_power(pow){
-        this.fire_power = Math.min(10, this.fire_power + pow);
+    add_shot_speed(spd){
+        this.shot_speed = Math.min(GLOBALS.PLAYER_STATS.LIMIT.SHOT_SPEED, this.shot_speed + spd);
+    }
+
+    add_shot_power(pow){
+        this.shot_power = Math.min(GLOBALS.PLAYER_STATS.LIMIT.SHOT_POWER, this.shot_power + pow);
     }
 
     load_player_stats(){
@@ -267,8 +272,8 @@ export class Player extends Movable {
         this.mass = GameState.player_stats.mass;
         this.accel = GameState.player_stats.accel;
         this.speed_max = GameState.player_stats.speed_max;
-        this.reload_time = GameState.player_stats.reload_time;
-        this.fire_power = GameState.player_stats.fire_power;
+        this.shot_speed = GameState.player_stats.shot_speed;
+        this.shot_power = GameState.player_stats.shot_power;
     }
 
     save_player_stats(){
@@ -278,8 +283,8 @@ export class Player extends Movable {
         GameState.player_stats.mass = this.mass;
         GameState.player_stats.accel = this.accel;
         GameState.player_stats.speed_max = this.speed_max;
-        GameState.player_stats.reload_time = this.reload_time;
-        GameState.player_stats.fire_power = this.fire_power;
+        GameState.player_stats.shot_speed = this.shot_speed;
+        GameState.player_stats.shot_power = this.shot_power;
     }
 
     dispose(){

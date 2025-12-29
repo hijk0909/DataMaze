@@ -1,4 +1,3 @@
-
 // scenes/UI.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
@@ -9,23 +8,47 @@ const FONT_SIZE = 48;
 const FONT_HEIGHT = "52px";
 const FONT_SPACING = 4;
 const FONT_MSG_SIZE = 64;
+
+const BAG_FONT_SIZE = 48;
+const BAG_FONT_HEIGHT = "52px";
+const BAG_FONT_COLOR = "white";
+const BAG_FONT_SPACING = 4;
+
+const BLINK_PERIOD = 2.0
+
 const MSG_OFFSET_Y = -100;
 
 export class UI {
     constructor() {
+        // UI の生成
         this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
         this.ui.layer.layerMask = GLOBALS.MASK_UI;
         this.ui.idealWidth = GLOBALS.UI.WIDTH;
         this.ui.idealHeight = GLOBALS.UI.HEIGHT;
         this.ui.renderAtIdealSize = true;
+
+        this.minimap = null;
+
+        this.bag = null;
+        this.bag_view = null;
+        this.bag_blink_manager = null;
+
         this.scoreText = null;
         this.hpText = null;
         this.massText = null;
-        this.mapImage = null;
+
         this.create();
     }
 
     create(){
+        // ◆ ミニマップ
+        this.minimap = new Minimap(this.ui);
+
+        // ◆ バッグ
+        this.bag = new Bag();
+        this.bag_view = new BagView(this.ui);
+        this.bag_blink = new BagBlink(this.bag, this.bag_view);
+
         // ◆ 左上固定のパネル（コンテナ）
         const panel = new BABYLON.GUI.StackPanel();
         panel.isVertical = true;
@@ -38,59 +61,29 @@ export class UI {
         this.ui.addControl(panel);
         this.panel = panel;
 
-        let tobj = null;
-        // SCORE
-        tobj = new BABYLON.GUI.TextBlock();
-        tobj.text = "SCORE 0";
-        tobj.color = "white";
-        tobj.fontSize = FONT_SIZE;
-        tobj.height = FONT_HEIGHT;
-        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.addControl(tobj);
-        this.scoreText = tobj;
+        const _createTextBlock = (panel, text, color) => {
+            const tb = new BABYLON.GUI.TextBlock();
+            tb.fontSize = FONT_SIZE;
+            tb.height = FONT_HEIGHT;
+            tb.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            tb.text = text;
+            tb.color = color;
+            panel.addControl(tb);
+            return tb;
+        };
 
-        // HP
-        tobj = new BABYLON.GUI.TextBlock();
-        tobj.text = "HP 0";
-        tobj.color = "white";
-        tobj.fontSize = FONT_SIZE;
-        tobj.height = FONT_HEIGHT;
-        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.addControl(tobj);
-        this.hpText = tobj;
-
-        // MASS
-        tobj = new BABYLON.GUI.TextBlock();
-        tobj.text = "MASS 0";
-        tobj.color = "white";
-        tobj.fontSize = FONT_SIZE;
-        tobj.height = FONT_HEIGHT;
-        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.addControl(tobj);
-        this.massText = tobj;
-
-        // RELOAD TIME
-        tobj = new BABYLON.GUI.TextBlock();
-        tobj.text = "RELOAD 0";
-        tobj.color = "cyan";
-        tobj.fontSize = FONT_SIZE;
-        tobj.height = FONT_HEIGHT;
-        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.addControl(tobj);
-        this.reloadTimeText = tobj;
-
-        // FIRE POWER
-        tobj = new BABYLON.GUI.TextBlock();
-        tobj.text = "RELOAD 0";
-        tobj.color = "cyan";
-        tobj.fontSize = FONT_SIZE;
-        tobj.height = FONT_HEIGHT;
-        tobj.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        panel.addControl(tobj);
-        this.firePowerText = tobj;
+        this.scoreText = _createTextBlock(panel, "SCORE", "white");
+        this.hpText = _createTextBlock(panel, "HP", "white");
+        this.massText = _createTextBlock(panel, "MASS", "white");
+        this.speedText = _createTextBlock(panel, "SPEED", "white");
+        this.shotSpeedText = _createTextBlock(panel, "Shot Speed", "cyan");
+        this.shotPowerText = _createTextBlock(panel, "Shot Power", "cyan");
+        this.numOfEnemiesText = _createTextBlock(panel, "ENEMIES", "orange");
+        this.numOfItemsText = _createTextBlock(panel, "ITEMS", "orange");
+        this.elapsedText = _createTextBlock(panel, "ELAPSED", "white");
 
         // ◆ ステータスメッセージ
-        tobj = new BABYLON.GUI.TextBlock();
+        let tobj = new BABYLON.GUI.TextBlock();
         tobj.alpha = 0.0;
         tobj.fontSize = FONT_MSG_SIZE;
         this.ui.addControl(tobj);
@@ -103,25 +96,89 @@ export class UI {
         this.statusMessageText.fontFamily = "MyGameFont";
         this.statusMessageText.fontSize = 80;
         MyDraw.set_text_center(this.statusMessageText, 0, MSG_OFFSET_Y);
-
-        // this.statusMessageText.alpha = 0.0;
-        // this.statusMessageText._markAsDirty();
-        // this._statusMessageObserver = this.statusMessageText.onAfterDrawObservable.addOnce(() => {
-        //     const iw = GameState.ui_manager.ui.idealWidth;
-        //     const ih = GameState.ui_manager.ui.idealHeight;
-        //     const tw = this.statusMessageText.widthInPixels;
-        //     const th = this.statusMessageText.heightInPixels;
-        //     this.statusMessageText.left = iw /2 - tw /2;
-        //     this.statusMessageText.top = ih /2 - th /2 + MSG_OFFSET_Y;
-        //     this.statusMessageText.alpha = 1.0;        
-        // });
     }
 
     hide_status_message(){
         this.statusMessageText.alpha = 0.0;
     }
 
-    create_minimap() {
+    add_item(name) {
+        const num = this.bag.add(name);
+
+        this.bag_view.ensure_text(name, num);
+        this.bag_view.update_text(name, num);
+
+        this.bag_blink.start(name, "cyan");
+    }
+
+    remove_item(name) {
+        const num = this.bag.remove(name);
+        if (num > 0) {
+            this.bag_view.update_text(name, num);
+            this.bag_blink.start(name, "yellow");
+        } else {
+            // アイテム数：1 → 0 の場合、赤く点滅してから消す
+            this.bag_blink.start(name, "red",
+                BLINK_PERIOD, () => { this.bag_view.remove_text(name);}
+            );
+        }
+    }
+
+    find_item(name) {
+        return this.bag.find(name);
+    }
+
+    update(time, delta){
+        this.scoreText.text = `SCORE: ${GameState.score}`;
+        if (GameState.player){
+            this.hpText.text = `HP: ${Math.floor(GameState.player.hp)} / ${GameState.player.hp_max} (${GameState.player.hp_delta})`;
+            this.massText.text = `MASS: ${GameState.player.mass.toFixed(1)} `;
+            this.speedText.text = `SPEED: ${GameState.player.speed_max.toFixed(2)} `;
+            this.shotSpeedText.text = `Shot Speed: ${GameState.player.shot_speed}`;
+            this.shotPowerText.text = `Shot Power: ${GameState.player.shot_power.toFixed(1)}`;
+            this.numOfEnemiesText.text = `Enemies: ${GameState.enemies.length} / ${GameState.init_enemies}`;
+            this.numOfItemsText.text = `Items: ${GameState.items.length - 1} / ${GameState.init_items}`;
+
+            const elapsed_sec = Math.floor((time - GameState.start_time) / 1000);
+            this.elapsedText.text = `Elapsed: ${Math.floor(elapsed_sec / 60).toString().padStart(2,'0')}:${(elapsed_sec % 60).toString().padStart(2,'0')}`
+        }
+        this.minimap.update(time, delta);
+        this.bag_blink.update(time, delta);
+    }
+
+    dispose(){
+        if (this.scoreText){
+            this.scoreText.dispose();
+            this.scoreText = null;
+        }
+        if (this.hpText){
+            this.hpText.dispose();
+            this.hpText = null;
+        }
+        if (this.massText){
+            this.massText.dispose();
+            this.massText = null;
+        }
+        if (this.panel){
+            this.panel.dispose();
+            this.panel = null;
+        }
+        if (this.status_message){
+            this.status_message.dispose();
+            this.status_message = null;
+        }
+        this.minimap.dispose();
+        this.ui.dispose();
+    }
+} // End of UI
+
+class Minimap {
+    constructor(ui){
+        this.ui = ui;
+        this.mapImage = null;
+    }
+
+    create() {
         // ミニマップ領域全体をまとめる「コンテナ」を作成
         const mapContainer = new BABYLON.GUI.Rectangle("mapContainer");
         mapContainer.width = "648px";
@@ -183,11 +240,11 @@ export class UI {
         mapContainer.addControl(playerIcon);
     }
 
-    update_minimap() {
+    update(time, delta) {
         const mapImage = this.mapImage; // 保持しておいたGUI.Image
-        const tex = GameState.minimap_bitmap;
-        const texW = tex.getSize().width;
-        const texH = tex.getSize().height;
+        // const tex = GameState.minimap_bitmap;
+        // const texW = tex.getSize().width;
+        // const texH = tex.getSize().height;
 
         // 自機のワールド座標をセル座標に変換
         const cellPos = MyMath.world_to_cell(GameState.player.mesh.position);
@@ -207,47 +264,171 @@ export class UI {
         mapImage.rotation = -angle; 
     }
 
-    dispose_minimap(){
-        // [TODO] minimap関連を完全にdiposeする（コンテナや自機など）
+    dispose(){
+        // [TODO] minimap関連を完全にdiposeする（コンテナや自機アイコンなど）
         if (this.mapImage){
             this.mapImage.dispose();
             this.mapImage = null;
         }
     }
+} // End of class Minimap
 
+class Bag {
+    constructor() {
+        GameState.bag_items = new Map(); // name -> num
+    }
 
-    update(time, delta){
-        this.scoreText.text = `SCORE: ${GameState.score}`;
-        if (GameState.player){
-            this.hpText.text = `HP: ${Math.floor(GameState.player.hp)} / ${GameState.player.hp_max} (${GameState.player.hp_delta})`;
-            this.massText.text = `MASS: ${GameState.player.mass.toFixed(1)} `;
-            this.reloadTimeText.text = `Reload Time: ${GameState.player.reload_time.toFixed(1)}`;
-            this.firePowerText.text = `Fire Power: ${GameState.player.fire_power.toFixed(1)}`;
-            this.update_minimap();
+    add(name) {
+        const num = GameState.bag_items.get(name) ?? 0;
+        GameState.bag_items.set(name, num + 1);
+        return num + 1;
+    }
+
+    remove(name) {
+        if (!GameState.bag_items.has(name)) return 0;
+
+        const num = GameState.bag_items.get(name);
+        if (num > 1) {
+            GameState.bag_items.set(name, num - 1);
+            return num - 1;
+        } else {
+            GameState.bag_items.delete(name);
+            return 0;
         }
     }
 
-    dispose(){
-        if (this.scoreText){
-            this.scoreText.dispose();
-            this.scoreText = null;
+    find(name) {
+        return GameState.bag_items.has(name);
+    }
+
+    get_sorted_items() {
+        return [...GameState.bag_items.entries()]
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([name, num]) => ({ name, num }));
+    }
+}
+
+class BagView {
+    constructor(ui) {
+        this.ui = ui;
+
+        this.panel = new BABYLON.GUI.StackPanel();
+        this.panel.isVertical = true;
+        this.panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        this.panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.panel.paddingTop = "10px";
+        this.panel.paddingLeft = "-10px";
+        this.panel.spacing = BAG_FONT_SPACING; //行間(px)
+        this.panel.fontFamily = "MyGameFont";
+
+        this.ui.addControl(this.panel);
+
+        this.textBlocks = new Map(); // name -> TextBlock
+    }
+
+    // TextBlock がなければ最下段に追加
+    ensure_text(name, num) {
+        if (this.textBlocks.has(name)) {
+            this.update_text(name, num);
+            return this.textBlocks.get(name);
         }
-        if (this.hpText){
-            this.hpText.dispose();
-            this.hpText = null;
+
+        const tb = new BABYLON.GUI.TextBlock();
+        tb.text = (num >= 2) ? `${name}(${num})` : name;
+        tb.color = BAG_FONT_COLOR;
+        tb.fontSize = BAG_FONT_SIZE;
+        tb.height = BAG_FONT_HEIGHT;
+        tb.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+
+        this.panel.addControl(tb); // 常に最下段に追加
+        this.textBlocks.set(name, tb);
+        return tb;
+    }
+
+    update_text(name, num) {
+        const tb = this.textBlocks.get(name);
+        if (!tb) return;
+        tb.text = (num >= 2) ? `${name}(${num})` : name;
+    }
+
+    remove_text(name) {
+        const tb = this.textBlocks.get(name);
+        if (!tb) return;
+        this.panel.removeControl(tb);
+        this.textBlocks.delete(name);
+    }
+
+    get_text(name) {
+        return this.textBlocks.get(name) ?? null;
+    }
+
+    // Blink 全終了時 に アイテムの表示位置を変更する
+    rebuild_sorted(sortedItems) {
+        this.panel.clearControls();
+        this.textBlocks.clear();
+
+        for (const { name, num } of sortedItems) {
+            const tb = new BABYLON.GUI.TextBlock();
+            tb.text = (num >= 2) ? `${name}(${num})` : name;
+            tb.color = BAG_FONT_COLOR;
+            tb.fontSize = BAG_FONT_SIZE;
+            tb.height = BAG_FONT_HEIGHT;
+            tb.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+
+            this.panel.addControl(tb);
+            this.textBlocks.set(name, tb);
         }
-        if (this.massText){
-            this.massText.dispose();
-            this.massText = null;
+    }
+}
+
+class BagBlink {
+    constructor(bag, bagView) {
+        this.bag = bag;
+        this.bag_view = bagView;
+        this.blinks = [];
+    }
+
+    start(name, color, duration = BLINK_PERIOD, onEnd = null) {
+        // console.log("blink start:", name, color, duration, onEnd);
+        this.blinks.push({
+            name,
+            color,
+            time: 0,
+            duration,
+            onEnd
+        });
+    }
+
+    update(time, delta) {
+        if (this.blinks.length === 0) return;
+
+        for (let i = this.blinks.length - 1; i >= 0; i--) {
+            const b = this.blinks[i];
+            b.time += delta / 1000;
+
+            const tb = this.bag_view.get_text(b.name);
+            if (tb) {
+                tb.color = b.color;
+                const phase = Math.floor(b.time / 0.18) % 2;
+                tb.alpha = (phase === 0) ? 1.0 : 0.0;
+                tb._markAsDirty();
+            }
+
+            if (b.time >= b.duration) {
+                if (tb) {
+                    tb.alpha = 1.0;
+                    tb.color = BAG_FONT_COLOR;
+                }
+                if (b.onEnd) b.onEnd();
+                this.blinks.splice(i, 1);
+            }
         }
-        if (this.panel){
-            this.panel.dispose();
-            this.panel = null;
+
+        // 全点滅終了 → 正しい順序に正す
+        if (this.blinks.length === 0) {
+            this.bag_view.rebuild_sorted(
+                this.bag.get_sorted_items()
+            );
         }
-        if (this.status_message){
-            this.status_message.dispose();
-            this.status_message = null;
-        }
-        this.ui.dispose();
     }
 }

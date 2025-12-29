@@ -49,13 +49,22 @@ export class TitleScene extends Scene {
         this.ui.addControl(this.image);
 
         // Text
-        this.text = new BABYLON.GUI.TextBlock();
-        this.text.text = "START GAME\nPUSH SPACE KEY";
-        this.text.color = "white";
-        this.text.fontFamily = "MyGameFont";
-        this.text.fontSize = 80;
-        MyDraw.set_text_center(this.text, 0, 100);
-        this.ui.addControl(this.text);
+        this.text1 = new BABYLON.GUI.TextBlock();
+        this.text1.text = "START GAME\nPUSH SPACE KEY";
+        this.text1.color = "white";
+        this.text1.fontFamily = "MyGameFont";
+        this.text1.fontSize = 64;
+        MyDraw.set_text_center(this.text1, 0, 100);
+        this.ui.addControl(this.text1);
+
+        this.text2 = new BABYLON.GUI.TextBlock();
+        this.text2.text = `v${GLOBALS.VERSION} - ${GLOBALS.DATE}`;
+        this.text2.color = "white";
+        this.text2.fontFamily = "MyGameFont";
+        this.text2.fontSize = 42;
+        MyDraw.set_text_center(this.text2, 0, 240);
+        this.ui.addControl(this.text2);
+
 
         // AudioEngine の強制初期化
         this.audio = new MyAudio();

@@ -4,10 +4,12 @@ import { GameState } from '../GameState.js';
 import { MyMath } from "../utils/MathUtils.js";
 import { Player } from "../objects/player.js";
 import { Obs_Cube } from "../objects/obs_cube.js";
+import { Itm_ItemBox } from "../objects/itm_item_box.js";
 import { Itm_Feed } from "../objects/itm_feed.js";
 import { Itm_Mass } from "../objects/itm_mass.js";
-import { Itm_RapidShot } from "../objects/itm_rapid_shot.js";
-import { Itm_PowerShot } from "../objects/itm_power_shot.js";
+import { Itm_SpeedMax } from "../objects/itm_speed_max.js";
+import { Itm_ShotSpeed } from "../objects/itm_shot_speed.js";
+import { Itm_ShotPower } from "../objects/itm_shot_power.js";
 import { Itm_Goal } from "../objects/itm_goal.js";
 import { Enemy_1 } from "../objects/enemy_1.js";
 import { Enemy_2 } from "../objects/enemy_2.js";
@@ -79,7 +81,7 @@ export class Spawn {
 
         // [EMY] 敵
         // enemy_4
-        for (let i = 0; i < 1; i++){
+        for (let i = 0; i < 2; i++){
             if (available_for_enemy_positions.length === 0) break;
             const enemy_position = available_for_enemy_positions.pop();
             used_positions.add(`${enemy_position.x},${enemy_position.y}`);
@@ -91,7 +93,7 @@ export class Spawn {
         }
 
         // enemy_1
-        for (let i = 0; i < 1; i++){
+        for (let i = 0; i < 3; i++){
             if (available_for_enemy_positions.length === 0) break;
             const enemy_position = available_for_enemy_positions.pop();
             used_positions.add(`${enemy_position.x},${enemy_position.y}`);
@@ -103,7 +105,7 @@ export class Spawn {
         }
 
         // enemy_3
-        for (let i = 0; i < 3; i++){
+        for (let i = 0; i < 5; i++){
             if (available_for_enemy_positions.length === 0) break;
             const enemy_position = available_for_enemy_positions.pop();
             used_positions.add(`${enemy_position.x},${enemy_position.y}`);
@@ -115,7 +117,7 @@ export class Spawn {
         }
 
         // enemy_2
-        for (let i = 0; i < 8; i++){
+        for (let i = 0; i < 10; i++){
             if (available_for_enemy_positions.length === 0) break;
             const enemy_position = available_for_enemy_positions.pop();
             used_positions.add(`${enemy_position.x},${enemy_position.y}`);
@@ -126,11 +128,23 @@ export class Spawn {
             GameState.enemies.push(enemy);
         }
 
+        GameState.init_enemies = GameState.enemies.length;
+
         available_positions = all_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
         MyMath.shuffle(available_positions);
 
+        // [ITM] 宝箱
+        for (let i = 0; i < 10; i++) {
+            if (available_positions.length === 0) break;
+            const itm = new Itm_ItemBox(scene);
+            const item_position = available_positions.pop();
+            used_positions.add(`${item_position.x},${item_position.y}`);            
+            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
+            itm.create(pos, i);
+            GameState.items.push(itm);
+        }
+
         // [ITM] 餌
-        // console.log("[ITEM] available_positions", available_positions);
         for (let i = 0; i < 25; i++) {
             if (available_positions.length === 0) break;
             const itm = new Itm_Feed(scene);
@@ -138,7 +152,7 @@ export class Spawn {
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
             pos.y = 0.5;
-            itm.create(pos);
+            itm.create(pos, i);
             GameState.items.push(itm);
         }
 
@@ -150,34 +164,48 @@ export class Spawn {
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
             pos.y = 0.5;
-            itm.create(pos);
+            itm.create(pos, i);
             GameState.items.push(itm);
         }
 
-        // [ITM] 連射力強化
+        // [ITM] スピード
         for (let i = 0; i < 10; i++) {
             if (available_positions.length === 0) break;
-            const itm = new Itm_RapidShot(scene);
+            const itm = new Itm_SpeedMax(scene);
             const item_position = available_positions.pop();
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
             pos.y = 0.5;
-            itm.create(pos);
+            itm.create(pos, i);
             GameState.items.push(itm);
         }
 
-        // [ITM] 射撃力強化
+        // [ITM] SHOT - 射撃力強化
         // console.log("[ITEM] available_positions", available_positions);
         for (let i = 0; i < 10; i++) {
             if (available_positions.length === 0) break;
-            const itm = new Itm_PowerShot(scene);
+            const itm = new Itm_ShotPower(scene);
             const item_position = available_positions.pop();
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
             pos.y = 0.5;
-            itm.create(pos);
+            itm.create(pos, i);
             GameState.items.push(itm);
         }
+
+        // [ITM] SHOT - 連射力強化
+        for (let i = 0; i < 10; i++) {
+            if (available_positions.length === 0) break;
+            const itm = new Itm_ShotSpeed(scene);
+            const item_position = available_positions.pop();
+            used_positions.add(`${item_position.x},${item_position.y}`);            
+            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
+            pos.y = 0.5;
+            itm.create(pos, i);
+            GameState.items.push(itm);
+        }
+
+        GameState.init_items = GameState.items.length - 1;
 
         // [OBS] 障害物
         // console.log("[OBS] available_positions", available_positions);

@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.3",
-    DATE : "2025.12.28",
+    VERSION : "0.4",
+    DATE : "2025.12.30",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -59,14 +59,23 @@ export const GLOBALS = {
     DAMAGE_SPEED : 1.2,
     ADDITIONAL_DAMAGE_RATIO : 2,
 
-    PLAYER_INIT_STATUS : {
-        HP_MAX : 200,
-        HP_DELTA : -0.5,
-        MASS : 1,
-        ACCEL : 0.02,
-        SPEED_MAX : 0.1,
-        RELOAD_TIME : 1.0,
-        FIRE_POWER : 4.5
+    PLAYER_STATS : {
+        INIT : {
+            HP_MAX : 200,
+            HP_DELTA : -0.5,
+            MASS : 1,
+            ACCEL : 0.02,
+            SPEED_MAX : 0.04,
+            SHOT_SPEED : 1,
+            SHOT_POWER : 1
+        },
+        LIMIT : {
+            HP_MAX : 1000,
+            MASS : 10,
+            SPEED_MAX : 0.16,
+            SHOT_SPEED : 10,
+            SHOT_POWER : 10
+        }
     },
 
     MOVABLE : {

@@ -1,15 +1,15 @@
-// itm_power_shot.js
+// itm_shot_speed.js
 import { GameState } from "../GameState.js";
 import { Item } from "./base_item.js";
 import { Eff_Text } from './eff_text.js';
 
-export class Itm_PowerShot extends Item {
+export class Itm_ShotSpeed extends Item {
 
     constructor(scene){
         super(scene);
     }
 
-    create(pos){
+    create(pos, id){
         // [Mesh] 球
         this.mesh = BABYLON.MeshBuilder.CreateSphere( `sphere`, 
             { diameter: this.radius * 2, segments: 16 }, 
@@ -19,8 +19,8 @@ export class Itm_PowerShot extends Item {
 
         // [Material] 色
         const material = new BABYLON.StandardMaterial(`mat`, this.scene);
-        material.diffuseColor = new BABYLON.Color3(0.5, 1, 0.5);
-        material.specularColor = new BABYLON.Color3(0.1, 0.1, 1.0); 
+        material.diffuseColor = new BABYLON.Color3(0, 0.5, 1);
+        material.specularColor = new BABYLON.Color3(0.1, 0.1, 1.0);
         this.mesh.material = material;
 
         super.create();
@@ -29,10 +29,10 @@ export class Itm_PowerShot extends Item {
     activate(){
         this.alive = false;
         GameState.add_score(100);
-        const pow = 1;
-        GameState.player.shot_power(pow);
+        const spd = 1;
+        GameState.player.add_shot_speed(spd);
         const eff = new Eff_Text(this.scene);
-        eff.create(this.mesh.position, `FIRE POWER +${pow}`);
+        eff.create(this.mesh.position, `Shot Speed +${spd}`);
         GameState.effects.push(eff);
         GameState.asset.se.powerup.play();
     }

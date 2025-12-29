@@ -1,9 +1,9 @@
-// itm_mass.js
+// itm_shot_power.js
 import { GameState } from "../GameState.js";
 import { Item } from "./base_item.js";
 import { Eff_Text } from './eff_text.js';
 
-export class Itm_Mass extends Item {
+export class Itm_ShotPower extends Item {
 
     constructor(scene){
         super(scene);
@@ -19,8 +19,8 @@ export class Itm_Mass extends Item {
 
         // [Material] 色
         const material = new BABYLON.StandardMaterial(`mat`, this.scene);
-        material.diffuseColor = new BABYLON.Color3(1, 0.5, 0.3);
-        material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1); 
+        material.diffuseColor = new BABYLON.Color3(0.5, 1, 0.5);
+        material.specularColor = new BABYLON.Color3(0.1, 0.1, 1.0); 
         this.mesh.material = material;
 
         super.create();
@@ -29,10 +29,10 @@ export class Itm_Mass extends Item {
     activate(){
         this.alive = false;
         GameState.add_score(100);
-        const mass = Math.random() + 0.1;
-        GameState.player.add_mass(mass);
+        const pow = 1;
+        GameState.player.add_shot_power(pow);
         const eff = new Eff_Text(this.scene);
-        eff.create(this.mesh.position, `MASS +${mass.toFixed(1)}`);
+        eff.create(this.mesh.position, `Shot Power +${pow}`);
         GameState.effects.push(eff);
         GameState.asset.se.powerup.play();
     }

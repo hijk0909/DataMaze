@@ -31,6 +31,10 @@ export class GameAsset extends Asset {
         this.mesh.enemy_4 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "enemy_4.glb", this.scene);
 
+        // アイテムモデル
+        this.item_box = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "item_box.glb", this.scene);
+
         // ■ テクスチャ
         const ptx = new BABYLON.Texture("./assets/textures/flare.png", this.scene);
         ptx.hasAlpha = true;
