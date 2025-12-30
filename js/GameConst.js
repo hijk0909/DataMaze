@@ -2,7 +2,7 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.4",
+    VERSION : "0.4a",
     DATE : "2025.12.30",
 
     MASK_UI : 0x10000000,
@@ -83,6 +83,12 @@ export const GLOBALS = {
             INIT : 1.0,
             MIN : 0.8,
             MAX : 1.2
+        }
+    },
+
+    ITEM : {
+        Y : {
+            BASE : 0.5
         }
     }
 }

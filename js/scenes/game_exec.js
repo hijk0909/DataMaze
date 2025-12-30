@@ -4,6 +4,7 @@ import { GameState } from '../GameState.js';
 import { Eff_Firework } from '../objects/eff_firework.js';
 import { Eff_Extinction } from '../objects/eff_extinction.js';
 import { Eff_Text } from '../objects/eff_text.js';
+import { Itm_Feed } from "../objects/itm_feed.js";
 
 const IMPULSE_RATIO = 10;
 
@@ -41,6 +42,14 @@ export class Exec {
                     eff.create(enemy.mesh.position);
                     GameState.effects.push(eff);
                     GameState.asset.se.explosion.play_3D(enemy, this.scene);
+
+                    // [TEST] アイテムドロップ
+                    // [TODO] アニメーションを伴うアイテムを生成する時などで、id が 0 で重複しても大丈夫？
+                    const itm = new Itm_Feed(this.scene);
+                    const pos = enemy.mesh.position;
+                    itm.create(pos, 0);
+                    itm.drop();
+                    GameState.items.push(itm);
                 }
             }
         }
@@ -86,6 +95,14 @@ export class Exec {
                         eff.create(enemy.mesh.position);
                         GameState.effects.push(eff);
                         GameState.asset.se.explosion.play_3D(enemy, this.scene);
+
+                        // [TEST] アイテムドロップ
+                        // [TODO] アニメーションを伴うアイテムを生成する時などで、id が 0 で重複しても大丈夫？
+                        const itm = new Itm_Feed(this.scene);
+                        const pos = enemy.mesh.position;
+                        itm.create(pos, 0);
+                        itm.drop();
+                        GameState.items.push(itm);
                     } 
                 }
             }

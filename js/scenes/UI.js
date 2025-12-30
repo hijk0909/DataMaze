@@ -115,7 +115,7 @@ export class UI {
         const num = this.bag.remove(name);
         if (num > 0) {
             this.bag_view.update_text(name, num);
-            this.bag_blink.start(name, "yellow");
+            this.bag_blink.start(name, "orange");
         } else {
             // アイテム数：1 → 0 の場合、赤く点滅してから消す
             this.bag_blink.start(name, "red",

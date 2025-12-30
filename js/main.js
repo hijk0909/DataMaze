@@ -40,18 +40,19 @@ function set_shader(){
     varying vec3 vPos;
 
     uniform float time;
+    uniform float alpha;
     uniform sampler2D diffuseSampler;
 
     void main() {
         float flow = sin((vUV.y - time * 0.5) * 4.0);
         float heightFade = clamp((vPos.y + 2.0) / 4.0, 0.0, 1.0);
-        float alpha = (1.0 - heightFade);
+        float heightAlpha = (1.0 - heightFade);
 
         vec2 uv = vUV;
         uv.y = fract(vUV.y - time * 0.3);
 
         vec4 tex = texture2D(diffuseSampler, uv);
-        gl_FragColor = vec4(tex.rgb, tex.a * alpha * flow);
+        gl_FragColor = vec4(tex.rgb, tex.a * heightAlpha * flow * alpha);
     }
     `;
 

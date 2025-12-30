@@ -4,13 +4,16 @@ import { GameState } from '../GameState.js';
 import { MyMath } from "../utils/MathUtils.js";
 import { Player } from "../objects/player.js";
 import { Obs_Cube } from "../objects/obs_cube.js";
+import { Itm_Goal } from "../objects/itm_goal.js";
+import { Itm_Battery } from "../objects/itm_battery.js";
 import { Itm_ItemBox } from "../objects/itm_item_box.js";
+import { Itm_Key } from "../objects/itm_key.js";
 import { Itm_Feed } from "../objects/itm_feed.js";
 import { Itm_Mass } from "../objects/itm_mass.js";
 import { Itm_SpeedMax } from "../objects/itm_speed_max.js";
 import { Itm_ShotSpeed } from "../objects/itm_shot_speed.js";
 import { Itm_ShotPower } from "../objects/itm_shot_power.js";
-import { Itm_Goal } from "../objects/itm_goal.js";
+
 import { Enemy_1 } from "../objects/enemy_1.js";
 import { Enemy_2 } from "../objects/enemy_2.js";
 import { Enemy_3 } from "../objects/enemy_3.js";
@@ -59,7 +62,7 @@ export class Spawn {
             }
         });
 
-        // [Player] 自機の設定
+        // [Player] 自機の設定 (必須：rooms[0])
         const player_position = this.center_of_room(GameState.rooms[0]);
         used_positions.add(`${player_position.x},${player_position.y}`);
         const p_pos = MyMath.cell_to_world(player_position.x, player_position.y);
@@ -67,7 +70,7 @@ export class Spawn {
         GameState.player = new Player(scene);
         GameState.player.create(GameState.asset.mesh.player, p_pos);
 
-        // [Goal] 目的地の設定
+        // [Goal] 目的地の設定 (必須：rooms[1])
         const goal_position = this.center_of_room(GameState.rooms[1]);
         used_positions.add(`${goal_position.x},${goal_position.y}`);
         const g_pos = MyMath.cell_to_world(goal_position.x, goal_position.y);
@@ -75,6 +78,15 @@ export class Spawn {
         const itm_goal = new Itm_Goal(scene);
         itm_goal.create(g_pos);
         GameState.items.push(itm_goal);
+
+        // [Goal] バッテリーの設定 (必須：rooms[2])
+        const battery_position = this.center_of_room(GameState.rooms[2]);
+        used_positions.add(`${battery_position.x},${battery_position.y}`);
+        const b_pos = MyMath.cell_to_world(battery_position.x, battery_position.y);
+        b_pos.y = 0.5;
+        const itm_battery = new Itm_Battery(scene);
+        itm_battery.create(b_pos);
+        GameState.items.push(itm_battery);
 
         available_for_enemy_positions = available_for_enemy_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
         MyMath.shuffle(available_for_enemy_positions);
@@ -140,6 +152,19 @@ export class Spawn {
             const item_position = available_positions.pop();
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
+            pos.y = GLOBALS.ITEM.Y.BASE;
+            itm.create(pos, i);
+            GameState.items.push(itm);
+        }
+
+        // [ITM] 鍵
+        for (let i = 0; i < 10; i++) {
+            if (available_positions.length === 0) break;
+            const itm = new Itm_Key(scene);
+            const item_position = available_positions.pop();
+            used_positions.add(`${item_position.x},${item_position.y}`);            
+            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
+            pos.y = GLOBALS.ITEM.Y.BASE;
             itm.create(pos, i);
             GameState.items.push(itm);
         }
@@ -151,7 +176,7 @@ export class Spawn {
             const item_position = available_positions.pop();
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = 0.5;
+            pos.y = GLOBALS.ITEM.Y.BASE;
             itm.create(pos, i);
             GameState.items.push(itm);
         }
@@ -163,7 +188,7 @@ export class Spawn {
             const item_position = available_positions.pop();
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = 0.5;
+            pos.y = GLOBALS.ITEM.Y.BASE;
             itm.create(pos, i);
             GameState.items.push(itm);
         }
@@ -175,32 +200,33 @@ export class Spawn {
             const item_position = available_positions.pop();
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = 0.5;
+            pos.y = GLOBALS.ITEM.Y.BASE;
             itm.create(pos, i);
             GameState.items.push(itm);
         }
 
         // [ITM] SHOT - 射撃力強化
-        // console.log("[ITEM] available_positions", available_positions);
+        // console.log("[ITM] SHOT_POWER available_positions", available_positions);
         for (let i = 0; i < 10; i++) {
             if (available_positions.length === 0) break;
             const itm = new Itm_ShotPower(scene);
             const item_position = available_positions.pop();
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = 0.5;
+            pos.y = GLOBALS.ITEM.Y.BASE;
             itm.create(pos, i);
             GameState.items.push(itm);
         }
 
         // [ITM] SHOT - 連射力強化
+        // console.log("[ITM] SHOT_SPEED available_positions", available_positions);
         for (let i = 0; i < 10; i++) {
             if (available_positions.length === 0) break;
             const itm = new Itm_ShotSpeed(scene);
             const item_position = available_positions.pop();
             used_positions.add(`${item_position.x},${item_position.y}`);            
             const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = 0.5;
+            pos.y = GLOBALS.ITEM.Y.BASE;
             itm.create(pos, i);
             GameState.items.push(itm);
         }
@@ -215,7 +241,8 @@ export class Spawn {
             const obs_position = available_positions.pop();
             used_positions.add(`${obs_position.x},${obs_position.y}`);
             const pos = MyMath.cell_to_world(obs_position.x, obs_position.y);
-            pos.y = 3 + Math.random() * 2;
+            pos.y = 2.5 + Math.random() * 2;
+            // pos.y = 0.5;
             obs.create(pos);
             GameState.obstacles.push(obs);
         }
