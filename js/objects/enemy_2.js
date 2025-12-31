@@ -3,6 +3,9 @@ import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Enemy } from "./base_enemy.js";
 
+const DISP_SCALE = 0.3;
+
+// 蜂
 export class Enemy_2 extends Enemy {
 
     constructor(scene){
@@ -19,8 +22,7 @@ export class Enemy_2 extends Enemy {
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_2_${id}` );
 
         this.mesh = inst.rootNodes[0];
-        this.mesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
-        this.mesh.scaling.z = Math.abs(this.mesh.scaling.z);
+        this.mesh.scaling = new BABYLON.Vector3(DISP_SCALE, DISP_SCALE, DISP_SCALE);
         this.mesh.position = position.clone();
 
         this.mesh.checkCollisions = true; //障害物との衝突判定

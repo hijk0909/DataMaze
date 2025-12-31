@@ -60,27 +60,23 @@ export class Itm_ItemBox extends Item {
         let disp = `${item}`;
         const r = Math.floor(Math.random()*6);
         if (r === 0){
-            item = "gonyonyo";
+            item = "Golden Badge";
             GameState.ui_manager.add_item(item);
             disp = `GET ${item}`;
         } else if (r === 1){
-            item = "Booster";
+            item = "Hero's Emblem";
             GameState.ui_manager.add_item(item);
             disp = `GET ${item}`;
         } else if (r === 2){
-            item = "Asteroid";
+            item = "Computing Device";
             GameState.ui_manager.add_item(item);
             disp = `GET ${item}`;
         } else if (r === 3){
-            item = "gonyonyo";
-            if (GameState.ui_manager.find_item(item)){
-                GameState.ui_manager.remove_item(item);
-                disp = `LOST ${item}`;
-            } else {
-                disp = "EMPTY";
-            }
+            item = "NoctoVision";
+            GameState.ui_manager.add_item(item);
+            disp = `GET ${item}`;
         } else if (r === 4){
-            item = "Booster";
+            item = "Seed of Luck";
             if (GameState.ui_manager.find_item(item)){
                 GameState.ui_manager.remove_item(item);
                 disp = `LOST ${item}`;
@@ -88,13 +84,7 @@ export class Itm_ItemBox extends Item {
                 disp = "EMPTY";
             }
         } else if (r === 5){
-            item = "Asteroid";
-            if (GameState.ui_manager.find_item(item)){
-                GameState.ui_manager.remove_item(item);
-               disp = `LOST ${item}`;
-            } else {
-                disp = "EMPTY";
-            }
+            disp = "EMPTY";
         }
 
         const eff = new Eff_Text(this.scene);

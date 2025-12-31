@@ -27,7 +27,7 @@ export class Item extends Drawable {
 
     update(time, delta){
         if (this.isDropping){
-            console.log("dropping:", this.mesh.position.y, this.velocity_y);
+            // console.log("dropping:", this.mesh.position.y, this.velocity_y);
             this.mesh.position.y += this.velocity_y;
             this.velocity_y += GRAVITY;
             if ( this.mesh.position.y < GLOBALS.ITEM.Y.BASE){

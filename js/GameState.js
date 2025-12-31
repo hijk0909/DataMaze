@@ -33,9 +33,10 @@ export const GameState = {
     minimap_ascii : null,
     minimap_bitmap : null,
     rooms : null,
+    spawn : null,
     bag_items : null,
-    init_enemies : 0, // ステージ開始時の敵数
-    init_items : 0, //ステージ開始時のアイテム数
+    num_enemies : 0, // 生成された敵の総数
+    num_items : 0, // 生成されたアイテムの総数
     start_time : 0, //ゲーム開始時の時刻
 
     // キャラクター
@@ -62,6 +63,7 @@ export const GameState = {
         this.score = 0;
         this.stage = 1;
         this.bag = null; 
+        this.spawn = null;
         this.stage_state = GLOBALS.STAGE_STATE.START;
         this.player_stats.hp = GLOBALS.PLAYER_STATS.INIT.HP_MAX;
         this.player_stats.hp_max = GLOBALS.PLAYER_STATS.INIT.HP_MAX;

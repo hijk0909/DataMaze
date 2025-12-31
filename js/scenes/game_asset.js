@@ -14,7 +14,7 @@ export class GameAsset extends Asset {
         // ■ blender モデル
         // 自機モデル
         this.container.player = await BABYLON.SceneLoader.LoadAssetContainerAsync(
-            "./assets/models/", "player_ball.glb", this.scene
+            "./assets/models/", "player.glb", this.scene
         );
         this.container.player.addAllToScene();
         this.mesh.player = this.container.player.meshes.find(m => m.name === "__root__");
@@ -30,6 +30,12 @@ export class GameAsset extends Asset {
 
         this.mesh.enemy_4 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "enemy_4.glb", this.scene);
+
+        this.mesh.enemy_5 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "enemy_5.glb", this.scene);
+
+        this.mesh.enemy_6 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "enemy_6.glb", this.scene);
 
         // アイテムモデル
         this.mesh.item_box = await BABYLON.SceneLoader.LoadAssetContainerAsync(

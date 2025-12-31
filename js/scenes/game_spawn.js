@@ -18,6 +18,32 @@ import { Enemy_1 } from "../objects/enemy_1.js";
 import { Enemy_2 } from "../objects/enemy_2.js";
 import { Enemy_3 } from "../objects/enemy_3.js";
 import { Enemy_4 } from "../objects/enemy_4.js";
+import { Enemy_5 } from "../objects/enemy_5.js";
+import { Enemy_6 } from "../objects/enemy_6.js";
+
+const EnemyClassList = {
+    'Enemy_1' : Enemy_1,
+    'Enemy_2' : Enemy_2,
+    'Enemy_3' : Enemy_3,
+    'Enemy_4' : Enemy_4,
+    'Enemy_5' : Enemy_5,
+    'Enemy_6' : Enemy_6
+}
+
+const ItemClassList = {
+    'Itm_Goal' :    Itm_Goal,
+    'Itm_Battery' : Itm_Battery,
+    'Itm_ItemBox' : Itm_ItemBox,
+    'Itm_Key' :     Itm_Key,
+    'Itm_Feed' :    Itm_Feed,
+    'Itm_Mass' :    Itm_Mass,
+    'Itm_SpeedMax' :Itm_SpeedMax,
+    'Itm_ShotSpeed':Itm_ShotSpeed,
+    'Itm_ShotPower':Itm_ShotPower
+}
+
+
+
 
 export class Spawn {
     constructor(scene) {
@@ -29,6 +55,7 @@ export class Spawn {
         this.used_positions = [];
         this.available_for_enemy_positions = [];
         this.available_for_item_positions = [];
+
     }
 
     center_of_room(room) {
@@ -38,15 +65,59 @@ export class Spawn {
         };
     }
 
-    calc_positions(){
-        MyMath.shuffle(this.available_for_enemy_positions);
+    // calc_positions(){
+    //     MyMath.shuffle(this.available_for_enemy_positions);
+    // }
+
+    spawn_enemy(enemy_name, pos){
+        GameState.num_enemies++;
+        const EnemyClass = EnemyClassList[enemy_name];
+        const enemy = new EnemyClass(this.scene);
+        enemy.create(pos, GameState.num_enemies);
+        GameState.enemies.push(enemy);
+        return enemy;
     }
 
+    spawn_item(item_name, pos){
+        GameState.num_items++;
+        const ItemClass = ItemClassList[item_name];
+        const item = new ItemClass(this.scene);
+        item.create(pos, GameState.num_items);
+        GameState.items.push(item);        
+        return item;
+    }
+
+    spawn_enemies_from_array(enemy_name, num, array, used){
+        for (let i = 0; i < num; i++){
+            if (array.length === 0) break;
+            const enemy_position = array.pop();
+            used.add(`${enemy_position.x},${enemy_position.y}`);
+            const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
+            pos.y = GLOBALS.MOVABLE.Y.INIT;
+            this.spawn_enemy(enemy_name, pos);
+        }
+    }
+
+    spawn_items_from_array(item_name, num, array, used){
+        for (let i = 0; i < num; i++) {
+            if (array.length === 0) break;
+            const item_position = array.pop();
+            used.add(`${item_position.x},${item_position.y}`);            
+            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
+            pos.y = GLOBALS.ITEM.Y.BASE;
+            this.spawn_item(item_name, pos);
+        }
+    }
+
+    // ◆初期配置
     initial_placement(){
 
         const scene = this.scene;
 
-        // 配列の準備
+        GameState.num_enemies = 0;
+        GameState.num_items = 0;
+
+        // 初期配置制御用の配列の準備
         let all_positions = [];
         let available_for_enemy_positions = [];
         let used_positions = new Set();
@@ -83,155 +154,44 @@ export class Spawn {
         const battery_position = this.center_of_room(GameState.rooms[2]);
         used_positions.add(`${battery_position.x},${battery_position.y}`);
         const b_pos = MyMath.cell_to_world(battery_position.x, battery_position.y);
-        b_pos.y = 0.5;
+        b_pos.y = GLOBALS.ITEM.Y.BASE;
+        GameState.num_items++;
         const itm_battery = new Itm_Battery(scene);
-        itm_battery.create(b_pos);
+        itm_battery.create(b_pos, GameState.num_items);
         GameState.items.push(itm_battery);
 
         available_for_enemy_positions = available_for_enemy_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
         MyMath.shuffle(available_for_enemy_positions);
 
         // [EMY] 敵
-        // enemy_4
-        for (let i = 0; i < 2; i++){
-            if (available_for_enemy_positions.length === 0) break;
-            const enemy_position = available_for_enemy_positions.pop();
-            used_positions.add(`${enemy_position.x},${enemy_position.y}`);
-            const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
-            pos.y = GLOBALS.MOVABLE.Y.INIT;
-            const enemy = new Enemy_4(scene);
-            enemy.create(pos, i);
-            GameState.enemies.push(enemy);
-        }
-
-        // enemy_1
-        for (let i = 0; i < 3; i++){
-            if (available_for_enemy_positions.length === 0) break;
-            const enemy_position = available_for_enemy_positions.pop();
-            used_positions.add(`${enemy_position.x},${enemy_position.y}`);
-            const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
-            pos.y = GLOBALS.MOVABLE.Y.INIT;
-            const enemy = new Enemy_1(scene);
-            enemy.create(pos, i);
-            GameState.enemies.push(enemy);
-        }
-
-        // enemy_3
-        for (let i = 0; i < 5; i++){
-            if (available_for_enemy_positions.length === 0) break;
-            const enemy_position = available_for_enemy_positions.pop();
-            used_positions.add(`${enemy_position.x},${enemy_position.y}`);
-            const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
-            pos.y = GLOBALS.MOVABLE.Y.INIT;
-            const enemy = new Enemy_3(scene);
-            enemy.create(pos, i);
-            GameState.enemies.push(enemy);
-        }
-
-        // enemy_2
-        for (let i = 0; i < 10; i++){
-            if (available_for_enemy_positions.length === 0) break;
-            const enemy_position = available_for_enemy_positions.pop();
-            used_positions.add(`${enemy_position.x},${enemy_position.y}`);
-            const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
-            pos.y = GLOBALS.MOVABLE.Y.INIT;
-            const enemy = new Enemy_2(scene);
-            enemy.create(pos, i);
-            GameState.enemies.push(enemy);
-        }
-
-        GameState.init_enemies = GameState.enemies.length;
+        // enemy_5（大目玉）
+        this.spawn_enemies_from_array("Enemy_5", 3, available_for_enemy_positions, used_positions);
+        // enemy_4（ケルビム）
+        this.spawn_enemies_from_array("Enemy_4", 2, available_for_enemy_positions, used_positions);
+        // enemy_1（生首）
+        this.spawn_enemies_from_array("Enemy_1", 3, available_for_enemy_positions, used_positions);
+        // enemy_3（イノシシ）
+        this.spawn_enemies_from_array("Enemy_3", 5, available_for_enemy_positions, used_positions);
+        // enemy_2（蜂）
+        this.spawn_enemies_from_array("Enemy_2", 10, available_for_enemy_positions, used_positions);
 
         available_positions = all_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
         MyMath.shuffle(available_positions);
 
         // [ITM] 宝箱
-        for (let i = 0; i < 10; i++) {
-            if (available_positions.length === 0) break;
-            const itm = new Itm_ItemBox(scene);
-            const item_position = available_positions.pop();
-            used_positions.add(`${item_position.x},${item_position.y}`);            
-            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = GLOBALS.ITEM.Y.BASE;
-            itm.create(pos, i);
-            GameState.items.push(itm);
-        }
-
+        this.spawn_items_from_array("Itm_ItemBox", 5, available_positions, used_positions);
         // [ITM] 鍵
-        for (let i = 0; i < 10; i++) {
-            if (available_positions.length === 0) break;
-            const itm = new Itm_Key(scene);
-            const item_position = available_positions.pop();
-            used_positions.add(`${item_position.x},${item_position.y}`);            
-            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = GLOBALS.ITEM.Y.BASE;
-            itm.create(pos, i);
-            GameState.items.push(itm);
-        }
-
+        this.spawn_items_from_array("Itm_Key", 5, available_positions, used_positions);
         // [ITM] 餌
-        for (let i = 0; i < 25; i++) {
-            if (available_positions.length === 0) break;
-            const itm = new Itm_Feed(scene);
-            const item_position = available_positions.pop();
-            used_positions.add(`${item_position.x},${item_position.y}`);            
-            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = GLOBALS.ITEM.Y.BASE;
-            itm.create(pos, i);
-            GameState.items.push(itm);
-        }
-
-        // [ITM] 質量
-        for (let i = 0; i < 10; i++) {
-            if (available_positions.length === 0) break;
-            const itm = new Itm_Mass(scene);
-            const item_position = available_positions.pop();
-            used_positions.add(`${item_position.x},${item_position.y}`);            
-            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = GLOBALS.ITEM.Y.BASE;
-            itm.create(pos, i);
-            GameState.items.push(itm);
-        }
-
-        // [ITM] スピード
-        for (let i = 0; i < 10; i++) {
-            if (available_positions.length === 0) break;
-            const itm = new Itm_SpeedMax(scene);
-            const item_position = available_positions.pop();
-            used_positions.add(`${item_position.x},${item_position.y}`);            
-            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = GLOBALS.ITEM.Y.BASE;
-            itm.create(pos, i);
-            GameState.items.push(itm);
-        }
-
+        this.spawn_items_from_array("Itm_Feed", 5, available_positions, used_positions);
+        // [ITM] 質量アップ
+        this.spawn_items_from_array("Itm_Mass", 5, available_positions, used_positions);
+        // [ITM] 自機スピードアップ
+        this.spawn_items_from_array("Itm_SpeedMax", 5, available_positions, used_positions);
         // [ITM] SHOT - 射撃力強化
-        // console.log("[ITM] SHOT_POWER available_positions", available_positions);
-        for (let i = 0; i < 10; i++) {
-            if (available_positions.length === 0) break;
-            const itm = new Itm_ShotPower(scene);
-            const item_position = available_positions.pop();
-            used_positions.add(`${item_position.x},${item_position.y}`);            
-            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = GLOBALS.ITEM.Y.BASE;
-            itm.create(pos, i);
-            GameState.items.push(itm);
-        }
-
+        this.spawn_items_from_array("Itm_ShotPower", 3, available_positions, used_positions);
         // [ITM] SHOT - 連射力強化
-        // console.log("[ITM] SHOT_SPEED available_positions", available_positions);
-        for (let i = 0; i < 10; i++) {
-            if (available_positions.length === 0) break;
-            const itm = new Itm_ShotSpeed(scene);
-            const item_position = available_positions.pop();
-            used_positions.add(`${item_position.x},${item_position.y}`);            
-            const pos = MyMath.cell_to_world(item_position.x, item_position.y);
-            pos.y = GLOBALS.ITEM.Y.BASE;
-            itm.create(pos, i);
-            GameState.items.push(itm);
-        }
-
-        GameState.init_items = GameState.items.length - 1;
+        this.spawn_items_from_array("Itm_ShotSpeed", 3, available_positions, used_positions);
 
         // [OBS] 障害物
         // console.log("[OBS] available_positions", available_positions);
@@ -242,7 +202,6 @@ export class Spawn {
             used_positions.add(`${obs_position.x},${obs_position.y}`);
             const pos = MyMath.cell_to_world(obs_position.x, obs_position.y);
             pos.y = 2.5 + Math.random() * 2;
-            // pos.y = 0.5;
             obs.create(pos);
             GameState.obstacles.push(obs);
         }

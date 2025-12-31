@@ -17,7 +17,6 @@ export class GameScene extends Scene {
     constructor(game) {
         super(game);
         this.map = null;
-        this.spawn = null;
         this.isInitialized = false;
         this.stage_state_count = 0;
 
@@ -108,8 +107,8 @@ export class GameScene extends Scene {
         this.wipe = new Wipe(scene, GameState.camera);
 
         // [DEBUG]
-        GameState.ui_manager.add_item("test item");
-        GameState.ui_manager.add_item("dedocode stemmbidas");
+        // GameState.ui_manager.add_item("Test Item 1");
+        // GameState.ui_manager.add_item("Test Item 2");
     }
 
     update(time, delta){
@@ -133,12 +132,12 @@ export class GameScene extends Scene {
             GameState.ui_manager.minimap.dispose();
             GameState.ui_manager.minimap.create();
             // 敵やアイテムの配置
-            if (this.spawn){
-                this.spawn.dispose();
-                this.spawn = null;
+            if (GameState.spawn){
+                GameState.spawn.dispose();
+                GameState.spawn = null;
             }
-            this.spawn = new Spawn(this.scene);
-            this.spawn.initial_placement();
+            GameState.spawn = new Spawn(this.scene);
+            GameState.spawn.initial_placement();
             // [STATUS_MSG]
             GameState.ui_manager.show_status_message(`GET READY\nSTAGE ${GameState.stage}`);
             // [WIPE]
@@ -304,9 +303,9 @@ export class GameScene extends Scene {
             this.map_manager.dispose();
             this.map_manager = null;
         }
-        if (this.spawn){
-            this.spawn.dispose();
-            this.spawn = null;
+        if (GameState.spawn){
+            GameState.spawn.dispose();
+            GameState.spawn = null;
         }
 
         if (this.my_input){

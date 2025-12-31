@@ -1,7 +1,9 @@
-// enemy_3.js
+// enemy_4.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Enemy } from "./base_enemy.js";
+
+const DISP_SCALE = 0.4;
 
 const STATUS_WALK = 0;
 const STATUS_IDLE = 1;
@@ -9,6 +11,7 @@ const STATUS_WALK_PERIOD = 5;
 const STATUS_IDLE_PERIOD = 4;
 const DECEL = 0.92;
 
+// ケルビム
 export class Enemy_4 extends Enemy {
 
     constructor(scene){
@@ -17,8 +20,7 @@ export class Enemy_4 extends Enemy {
         this.max_speed = 0.08;
         this.accel = 0.003;
         this.mass = 0.3;
-        this.hp_max = 100;
-        this.hp = 100;
+        this.hp_max = this.hp = 120;
         this.turn_speed = 1.5;
         this.status = STATUS_WALK;
         this.status_counter = STATUS_WALK_PERIOD;
@@ -31,7 +33,7 @@ export class Enemy_4 extends Enemy {
 
         this.mesh = inst.rootNodes[0];
         this.mesh.ellipsoid = new BABYLON.Vector3(1.2, 0.8, 1.2);
-        this.mesh.scaling = new BABYLON.Vector3(0.4, 0.4, 0.4);
+        this.mesh.scaling = new BABYLON.Vector3(DISP_SCALE, DISP_SCALE, DISP_SCALE);
         this.mesh.scaling.z = Math.abs(this.mesh.scaling.z);
         this.mesh.position = position.clone();
 
