@@ -138,7 +138,6 @@ export class Map {
     // マップの生成
     create_map(){
       const result = generateDungeon();
-      // create_map_ascii(result.map);
       create_minimap_bitmap(result.map, this.scene);
       GameState.map = result.map;
 
@@ -372,9 +371,11 @@ function makeEmptyMap() {
 function placeRoomsOnSegments(segHasRoom) {
     // segHasRoom: boolean[9] を返す
     const arr = new Array(SEG_COUNT).fill(false);
-    const count = randInt(3, SEG_COUNT); // 3..9 部屋数
+    const num_room = Math.min(9,Math.max(3,GameState.stageInfo.num_room));
+    // console.log("placeRoomsOnSegments:", num_room);
+    // const num_room = randInt(3, SEG_COUNT); // 3..9 部屋数
     const order = shuffle([...Array(SEG_COUNT).keys()]);
-    for (let i = 0; i < count; i++) arr[order[i]] = true;
+    for (let i = 0; i < num_room; i++) arr[order[i]] = true;
     return arr;
 }
 
@@ -917,21 +918,21 @@ function isValidCell(x, y) {
 
 
 // ASCII 表示（指定の全角文字マップ）
-function create_map_ascii(map) {
-  const glyph = {
-    [GLOBALS.MAP.ELEMENT.EMPTY]: "＿",     // 全角スペース
-    [GLOBALS.MAP.ELEMENT.WALL]: "■",
-    [GLOBALS.MAP.ELEMENT.FLOOR]: "・",
-    [GLOBALS.MAP.ELEMENT.EXIT]: "＋",
-    [GLOBALS.MAP.ELEMENT.CORRIDOR]: "□"
-  };
-  let s = "";
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      s += glyph[map[y][x]] || "　";
-    }
-    s += "\n";
-  }
-  // console.log(s);
-  GameState.map_text = s;
-}
+// function create_map_ascii(map) {
+//   const glyph = {
+//     [GLOBALS.MAP.ELEMENT.EMPTY]: "＿",     // 全角スペース
+//     [GLOBALS.MAP.ELEMENT.WALL]: "■",
+//     [GLOBALS.MAP.ELEMENT.FLOOR]: "・",
+//     [GLOBALS.MAP.ELEMENT.EXIT]: "＋",
+//     [GLOBALS.MAP.ELEMENT.CORRIDOR]: "□"
+//   };
+//   let s = "";
+//   for (let y = 0; y < map.length; y++) {
+//     for (let x = 0; x < map[y].length; x++) {
+//       s += glyph[map[y][x]] || "　";
+//     }
+//     s += "\n";
+//   }
+//   // console.log(s);
+//   GameState.map_text = s;
+// }

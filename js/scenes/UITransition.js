@@ -18,14 +18,11 @@ export class UITransition {
     }
 
     create(){
-        // [Wipe] 
-
-
-
         // [Loading] ロード中表示文字列
         this.loading = new BABYLON.GUI.TextBlock();
         this.loading.text = "NOW LOADING...";
         this.loading.color = "white";
+        this.loading.fontFamily = "MyGameFont";
         this.loading.fontSize = 32;
         this.loading.isVisible = false;
         this.loading.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;

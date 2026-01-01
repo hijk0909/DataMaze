@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.4b",
-    DATE : "2025.12.31",
+    VERSION : "0.4c",
+    DATE : "2026.1.1",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -61,8 +61,8 @@ export const GLOBALS = {
 
     PLAYER_STATS : {
         INIT : {
-            HP_MAX : 200,
-            HP_DELTA : -0.5,
+            HP_MAX : 100,
+            HP_DELTA : -1.0,
             MASS : 1,
             ACCEL : 0.02,
             SPEED_MAX : 0.04,
@@ -71,6 +71,7 @@ export const GLOBALS = {
         },
         LIMIT : {
             HP_MAX : 1000,
+            HP_DELTA : 1.0,
             MASS : 10,
             SPEED_MAX : 0.16,
             SHOT_SPEED : 10,

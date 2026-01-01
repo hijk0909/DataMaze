@@ -1,7 +1,7 @@
-// _obstacle.js
+// base_prop.js
 import { Drawable } from "./base_drawable.js";
 
-export class Obstacle extends Drawable {
+export class Prop extends Drawable {
 
     constructor(scene){
         super(scene);

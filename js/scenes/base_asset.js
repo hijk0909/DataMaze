@@ -19,7 +19,7 @@ export class Asset {
     }
 
     dispose(){
-        for (const group of [this.mesh, this.texture, this.sprite, this.container, this.bgm, this.se, this.jingle]) {
+        for (const group of [this.mesh, this.texture, this.sprite, this.container, this.bgm, this.se, this.jingle, this.data]) {
             for (const key in group){
                 const object = group[key];
                 if (object){

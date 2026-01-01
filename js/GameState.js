@@ -26,15 +26,15 @@ export const GameState = {
     // ゲーム情報
     stage : 1,
     stage_state : GLOBALS.STAGE_STATE.START,
-    score : 0,
     ui_manager : null,
+    stageInfo : null,
     map : [], 
     explored_map : [],
-    minimap_ascii : null,
     minimap_bitmap : null,
     rooms : null,
     spawn : null,
     bag_items : null,
+    score : 0,
     num_enemies : 0, // 生成された敵の総数
     num_items : 0, // 生成されたアイテムの総数
     start_time : 0, //ゲーム開始時の時刻

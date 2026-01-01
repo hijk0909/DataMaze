@@ -67,18 +67,17 @@ export class GameScene extends Scene {
         scene.fogEnd = 15.0;
 
         // sky
-        this.skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
-        const skyMaterial = this.skyMaterial;
-        skyMaterial.backFaceCulling = false;
-        skyMaterial.inclination = 0.49;
-        skyMaterial.luminance = 0.2;
-        skyMaterial.turbidity = 6;
-        skyMaterial.fogEnabled = false;
-        const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000 }, scene);
-        skybox.material = skyMaterial;
-
-        this.sky_time = 0;
-        this.sky_speed = 0.07;
+        // this.skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
+        // const skyMaterial = this.skyMaterial;
+        // skyMaterial.backFaceCulling = false;
+        // skyMaterial.inclination = 0.49;
+        // skyMaterial.luminance = 0.2;
+        // skyMaterial.turbidity = 6;
+        // skyMaterial.fogEnabled = false;
+        // const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000 }, scene);
+        // skybox.material = skyMaterial;
+        // this.sky_time = 0;
+        // this.sky_speed = 0.07;
 
         // bloom
         // const pipeline = new BABYLON.DefaultRenderingPipeline("default", true, scene, [GameState.camera]);
@@ -122,6 +121,7 @@ export class GameScene extends Scene {
         // ■ステージステータスによる状態遷移
         if (GameState.stage_state === GLOBALS.STAGE_STATE.START){
             // ◆開始（ステージの初期化処理）
+            GameState.stageInfo  = GameState.asset.data.stage_data.stages.find(s => s.stage === GameState.stage);
             // マップ生成
             if (this.map_manager){
                 this.map_manager.dispose();

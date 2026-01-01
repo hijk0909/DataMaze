@@ -190,7 +190,7 @@ export class Player extends Movable {
         ));
         BABYLON.Quaternion.FromRotationMatrixToRef(tempMatrix, this.mesh.rotationQuaternion);
 
-        this.hp = Math.max(1, Math.min(this.hp_max, this.hp + GameState.player_stats.hp_delta * delta / 1000));
+        this.hp = Math.max(1, Math.min(this.hp_max, this.hp + this.hp_delta * delta / 1000));
         this.update_hp_bar();
 
         // 連射のクールダウン
@@ -255,6 +255,14 @@ export class Player extends Movable {
     // プレイヤーステータス変更
     add_speed_max(spd){
         this.speed_max = Math.min(GLOBALS.PLAYER_STATS.LIMIT.SPEED_MAX, this.speed_max + spd);
+    }
+
+    add_hp_max(hp){
+        this.hp_max = Math.min(GLOBALS.PLAYER_STATS.LIMIT.HP_MAX, this.hp_max + hp);
+    }
+
+    add_hp_delta(hpd){
+        this.hp_delta = Math.min(GLOBALS.PLAYER_STATS.LIMIT.HP_DELTA, this.hp_delta + hpd);
     }
 
     add_shot_speed(spd){

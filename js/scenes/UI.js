@@ -131,7 +131,7 @@ export class UI {
     update(time, delta){
         this.scoreText.text = `SCORE: ${GameState.score}`;
         if (GameState.player){
-            this.hpText.text = `HP: ${Math.floor(GameState.player.hp)} / ${GameState.player.hp_max} (${GameState.player.hp_delta})`;
+            this.hpText.text = `HP: ${Math.floor(GameState.player.hp)} / ${GameState.player.hp_max} (${GameState.player.hp_delta.toFixed(1)})`;
             this.massText.text = `MASS: ${GameState.player.mass.toFixed(1)} `;
             this.speedText.text = `SPEED: ${GameState.player.speed_max.toFixed(2)} `;
             this.shotSpeedText.text = `Shot Speed: ${GameState.player.shot_speed}`;

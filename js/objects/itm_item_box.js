@@ -62,18 +62,22 @@ export class Itm_ItemBox extends Item {
         if (r === 0){
             item = "Golden Badge";
             GameState.ui_manager.add_item(item);
+            GameState.player.add_hp_max(25);
             disp = `GET ${item}`;
         } else if (r === 1){
             item = "Hero's Emblem";
             GameState.ui_manager.add_item(item);
+            GameState.player.add_hp_max(50);
             disp = `GET ${item}`;
         } else if (r === 2){
             item = "Computing Device";
             GameState.ui_manager.add_item(item);
+            GameState.player.add_hp_delta(0.2);
             disp = `GET ${item}`;
         } else if (r === 3){
             item = "NoctoVision";
             GameState.ui_manager.add_item(item);
+            GameState.player.add_hp_delta(0.5);
             disp = `GET ${item}`;
         } else if (r === 4){
             item = "Seed of Luck";

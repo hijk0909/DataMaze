@@ -9,6 +9,33 @@ export class GameAsset extends Asset {
         super(scene);
     }
 
+    // GameState.asset.data.stage_data に JSON を読み込む
+    async load_stage_data() {
+        try {
+            const response = await fetch("./assets/data/stage.json");
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const jsonData = await response.json();
+
+            // dispose メソッドを追加しておく
+            jsonData.dispose = function () {
+                if (this.stages) {
+                    this.stages.length = 0; //念のため参照を切る
+                }
+            };
+
+            // 保存
+            GameState.asset = GameState.asset || {};
+            GameState.asset.data = GameState.asset.data || {};
+            GameState.asset.data.stage_data = jsonData;
+            // console.log("Stage data loaded:", GameState.asset.data.stage_data);
+        } catch (error) {
+            console.error("Failed to load stage data:", error);
+        }
+    }
+
+
     async preload(){
         // console.log("asset.preload.start");
         // ■ blender モデル
@@ -36,6 +63,9 @@ export class GameAsset extends Asset {
 
         this.mesh.enemy_6 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "enemy_6.glb", this.scene);
+
+        this.mesh.enemy_7 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "enemy_7.glb", this.scene);
 
         // アイテムモデル
         this.mesh.item_box = await BABYLON.SceneLoader.LoadAssetContainerAsync(
@@ -101,6 +131,9 @@ export class GameAsset extends Asset {
         this.jingle.stageclear = await MyAudio.load( "./assets/audio/jingle/jingle_stage_clear.mp3" );
         this.jingle.stageclear.setVolume(0.8);
         // console.log("asset.preload:end");
+
+        // ■　ステージデータ
+        await this.load_stage_data();
     }
 
     dispose(){

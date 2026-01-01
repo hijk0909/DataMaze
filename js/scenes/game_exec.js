@@ -42,8 +42,7 @@ export class Exec {
                     GameState.effects.push(eff);
                     GameState.asset.se.explosion.play_3D(enemy, this.scene);
 
-                    // [TEST] アイテムドロップ
-                    // [TODO] アニメーションを伴うアイテムを生成する時などで、id が 0 で重複しても大丈夫？
+                    // アイテムドロップ
                     const itm = GameState.spawn.spawn_item("Itm_Feed", enemy.mesh.position);
                     itm.drop();
                 }
@@ -93,12 +92,8 @@ export class Exec {
                         GameState.asset.se.explosion.play_3D(enemy, this.scene);
 
                         // [TEST] アイテムドロップ
-                        GameState.num_items++;
-                        const itm = new Itm_Feed(this.scene);
-                        const pos = enemy.mesh.position;
-                        itm.create(pos, GameState.num_items);
+                        const itm = GameState.spawn.spawn_item("Itm_Feed", enemy.mesh.position);
                         itm.drop();
-                        GameState.items.push(itm);
                     } 
                 }
             }
