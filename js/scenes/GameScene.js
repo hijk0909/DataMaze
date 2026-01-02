@@ -162,6 +162,8 @@ export class GameScene extends Scene {
             // ◆プレイ中
             if (GameState.player && GameState.player.hp <= 0){
                 GameState.player.alive = false;
+                GameState.player.hp = 0;
+                GameState.player.update_hp_bar();
                 GameState.stage_state = GLOBALS.STAGE_STATE.FAIL;
             }
         } else if (GameState.stage_state === GLOBALS.STAGE_STATE.FAIL){
@@ -218,7 +220,7 @@ export class GameScene extends Scene {
             // [COUNTER]
             this.stage_state_count -= delta_sec;
             if (this.stage_state_count < 0){
-                GameState.stge++; // [ALL]
+                GameState.stage++; // [ALL]
                 // [TRANSIT]
                 this.game.sceneManager.changeScene(new GameClearScene(this.game));
             }

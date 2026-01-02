@@ -1,16 +1,16 @@
-// itm_feed.js
+// item_shot_power.js
+import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Item } from "./base_item.js";
 import { Eff_Text } from './eff_text.js';
 
-export class Itm_Feed extends Item {
+export class Item_ShotPower extends Item {
 
     constructor(scene){
         super(scene);
     }
 
     create(pos, id){
-
         // [Mesh] 球
         this.mesh = BABYLON.MeshBuilder.CreateSphere( `sphere`, 
             { diameter: this.radius * 2, segments: 16 }, 
@@ -20,8 +20,8 @@ export class Itm_Feed extends Item {
 
         // [Material] 色
         const material = new BABYLON.StandardMaterial(`mat`, this.scene);
-        material.diffuseColor = new BABYLON.Color3(1, 1, 0);
-        material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1); 
+        material.diffuseColor = GLOBALS.ITEM.COLOR.SHOT_POWER;
+        material.specularColor = new BABYLON.Color3(0.1, 0.1, 1.0); 
         this.mesh.material = material;
 
         super.create();
@@ -30,10 +30,10 @@ export class Itm_Feed extends Item {
     activate(){
         this.alive = false;
         GameState.add_score(100);
-        const recov = Math.floor(Math.random()*5)*10 + 10;
-        GameState.player.add_hp(recov);
+        const pow = 1;
+        GameState.player.add_shot_power(pow);
         const eff = new Eff_Text(this.scene);
-        eff.create(this.mesh.position, `HP +${recov}`);
+        eff.create(this.mesh.position, `Shot Power +${pow}`);
         GameState.effects.push(eff);
         GameState.asset.se.powerup.play();
     }

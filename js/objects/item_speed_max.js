@@ -1,9 +1,10 @@
-// itm_speed_max.js
+// item_speed_max.js
+import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Item } from "./base_item.js";
 import { Eff_Text } from './eff_text.js';
 
-export class Itm_SpeedMax extends Item {
+export class Item_SpeedMax extends Item {
 
     constructor(scene){
         super(scene);
@@ -19,7 +20,7 @@ export class Itm_SpeedMax extends Item {
 
         // [Material] 色
         const material = new BABYLON.StandardMaterial(`mat`, this.scene);
-        material.diffuseColor = new BABYLON.Color3(0.0, 1, 0.0);
+        material.diffuseColor = GLOBALS.ITEM.COLOR.SPEED_MAX;
         material.specularColor = new BABYLON.Color3(0.1, 0.1, 1.0); 
         this.mesh.material = material;
 

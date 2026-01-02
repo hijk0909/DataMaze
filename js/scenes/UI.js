@@ -131,17 +131,19 @@ export class UI {
     update(time, delta){
         this.scoreText.text = `SCORE: ${GameState.score}`;
         if (GameState.player){
+            // console.log("GameState.player.hp", GameState.player.hp);
             this.hpText.text = `HP: ${Math.floor(GameState.player.hp)} / ${GameState.player.hp_max} (${GameState.player.hp_delta.toFixed(1)})`;
             this.massText.text = `MASS: ${GameState.player.mass.toFixed(1)} `;
             this.speedText.text = `SPEED: ${GameState.player.speed_max.toFixed(2)} `;
             this.shotSpeedText.text = `Shot Speed: ${GameState.player.shot_speed}`;
             this.shotPowerText.text = `Shot Power: ${GameState.player.shot_power.toFixed(1)}`;
-            this.numOfEnemiesText.text = `Enemies: ${GameState.enemies.length} / ${GameState.num_enemies}`;
-            this.numOfItemsText.text = `Items: ${GameState.items.length - 1} / ${GameState.num_items}`;
-
-            const elapsed_sec = Math.floor((time - GameState.start_time) / 1000);
-            this.elapsedText.text = `Elapsed: ${Math.floor(elapsed_sec / 60).toString().padStart(2,'0')}:${(elapsed_sec % 60).toString().padStart(2,'0')}`
         }
+
+        this.numOfEnemiesText.text = `Enemies: ${GameState.enemies.length} / ${GameState.num_enemies}`;
+        this.numOfItemsText.text = `Items: ${GameState.items.length - 1} / ${GameState.num_items}`;
+        const elapsed_sec = Math.floor((time - GameState.start_time) / 1000);
+        this.elapsedText.text = `Elapsed: ${Math.floor(elapsed_sec / 60).toString().padStart(2,'0')}:${(elapsed_sec % 60).toString().padStart(2,'0')}`
+
         this.minimap.update(time, delta);
         this.bag_blink.update(time, delta);
     }

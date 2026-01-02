@@ -3,15 +3,16 @@ import { GLOBALS } from '../GameConst.js';
 import { GameState } from '../GameState.js';
 import { MyMath } from "../utils/MathUtils.js";
 import { Player } from "../objects/player.js";
-import { Itm_Goal } from "../objects/itm_goal.js";
-import { Itm_Battery } from "../objects/itm_battery.js";
-import { Itm_ItemBox } from "../objects/itm_item_box.js";
-import { Itm_Key } from "../objects/itm_key.js";
-import { Itm_Feed } from "../objects/itm_feed.js";
-import { Itm_Mass } from "../objects/itm_mass.js";
-import { Itm_SpeedMax } from "../objects/itm_speed_max.js";
-import { Itm_ShotSpeed } from "../objects/itm_shot_speed.js";
-import { Itm_ShotPower } from "../objects/itm_shot_power.js";
+import { Item_Goal } from "../objects/item_goal.js";
+import { Item_Battery } from "../objects/item_battery.js";
+import { Item_Box } from "../objects/item_box.js";
+import { Item_Key } from "../objects/item_key.js";
+import { Item_Feed } from "../objects/item_feed.js";
+import { Item_Mass } from "../objects/item_mass.js";
+import { Item_SpeedMax } from "../objects/item_speed_max.js";
+import { Item_ShotSpeed } from "../objects/item_shot_speed.js";
+import { Item_ShotPower } from "../objects/item_shot_power.js";
+import { Item_Fluxcore } from "../objects/item_fluxcore.js";
 import { Prop_Cube } from "../objects/prop_cube.js";
 import { Enemy_1 } from "../objects/enemy_1.js";
 import { Enemy_2 } from "../objects/enemy_2.js";
@@ -32,15 +33,16 @@ const EnemyClassList = {
 }
 
 const ItemClassList = {
-    'Itm_Goal' :    Itm_Goal,
-    'Itm_Battery' : Itm_Battery,
-    'Itm_ItemBox' : Itm_ItemBox,
-    'Itm_Key' :     Itm_Key,
-    'Itm_Feed' :    Itm_Feed,
-    'Itm_Mass' :    Itm_Mass,
-    'Itm_SpeedMax' :Itm_SpeedMax,
-    'Itm_ShotSpeed':Itm_ShotSpeed,
-    'Itm_ShotPower':Itm_ShotPower
+    'Item_Goal' :    Item_Goal,
+    'Item_Battery' : Item_Battery,
+    'Item_Box' :     Item_Box,
+    'Item_Key' :     Item_Key,
+    'Item_Feed' :    Item_Feed,
+    'Item_Mass' :    Item_Mass,
+    'Item_SpeedMax' :Item_SpeedMax,
+    'Item_ShotSpeed':Item_ShotSpeed,
+    'Item_ShotPower':Item_ShotPower,
+    'Item_Fluxcore' :Item_Fluxcore
 }
 
 
@@ -147,7 +149,7 @@ export class Spawn {
         used_positions.add(`${goal_position.x},${goal_position.y}`);
         const g_pos = MyMath.cell_to_world(goal_position.x, goal_position.y);
         g_pos.y = 0.5;
-        const itm_goal = new Itm_Goal(scene);
+        const itm_goal = new Item_Goal(scene);
         itm_goal.create(g_pos);
         GameState.items.push(itm_goal);
 
@@ -157,14 +159,14 @@ export class Spawn {
         const b_pos = MyMath.cell_to_world(battery_position.x, battery_position.y);
         b_pos.y = GLOBALS.ITEM.Y.BASE;
         GameState.num_items++;
-        const itm_battery = new Itm_Battery(scene);
+        const itm_battery = new Item_Battery(scene);
         itm_battery.create(b_pos, GameState.num_items);
         GameState.items.push(itm_battery);
 
         available_for_enemy_positions = available_for_enemy_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
         MyMath.shuffle(available_for_enemy_positions);
 
-        // [EMY] 敵
+        // [EMEMY] 敵
         if (GameState.stageInfo.enemies){
             for (const enemy of GameState.stageInfo.enemies){
                 const {className, num} = enemy;
@@ -172,42 +174,16 @@ export class Spawn {
             }
         }
 
-        // enemy_5（大目玉）
-        // this.spawn_enemies_from_array("Enemy_5", 3, available_for_enemy_positions, used_positions);
-        // enemy_4（ケルビム）
-        // this.spawn_enemies_from_array("Enemy_4", 2, available_for_enemy_positions, used_positions);
-        // enemy_1（生首）
-        // this.spawn_enemies_from_array("Enemy_1", 3, available_for_enemy_positions, used_positions);
-        // enemy_3（イノシシ）
-        // this.spawn_enemies_from_array("Enemy_3", 5, available_for_enemy_positions, used_positions);
-        // enemy_2（蜂）
-        // this.spawn_enemies_from_array("Enemy_2", 10, available_for_enemy_positions, used_positions);
-
         available_positions = all_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
         MyMath.shuffle(available_positions);
 
-        // [ITM] アイテム
+        // [ITEM] アイテム
         if (GameState.stageInfo.items){
             for (const enemy of GameState.stageInfo.items){
                 const {className, num} = enemy;
                 this.spawn_items_from_array(className, num, available_positions, used_positions);
             }
         }
-
-        // [ITM] 宝箱
-        // this.spawn_items_from_array("Itm_ItemBox", 5, available_positions, used_positions);
-        // [ITM] 鍵
-        // this.spawn_items_from_array("Itm_Key", 5, available_positions, used_positions);
-        // [ITM] 餌
-        // this.spawn_items_from_array("Itm_Feed", 5, available_positions, used_positions);
-        // [ITM] 質量アップ
-        // this.spawn_items_from_array("Itm_Mass", 5, available_positions, used_positions);
-        // [ITM] 自機スピードアップ
-        // this.spawn_items_from_array("Itm_SpeedMax", 5, available_positions, used_positions);
-        // [ITM] SHOT - 射撃力強化
-        // this.spawn_items_from_array("Itm_ShotPower", 3, available_positions, used_positions);
-        // [ITM] SHOT - 連射力強化
-        // this.spawn_items_from_array("Itm_ShotSpeed", 3, available_positions, used_positions);
 
         // [PROP] 小道具
         // console.log("[OBS] available_positions", available_positions);

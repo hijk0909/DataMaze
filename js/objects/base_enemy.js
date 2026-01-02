@@ -84,7 +84,7 @@ export class Enemy extends Movable {
     update_hp_bar(){
 
         // 壁の影に隠れていないか
-        if (this.is_occluded_by_terrain()){
+        if (MyMath.is_occluded_by_terrain(this.mesh.position, this.scene)){
             this.hpFrame.isVisible = false;
             this.hpFill.isVisible = false;
             return;
@@ -92,7 +92,7 @@ export class Enemy extends Movable {
 
         const world_pos = this.mesh.position.clone();
         world_pos.y += this.radius + HP_OFFSET_Y;
-        const screen_pos = MyMath.world_to_screen(world_pos, this.scene);
+        const screen_pos = MyMath.world_to_screen(world_pos);
 
         // [本体] 3D → スクリーン座標
         // const screen_pos = BABYLON.Vector3.Project(

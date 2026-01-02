@@ -1,5 +1,6 @@
 // DrawUtils.js
 import { GLOBALS } from '../GameConst.js';
+import { MyMath } from './MathUtils.js';
 
 export class Wipe {
     constructor(scene, camera) {
@@ -115,4 +116,19 @@ export class MyDraw {
         });
     }
 
+    static link_text(tobj, mesh, scene, offsetY = 0){
+        const screen_pos = MyMath.world_to_screen(mesh.position);
+        if (screen_pos.z < 0.5 || screen_pos.z > 1.0){
+            tobj.alpha = 0.0;
+        } else if ( MyMath.is_occluded_by_terrain(mesh.position, scene)){
+            tobj.alpha = 0.0;
+        } else {
+            tobj.alpha = 1.0;
+            const tw = tobj.widthInPixels;
+            const th = tobj.heightInPixels;
+            tobj.left = screen_pos.x - tw /2;
+            tobj.top = screen_pos.y - th/ 2 + offsetY;
+            // console.log("left,top:", tobj.left, tobj.top);
+        }
+    }
 }

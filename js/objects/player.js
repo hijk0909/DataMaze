@@ -88,6 +88,16 @@ export class Player extends Movable {
         const barWidth = HP_BAR_WIDTH * ratio;
         if (this.hpFill){
             this.hpFill.width = `${barWidth}px`;
+            if (ratio < 0.3){
+                this.hpFill.color = "red";
+                this.hpFill.background = "red";          
+            } else if (ratio < 0.5){
+                this.hpFill.color = "yellow";
+                this.hpFill.background = "yellow";          
+            } else {
+                this.hpFill.color = "cyan";
+                this.hpFill.background = "cyan";                
+            }
         }
     }
 
@@ -133,9 +143,12 @@ export class Player extends Movable {
                 if (this.cooldown <= 0){
                     this.cooldown = 1 / this.shot_speed;
 
-                    const eff = new Bullet(this.scene);
-                    eff.create(this.mesh.position, this.forward, this.shot_power);
-                    GameState.bullets.push(eff);
+                    if (this.hp > 1){
+                        this.hp--;
+                        const eff = new Bullet(this.scene);
+                        eff.create(this.mesh.position, this.forward, this.shot_power);
+                        GameState.bullets.push(eff);
+                    }
                 }
             }
         }
@@ -190,7 +203,9 @@ export class Player extends Movable {
         ));
         BABYLON.Quaternion.FromRotationMatrixToRef(tempMatrix, this.mesh.rotationQuaternion);
 
-        this.hp = Math.max(1, Math.min(this.hp_max, this.hp + this.hp_delta * delta / 1000));
+        if (this.alive){
+            this.hp = Math.max(1, Math.min(this.hp_max, this.hp + this.hp_delta * delta / 1000));
+        }
         this.update_hp_bar();
 
         // 連射のクールダウン

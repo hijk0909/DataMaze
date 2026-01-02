@@ -77,6 +77,9 @@ export class GameAsset extends Asset {
         this.mesh.battery = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "item_battery.glb", this.scene);
 
+        this.mesh.fluxcore = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "item_fluxcore.glb", this.scene);
+
             // ■ テクスチャ
         const ptx = new BABYLON.Texture("./assets/textures/flare.png", this.scene);
         ptx.hasAlpha = true;

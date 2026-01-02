@@ -20,6 +20,7 @@ export class Enemy_5 extends Enemy {
         this.max_speed = 0.025;
         this.accel = 0.001;
         this.mass = 0.7;
+        this.hp_max = this.hp = 280;
         this.shot_cooldown = 0;
     }
 

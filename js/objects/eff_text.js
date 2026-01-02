@@ -31,7 +31,7 @@ export class Eff_Text extends Effect {
         tobj.fontSize = 72;
         tobj.fontFamily = "MyGameFont";
 
-        const screen_pos = MyMath.world_to_screen(pos, this.scene);
+        const screen_pos = MyMath.world_to_screen(pos);
         let x = screen_pos.x;
         let y = screen_pos.y;
         // 近過ぎるか遠過ぎる場合は中央に表示

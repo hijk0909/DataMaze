@@ -2,7 +2,7 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.4d",
+    VERSION : "0.5",
     DATE : "2026.1.2",
 
     MASK_UI : 0x10000000,
@@ -90,6 +90,13 @@ export const GLOBALS = {
     ITEM : {
         Y : {
             BASE : 0.5
+        },
+        COLOR : {
+            FEED : new BABYLON.Color3(1, 1, 0),
+            MASS : new BABYLON.Color3(0.6, 0, 0.8),
+            SPEED_MAX : new BABYLON.Color3(1, 0.7, 0.9),
+            SHOT_SPEED : new BABYLON.Color3(0.6, 1, 0.6),
+            SHOT_POWER : new BABYLON.Color3(0, 0.5, 1)
         }
     }
 }

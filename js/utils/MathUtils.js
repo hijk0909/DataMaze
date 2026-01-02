@@ -34,7 +34,7 @@ export class MyMath {
         return { x: cell_x, y: cell_y };
     }
 
-    static world_to_screen(world_pos, scene) {
+    static world_to_screen(world_pos) {
         const rw = GameState.game.engine.getRenderWidth();
         const rh = GameState.game.engine.getRenderHeight();
         const iw = GameState.ui_manager.ui.idealWidth;
@@ -57,5 +57,21 @@ export class MyMath {
         screen_pos.y = screen_pos.y * (iw / rw);
         // screen_pos.y = screen_pos.y * (ih / rh);
         return screen_pos;
+    }
+
+    static is_occluded_by_terrain(target, scene) {
+        // const camera = this.scene.activeCamera;
+        const camera = GameState.camera;
+        const origin = camera.position.clone();
+        // const toEnemy = this.mesh.getAbsolutePosition ? this.mesh.getAbsolutePosition() : this.mesh.position.clone();
+        const dirVec = target.subtract(origin);
+        const dist = dirVec.length();
+        if (dist <= 0.0001) return false; // ほぼ同位置なら見えているとする
+        const dir = dirVec.scale(1 / dist); // normalize
+        const ray = new BABYLON.Ray(origin, dir, dist - 0.01);
+        const hit = scene.pickWithRay(ray, (mesh) => {
+            return mesh && mesh.isTerrain === true;
+        });
+        return hit && hit.pickedMesh && hit.pickedMesh.isTerrain === true;
     }
 }

@@ -1,4 +1,4 @@
-// itm_goal.js
+// item_goal.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Item } from "./base_item.js";
@@ -7,7 +7,7 @@ import { Eff_Firework } from './eff_firework.js';
 
 const INACTIVE_PERIOD = 1.0;
 
-export class Itm_Goal extends Item {
+export class Item_Goal extends Item {
 
     constructor(scene){
         super(scene);
@@ -84,7 +84,7 @@ export class Itm_Goal extends Item {
                 if (this.inactive_counter <= 0){
                     this.inactive_counter = INACTIVE_PERIOD;
                     const eff = new Eff_Text(this.scene);
-                    eff.create(this.mesh.position, "LOW BATTERY");
+                    eff.create(this.mesh.position, "NO BATTERY");
                     GameState.effects.push(eff);
                 }
             } else {

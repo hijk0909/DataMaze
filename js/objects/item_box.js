@@ -1,11 +1,12 @@
-// itm_item_box.js
+// item_box.js
 import { GameState } from "../GameState.js";
 import { Item } from "./base_item.js";
 import { Eff_Text } from './eff_text.js';
 
+const DISP_SCALE = 0.3;
 const INACTIVE_PERIOD = 1.0;
 
-export class Itm_ItemBox extends Item {
+export class Item_Box extends Item {
 
     constructor(scene){
         super(scene);
@@ -27,7 +28,7 @@ export class Itm_ItemBox extends Item {
         const modelRoot = inst.rootNodes[0];
         modelRoot.parent = collider;
         modelRoot.position = BABYLON.Vector3.Zero(); // 親（箱）の中心に合わせる
-        modelRoot.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3); // モデルの見た目のサイズ
+        modelRoot.scaling = new BABYLON.Vector3(DISP_SCALE, DISP_SCALE, DISP_SCALE);
         modelRoot.scaling.z = Math.abs(modelRoot.scaling.z);
 
         this.mesh = collider; // 以降、ボックス全体を this.mesh として扱う
@@ -70,7 +71,11 @@ export class Itm_ItemBox extends Item {
             GameState.player.add_hp_delta(0.2);
             disp = `GET ${item}`;
         } else if (r === 2){
-            item = "Seed of Luck";
+            item = "Luck";
+            GameState.ui_manager.add_item(item);
+            disp = `GET ${item}`;
+        } else if (r === 3){
+            item = "Luck";
             if (GameState.ui_manager.find_item(item)){
                 GameState.ui_manager.remove_item(item);
                 disp = `LOST ${item}`;

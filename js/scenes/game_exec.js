@@ -43,7 +43,7 @@ export class Exec {
                     GameState.asset.se.explosion.play_3D(enemy, this.scene);
 
                     // アイテムドロップ
-                    const itm = GameState.spawn.spawn_item("Itm_Feed", enemy.mesh.position);
+                    const itm = GameState.spawn.spawn_item("Item_Feed", enemy.mesh.position);
                     itm.drop();
                 }
             }
@@ -92,7 +92,7 @@ export class Exec {
                         GameState.asset.se.explosion.play_3D(enemy, this.scene);
 
                         // [TEST] アイテムドロップ
-                        const itm = GameState.spawn.spawn_item("Itm_Feed", enemy.mesh.position);
+                        const itm = GameState.spawn.spawn_item("Item_Feed", enemy.mesh.position);
                         itm.drop();
                     } 
                 }
@@ -109,14 +109,16 @@ export class Exec {
                 continue;
             }
 
-            // 自機との当たり判定（中心間距離で判定）
-            const requiredDistance = GameState.player.radius + item.radius;
-            const distance = BABYLON.Vector3.Distance(
-                    GameState.player.mesh.position, 
-                    item.mesh.position
-            );
-            if (distance < requiredDistance){
-                item.activate();
+            if (GameState.player.alive){
+                // 自機との当たり判定（中心間距離で判定）
+                const requiredDistance = GameState.player.radius + item.radius;
+                const distance = BABYLON.Vector3.Distance(
+                        GameState.player.mesh.position, 
+                        item.mesh.position
+                );
+                if (distance < requiredDistance){
+                    item.activate();
+                }
             }
         }
 
