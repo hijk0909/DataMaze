@@ -58,28 +58,18 @@ export class Itm_ItemBox extends Item {
         GameState.add_score(100);
         let item = "item";
         let disp = `${item}`;
-        const r = Math.floor(Math.random()*6);
+        const r = Math.floor(Math.random()*4);
         if (r === 0){
-            item = "Golden Badge";
+            item = "HP Tank";
             GameState.ui_manager.add_item(item);
-            GameState.player.add_hp_max(25);
+            GameState.player.add_hp_max(30);
             disp = `GET ${item}`;
         } else if (r === 1){
-            item = "Hero's Emblem";
-            GameState.ui_manager.add_item(item);
-            GameState.player.add_hp_max(50);
-            disp = `GET ${item}`;
-        } else if (r === 2){
-            item = "Computing Device";
+            item = "Auto Recover";
             GameState.ui_manager.add_item(item);
             GameState.player.add_hp_delta(0.2);
             disp = `GET ${item}`;
-        } else if (r === 3){
-            item = "NoctoVision";
-            GameState.ui_manager.add_item(item);
-            GameState.player.add_hp_delta(0.5);
-            disp = `GET ${item}`;
-        } else if (r === 4){
+        } else if (r === 2){
             item = "Seed of Luck";
             if (GameState.ui_manager.find_item(item)){
                 GameState.ui_manager.remove_item(item);
@@ -87,7 +77,7 @@ export class Itm_ItemBox extends Item {
             } else {
                 disp = "EMPTY";
             }
-        } else if (r === 5){
+        } else {
             disp = "EMPTY";
         }
 

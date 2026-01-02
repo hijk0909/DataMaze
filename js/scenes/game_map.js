@@ -36,14 +36,17 @@ export class Map {
       this.material.cage.disableLighting = true;
       this.material.cage.fogEnabled = false;
 
-      // 通路の壁
-      this.material.corridor_wall = new BABYLON.StandardMaterial(`matCorridorWall`, this.scene);
-      this.material.corridor_wall.diffuseTexture = GameState.asset.texture.corridor_wall;
-      // this.material_corridor_wall.emissiveTexture = GameState.asset.texture.corridor_wall;
+      // 通路
+      this.material.corridor = new BABYLON.StandardMaterial(`matCorridor`, this.scene);
+      if (GameState.stageInfo.corridor_texture === 1){
+        this.material.corridor.diffuseTexture = GameState.asset.texture.corridor_1;
+      } else if (GameState.stageInfo.corridor_texture === 2){
+        this.material.corridor.diffuseTexture = GameState.asset.texture.corridor_2;        
+      }
 
-      // 部屋の壁
-      this.material.room_wall = new BABYLON.StandardMaterial(`matRoomWall`, this.scene);
-      this.material.room_wall.diffuseTexture = GameState.asset.texture.room_wall;
+      // 部屋
+      this.material.room = new BABYLON.StandardMaterial(`matRoom`, this.scene);
+      this.material.room.diffuseTexture = GameState.asset.texture.room_1;
 
       // 出入口の壁
       this.material.room_exit = new BABYLON.StandardMaterial(`matRoomExit`, this.scene);
@@ -144,57 +147,41 @@ export class Map {
       const scene = this.scene;
       let mapSelected, rectangles, tmpMeshes;
 
+      // 通路：壁
+      mapSelected = map_selecter(result.map, [0]);
+      rectangles = greedyTileMaxRectangles(mapSelected);
+      tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.CORRIDOR.HEIGHT, scene, this.material.corridor, true);
+      this.mesh.soil = mergeMeshGroup(tmpMeshes, "meshCorridorWall", scene);
+      this.mesh.soil.isTerrain = true;
+
       // 通路：天井・床
       mapSelected = map_selecter(result.map, [0,4]);
       rectangles = greedyTileMaxRectangles(mapSelected);
 
-      this.material.corridor_floor = new BABYLON.StandardMaterial(`matCorridorFloor`, scene);
-      this.material.corridor_floor.diffuseColor = new BABYLON.Color3(0.7, 0.5, 0.5);
-      tmpMeshes = makeBoxesForRectangles(rectangles, -0.5, 0.0, scene, this.material.corridor_floor);
+      tmpMeshes = makeBoxesForRectangles(rectangles, -1.0, 0.0, scene, this.material.corridor, true);
       this.mesh.corridor_floor = mergeMeshGroup(tmpMeshes, "meshCorridorFloor", scene);
 
-      this.material.corridor_ceiling = new BABYLON.StandardMaterial(`matCorridorCeiling`, scene);
-      this.material.corridor_ceiling.diffuseColor = new BABYLON.Color3(0.7, 0.5, 0.5);
-      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.CORRIDOR.HEIGHT, GLOBALS.MAP.CORRIDOR.HEIGHT + 0.5, scene, this.material.corridor_ceiling);
+      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.CORRIDOR.HEIGHT, GLOBALS.MAP.CORRIDOR.HEIGHT + 1.0, scene, this.material.corridor, true);
       this.mesh.corridor_ceiling = mergeMeshGroup(tmpMeshes, "meshCorridorCeiling", scene);
-
-      // 通路：壁
-      mapSelected = map_selecter(result.map, [0]);
-      rectangles = greedyTileMaxRectangles(mapSelected);
-      tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.CORRIDOR.HEIGHT, scene, this.material.corridor_wall, true);
-      this.mesh.soil = mergeMeshGroup(tmpMeshes, "meshCorridorWall", scene);
-      this.mesh.soil.isTerrain = true;
-
-      // 部屋：天井・床
-      mapSelected = map_selecter(result.map, [2,3]);
-      rectangles = greedyTileMaxRectangles(mapSelected);
-
-      this.material.room_floor = new BABYLON.StandardMaterial(`matRoomFloor`, scene);
-      this.material.room_floor.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
-      tmpMeshes = makeBoxesForRectangles(rectangles, -0.5, 0.0, scene, this.material.room_floor);
-      this.mesh.room_floor = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
-
-      this.material.room_ceiling = new BABYLON.StandardMaterial(`matRoomCeiling`, scene);
-      this.material.room_ceiling.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
-      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.ROOM.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT + 0.5, scene, this.material.room_ceiling);
-      this.mesh.room_ceiling = mergeMeshGroup(tmpMeshes, "meshRoomCeiling", scene);
 
       // 部屋：壁
       mapSelected = map_selecter(result.map, [1]);
       rectangles = greedyTileMaxRectangles(mapSelected);
-      // const mat_room_wall = new BABYLON.StandardMaterial(`matRoomWall`, scene);
-      // mat_room_wall.diffuseColor = new BABYLON.Color3(0.7, 0.8 ,1.0);
-      // mat_room_wall.specularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
-      //  mat_room_wall.specularPower = 128; // defalut = 64
-      tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room_wall, true);
+      tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room, true);
       this.mesh.room_wall = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
       this.mesh.room_wall.isTerrain = true;
+
+      // 部屋：天井・床
+      mapSelected = map_selecter(result.map, [2,3]);
+      rectangles = greedyTileMaxRectangles(mapSelected);
+      tmpMeshes = makeBoxesForRectangles(rectangles, -1.0, 0.0, scene, this.material.room, true);
+      this.mesh.room_floor = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
+      tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.ROOM.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT + 1.0, scene, this.material.room, true);
+      this.mesh.room_ceiling = mergeMeshGroup(tmpMeshes, "meshRoomCeiling", scene);
 
       // 部屋：出入口
       mapSelected = map_selecter(result.map, [3]);
       rectangles = greedyTileMaxRectangles(mapSelected);
-      // const mat_room_exit = new BABYLON.StandardMaterial(`matRoomExit`, scene);
-      // mat_room_exit.diffuseColor = new BABYLON.Color3(0.2, 1.0, 0.8);
       tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.CORRIDOR.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room_exit, false);
       this.mesh.room_exit = mergeMeshGroup(tmpMeshes, "meshRoomExit", scene);
     }
@@ -214,9 +201,9 @@ export class Map {
         const v = 0.8 + 0.2 * Math.sin(time / 1200);
         this.material.cage.emissiveColor.set(0.20*v, 0.32*v, 0.20*v);
       }
-      if (this.material.corridor_wall){
+      if (this.material.corridor){
         const v = 0.5 + 0.5 * Math.sin(time / 800);
-        this.material.corridor_wall.emissiveColor.set(1.0*v, 0.8*v, 0.1*v);
+        this.material.corridor.emissiveColor.set(1.0*v, 0.8*v, 0.1*v);
       }
       if (this.material.room_exit){
         const v = 0.5 + 0.5 * Math.sin(time / 400);
@@ -766,12 +753,12 @@ function makeBoxesForRectangles(rects, h0, h1, scene, material, UV = false) {
           // console.log("UV", r.w, height, r.h);
           const tileSize = 1.0;
           const faceUV = [
-            new BABYLON.Vector4(0, 0, r.w / tileSize, height / tileSize),
-            new BABYLON.Vector4(0, 0, r.w / tileSize, height / tileSize),
-            new BABYLON.Vector4(0, 0, height / tileSize, r.h / tileSize),
-            new BABYLON.Vector4(0, 0, height / tileSize, r.h / tileSize),
-            new BABYLON.Vector4(0, 0, r.w / tileSize, r.h / tileSize),
-            new BABYLON.Vector4(0, 0, r.w / tileSize, r.h / tileSize)
+            new BABYLON.Vector4(0, 0, r.w / tileSize, height / tileSize), // 前面（Z+） 
+            new BABYLON.Vector4(0, 0, r.w / tileSize, height / tileSize), // 後面（Z-）
+            new BABYLON.Vector4(0, 0, height / tileSize, r.h / tileSize), // 右面（X+）
+            new BABYLON.Vector4(0, 0, height / tileSize, r.h / tileSize), // 左面（X-）
+            new BABYLON.Vector4(0, 0, r.h / tileSize, r.w / tileSize), // 上面（Y+）
+            new BABYLON.Vector4(0, 0, r.h / tileSize, r.w / tileSize)  // 底面（Y-）
           ];
           options.faceUV = faceUV;
         }

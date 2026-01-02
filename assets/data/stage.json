@@ -3,6 +3,8 @@
     {
       "stage": 1,
       "num_room": 9,
+      "corridor_texture": 2,
+      "room_texture": 1,
       "enemies": [
         { "className":"Enemy_7", "num":10},
         { "className":"Enemy_1", "num":5},
@@ -22,6 +24,8 @@
     {
       "stage": 2,
       "num_room": 8,
+      "corridor_texture": 1,
+      "room_texture": 1,
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":2},
@@ -31,6 +35,8 @@
         { "className":"Enemy_2", "num":8}
       ],
       "items":[
+        { "className":"Itm_ItemBox", "num":4},
+        { "className":"Itm_Key", "num":4},
         { "className":"Itm_Feed", "num":1},
         { "className":"Itm_SpeedMax", "num":1}
       ]
@@ -38,6 +44,8 @@
     {
       "stage": 3,
       "num_room": 7,
+      "corridor_texture": 1,
+      "room_texture": 1,
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":2},
@@ -47,6 +55,8 @@
         { "className":"Enemy_2", "num":8}
       ],
       "items":[
+        { "className":"Itm_ItemBox", "num":3},
+        { "className":"Itm_Key", "num":3},
         { "className":"Itm_Feed", "num":1},
         { "className":"Itm_ShotPower", "num":3},
         { "className":"Itm_ShotSpeed", "num":3}
@@ -55,6 +65,8 @@
     {
       "stage": 4,
       "num_room": 7,
+      "corridor_texture": 1,
+      "room_texture": 1,
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":2},
@@ -64,6 +76,8 @@
         { "className":"Enemy_2", "num":8}
       ],
       "items":[
+        { "className":"Itm_ItemBox", "num":2},
+        { "className":"Itm_Key", "num":2},
         { "className":"Itm_Feed", "num":1},
         { "className":"Itm_ShotPower", "num":3},
         { "className":"Itm_ShotSpeed", "num":3}
@@ -72,6 +86,8 @@
     {
       "stage": 5,
       "num_room": 7,
+      "corridor_texture": 1,
+      "room_texture": 1,
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":2},
@@ -81,6 +97,8 @@
         { "className":"Enemy_2", "num":8}
       ],
       "items":[
+        { "className":"Itm_ItemBox", "num":1},
+        { "className":"Itm_Key", "num":1},
         { "className":"Itm_Feed", "num":1},
         { "className":"Itm_ShotPower", "num":3},
         { "className":"Itm_ShotSpeed", "num":3}

@@ -82,15 +82,20 @@ export class GameAsset extends Asset {
         ptx.hasAlpha = true;
         this.texture.particle = ptx;
 
-        const cw = new BABYLON.Texture("./assets/textures/corridor_wall.png", this.scene);
-        cw.wrapU = BABYLON.Texture.WRAP_MODE;
-        cw.wrapV = BABYLON.Texture.WRAP_MODE;
-        this.texture.corridor_wall = cw;
+        const c1 = new BABYLON.Texture("./assets/textures/corridor_1.png", this.scene);
+        c1.wrapU = BABYLON.Texture.WRAP_MODE;
+        c1.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.corridor_1 = c1;
 
-        const rw = new BABYLON.Texture("./assets/textures/room_wall.png", this.scene);
-        rw.wrapU = BABYLON.Texture.WRAP_MODE;
-        rw.wrapV = BABYLON.Texture.WRAP_MODE;
-        this.texture.room_wall = rw;
+        const c2 = new BABYLON.Texture("./assets/textures/corridor_2.png", this.scene);
+        c2.wrapU = BABYLON.Texture.WRAP_MODE;
+        c2.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.corridor_2 = c2;
+
+        const r1 = new BABYLON.Texture("./assets/textures/room_1.png", this.scene);
+        r1.wrapU = BABYLON.Texture.WRAP_MODE;
+        r1.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.room_1 = r1;
 
         const rx = new BABYLON.Texture("./assets/textures/room_exit.png", this.scene);
         this.texture.room_exit = rx;
