@@ -25,6 +25,10 @@ export class SceneManager {
         this.canvas.focus();
     }
 
+    add_progress(prg){
+        this.ui_transition.add_progress(prg);
+    }
+
     update(time, delta) {
         if (this.currentScene && this.currentScene.scene) {
             if (this.currentScene.isInitialized){
@@ -32,6 +36,9 @@ export class SceneManager {
             }
             this.currentScene.scene.render();
         }
-        this.ui_transition.scene.render();
+        if (this.isChangingScene){
+            this.ui_transition.update(time, delta);
+            this.ui_transition.scene.render();
+        }
     }
 }

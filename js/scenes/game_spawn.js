@@ -142,7 +142,7 @@ export class Spawn {
         const p_pos = MyMath.cell_to_world(player_position.x, player_position.y);
         p_pos.y = GLOBALS.MOVABLE.Y.INIT;
         GameState.player = new Player(scene);
-        GameState.player.create(GameState.asset.mesh.player, p_pos);
+        GameState.player.create(p_pos);
 
         // [Goal] 目的地の設定 (必須：rooms[1])
         const goal_position = this.center_of_room(GameState.rooms[1]);

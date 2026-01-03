@@ -40,11 +40,14 @@ export class GameAsset extends Asset {
         // console.log("asset.preload.start");
         // ■ blender モデル
         // 自機モデル
-        this.container.player = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+        this.mesh.player = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "player.glb", this.scene
         );
-        this.container.player.addAllToScene();
-        this.mesh.player = this.container.player.meshes.find(m => m.name === "__root__");
+
+        // await this.delay(1000); // [TEST]]
+        // console.log("自機読込完了");
+        GameState.game.sceneManager.add_progress(0.1);
+
         // 敵機モデル
         this.mesh.enemy_1 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "enemy_1.glb", this.scene);
@@ -67,6 +70,10 @@ export class GameAsset extends Asset {
         this.mesh.enemy_7 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "enemy_7.glb", this.scene);
 
+        // await this.delay(1000); // [TEST]
+        // console.log("敵機読み込み完了");
+        GameState.game.sceneManager.add_progress(0.3);
+
         // アイテムモデル
         this.mesh.item_box = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "item_box.glb", this.scene);
@@ -80,7 +87,11 @@ export class GameAsset extends Asset {
         this.mesh.fluxcore = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "item_fluxcore.glb", this.scene);
 
-            // ■ テクスチャ
+        // await this.delay(1000); // [TEST]
+        // console.log("アイテム読み込み完了");
+        GameState.game.sceneManager.add_progress(0.2);
+
+        // ■ テクスチャ
         const ptx = new BABYLON.Texture("./assets/textures/flare.png", this.scene);
         ptx.hasAlpha = true;
         this.texture.particle = ptx;
@@ -109,6 +120,7 @@ export class GameAsset extends Asset {
         const gl = new BABYLON.Texture("./assets/textures/goal_light.png", this.scene);
         gl.hasAlpha = true;
         this.texture.goal_light = gl;
+        GameState.game.sceneManager.add_progress(0.1);
 
         // ■ スプライト
         this.sprite.dust = new BABYLON.SpriteManager(
@@ -119,7 +131,8 @@ export class GameAsset extends Asset {
 
         this.sprite.bullet = new BABYLON.SpriteManager(
             "dustSprites", "./assets/textures/bullet.png", 2000, { width: 64, height: 64 }, this.scene);
-            
+        GameState.game.sceneManager.add_progress(0.05);
+
         // ■　音声
         this.bgm.main = await MyAudio.load( "./assets/audio/bgm/bgm_main.mp3");
         this.bgm.main.setVolume(0.8);
@@ -138,10 +151,16 @@ export class GameAsset extends Asset {
 
         this.jingle.stageclear = await MyAudio.load( "./assets/audio/jingle/jingle_stage_clear.mp3" );
         this.jingle.stageclear.setVolume(0.8);
-        // console.log("asset.preload:end");
+
+        // await this.delay(1000); // [TEST]
+        // console.log("音声読み込み完了");
+        GameState.game.sceneManager.add_progress(0.2);
 
         // ■　ステージデータ
         await this.load_stage_data();
+        GameState.game.sceneManager.add_progress(0.05);
+
+        // console.log("asset.preload:end");
     }
 
     dispose(){

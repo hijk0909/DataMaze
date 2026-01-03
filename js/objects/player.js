@@ -43,8 +43,12 @@ export class Player extends Movable {
         this.cooldown = 0;
     }
 
-    create(mesh, pos){
-        this.mesh = mesh;
+    create(pos){
+
+        const container = GameState.asset.mesh.player;
+        // container.addAllToScene();
+        const inst = container.instantiateModelsToScene( (name) => `${name}_player` );
+        this.mesh = inst.rootNodes[0];
 
         this.mesh.position = pos;
         this.mesh.checkCollisions = true; //障害物との衝突判定
@@ -52,8 +56,8 @@ export class Player extends Movable {
         this.mesh.setEnabled(false);
 
         // ジオメトリ情報の強制再計算
-        this.mesh.computeWorldMatrix(true);
-        this.mesh.refreshBoundingInfo(true);
+        // this.mesh.computeWorldMatrix(true);
+        // this.mesh.refreshBoundingInfo(true);
 
         this.create_hp_bar();
     }
@@ -154,8 +158,8 @@ export class Player extends Movable {
         }
 
         // 速度制限・減速
-        if (this.velocity_new.length() > this.speed_max) {
-            this.velocity_new.normalize().scaleInPlace(this.speed_max);
+        if (this.velocity_new.length() > this.speed_max / 100) {
+            this.velocity_new.normalize().scaleInPlace(this.speed_max / 100);
         }
         this.velocity_new.scaleInPlace(this.decel);
         // 回転速度の減速と回転

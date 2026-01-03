@@ -134,7 +134,7 @@ export class UI {
             // console.log("GameState.player.hp", GameState.player.hp);
             this.hpText.text = `HP: ${Math.floor(GameState.player.hp)} / ${GameState.player.hp_max} (${GameState.player.hp_delta.toFixed(1)})`;
             this.massText.text = `MASS: ${GameState.player.mass.toFixed(1)} `;
-            this.speedText.text = `SPEED: ${GameState.player.speed_max.toFixed(2)} `;
+            this.speedText.text = `SPEED: ${Math.floor(GameState.player.speed_max)}`;
             this.shotSpeedText.text = `Shot Speed: ${GameState.player.shot_speed}`;
             this.shotPowerText.text = `Shot Power: ${GameState.player.shot_power.toFixed(1)}`;
         }

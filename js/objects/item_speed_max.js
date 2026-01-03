@@ -30,7 +30,7 @@ export class Item_SpeedMax extends Item {
     activate(){
         this.alive = false;
         GameState.add_score(100);
-        const spd = 0.02;
+        const spd = 1;
         GameState.player.add_speed_max(spd);
         const eff = new Eff_Text(this.scene);
         eff.create(this.mesh.position, `SPEED +${spd}`);

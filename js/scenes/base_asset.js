@@ -13,6 +13,11 @@ export class Asset {
         this.bgm = {};
         this.se = {};
         this.jingle = {};
+        this.data = {};
+    }
+
+    delay(ms) {
+         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async preload(){

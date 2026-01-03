@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.5",
-    DATE : "2026.1.2",
+    VERSION : "0.5a",
+    DATE : "2026.1.3",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -65,7 +65,7 @@ export const GLOBALS = {
             HP_DELTA : -1.0,
             MASS : 1,
             ACCEL : 0.02,
-            SPEED_MAX : 0.04,
+            SPEED_MAX : 4,
             SHOT_SPEED : 1,
             SHOT_POWER : 1
         },
@@ -73,7 +73,7 @@ export const GLOBALS = {
             HP_MAX : 1000,
             HP_DELTA : 1.0,
             MASS : 10,
-            SPEED_MAX : 0.16,
+            SPEED_MAX : 12,
             SHOT_SPEED : 10,
             SHOT_POWER : 10
         }

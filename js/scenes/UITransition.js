@@ -18,34 +18,64 @@ export class UITransition {
     }
 
     create(){
+        // 進捗度
+        this.progress = 0;
+
         // [Loading] ロード中表示文字列
-        this.loading = new BABYLON.GUI.TextBlock();
-        this.loading.text = "NOW LOADING...";
-        this.loading.color = "white";
-        this.loading.fontFamily = "MyGameFont";
-        this.loading.fontSize = 32;
-        this.loading.isVisible = false;
-        this.loading.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        this.loading.verticalAlignment   = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        this.ui.addControl(this.loading);
+        this.loading_text = new BABYLON.GUI.TextBlock();
+        this.loading_text.text = "NOW LOADING...";
+        this.loading_text.color = "white";
+        this.loading_text.fontFamily = "MyGameFont";
+        this.loading_text.fontSize = 32;
+        this.loading_text.isVisible = false;
+        this.loading_text.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this.loading_text.verticalAlignment   = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.loading_text.top = 0;
+        this.ui.addControl(this.loading_text);
+
+        this.progress_text = new BABYLON.GUI.TextBlock();
+        this.progress_text.text = "0%";
+        this.progress_text.color = "cyan";
+        this.progress_text.fontFamily = "MyGameFont";
+        this.progress_text.fontSize = 32;
+        this.progress_text.isVisible = false;
+        this.progress_text.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this.progress_text.verticalAlignment   = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.progress_text.top = 40;
+        this.ui.addControl(this.progress_text);
     }
 
     show_loading(){
-        this.loading.isVisible = true;
+        this.loading_text.isVisible = true;
+        this.progress_text.isVisible = true;
+        this.progress = 0;
     }
 
     hide_loading(){
-        this.loading.isVisible = false;
+        this.loading_text.isVisible = false;
+        this.progress_text.isVisible = false;
+    }
+
+    add_progress(prg){
+        this.progress = Math.min(1.0, this.progress + prg);
+        this.progress_text.text = `${Math.floor(this.progress * 100)}%`;
+        // this.progress_text._markAsDirty();
     }
 
     update(time, delta){
+        // console.log("UITransition:update", this.progress);
+        this.add_progress(delta / 10000);
     }
 
     dispose(){
     // 常駐UI なので、原則として dispose() されることは無いハズ
-        if (this.loading){
-            this.loading.dispose();
-            this.loading = null;
+        if (this.loading_text){
+            this.loading_text.dispose();
+            this.loading_text = null;
+        }
+        if (this.progress_text){
+            this.progress_text.dispose();
+            this.progress_text = null;
         }
         this.ui.dispose();
     }

@@ -113,7 +113,7 @@ export class Item_Fluxcore extends Item {
             GameState.player.add_mass(mass);
             disp = `MASS +${mass}`;
         } else if (this.flux_state === FLUX_STATE_SPEED_MAX){
-            const spd = 0.02;
+            const spd = 1;
             GameState.player.add_speed_max(spd);
             disp = `SPEED +${spd}`;
         } else if (this.flux_state === FLUX_STATE_SHOT_POWER){
