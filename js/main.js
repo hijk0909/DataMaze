@@ -1,6 +1,7 @@
 // main.js
 import { GameState } from "./GameState.js";
 import { SceneManager } from "./SceneManager.js";
+import { PadManager } from "./utils/InputUtils.js";
 import { TitleScene } from "./scenes/TitleScene.js";
 
 const canvas = document.getElementById("renderCanvas");
@@ -101,5 +102,11 @@ async function startGame() {
 // リサイズ対応
 window.addEventListener("resize", () => engine.resize());
 
+// ゲームパッドマネージャの生成
+GameState.pad_manager =  new PadManager();
+
+// シェーダーの生成
 set_shader();
+
+// ゲーム開始
 startGame();

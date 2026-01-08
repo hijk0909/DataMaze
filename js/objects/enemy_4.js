@@ -8,7 +8,7 @@ const DISP_SCALE = 0.4;
 const STATUS_WALK = 0;
 const STATUS_IDLE = 1;
 const STATUS_WALK_PERIOD = 5;
-const STATUS_IDLE_PERIOD = 4;
+const STATUS_IDLE_PERIOD = 10;
 const DECEL = 0.92;
 
 // ケルビム
@@ -17,10 +17,10 @@ export class Enemy_4 extends Enemy {
     constructor(scene){
         super(scene);
         this.radius = 0.5;
-        this.max_speed = 0.08;
-        this.accel = 0.003;
-        this.mass = 0.3;
-        this.hp_max = this.hp = 120;
+        this.max_speed = 0.15;
+        this.accel = 0.009;
+        this.mass = 0.6;
+        this.hp_max = this.hp = 150;
         this.turn_speed = 1.5;
         this.status = STATUS_WALK;
         this.status_counter = STATUS_WALK_PERIOD;

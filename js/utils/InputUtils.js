@@ -5,9 +5,10 @@ export class MyInput {
     constructor(scene, game) {
         this.scene = scene;
         this.game = game;
-        this.pad = null;
-        this.gamepadManager = new BABYLON.GamepadManager();
-        this.key_observer = null;
+        this.key_observer_next = null;
+        this.key_observer_confirm = null;
+        this.button_observer_next = null;
+        this.button_observer_confirm = null;
         this.create();
     }
 
@@ -21,21 +22,6 @@ export class MyInput {
                 GameState.inputKey[key] = true;
             } else if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYUP) {
                 GameState.inputKey[key] = false;
-            }
-        });
-
-        // ゲームパッド入力
-        if (this.gamepadManager.gamepads.length > 0) {
-            this.pad = this.findCompatiblePad();
-        }
-        this.gamepadManager.onGamepadConnectedObservable.add((gamepad) => {
-            if (!this.pad) {
-                this.pad = this.findCompatiblePad();
-            }
-        });
-        this.gamepadManager.onGamepadDisconnectedObservable.add((gamepad) => {
-            if (this.pad === gamepad) {
-                this.pad = this.findCompatiblePad();
             }
         });
 
@@ -61,38 +47,14 @@ export class MyInput {
             GameState.inputMouse.down = false;
         };
 
-    }
-
-    findCompatiblePad() {
-        const gamepads = this.gamepadManager.gamepads;
-
-        for (let i = 0; i < gamepads.length; i++) {
-            const pad = gamepads[i];
-            if (!pad || !pad.browserGamepad?.buttons) continue;
-
-            const buttons = pad.browserGamepad.buttons;
-            const hasMainButton = buttons[0] !== undefined;
-            const hasStartButton = buttons[9] !== undefined;
-            const hasDPad =
-                buttons[12] !== undefined &&
-                buttons[13] !== undefined &&
-                buttons[14] !== undefined &&
-                buttons[15] !== undefined;
-
-            if (hasMainButton && hasDPad && hasStartButton) {
-                console.log(`Selected Gamepad: ${pad.id}`);
-                return pad;
-            }
-        }
-
-        console.warn("No compatible Gamepad found.");
-        return null;
+        // ゲームパッド更新時のアクション
+        GameState.pad_manager.registerUpdateCallback(() => this.registerPadAction());
     }
 
     getPadInput(){
-        if (!this.pad) return;
+        if (!GameState.pad) return;
 
-        const browserGamepad = this.pad.browserGamepad;
+        const browserGamepad = GameState.pad.browserGamepad;
         if (browserGamepad) {
             // 十字キー
             GameState.inputPad.up = browserGamepad.buttons[12]?.pressed || false;
@@ -165,23 +127,53 @@ export class MyInput {
     }
 
     registerNextAction(callback) {
+        this.callback_next = callback;
         // キーボード入力の監視
-        this.key_observer = this.scene.onKeyboardObservable.add((kbInfo) => {
-            if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.code === "Space") {
-                callback();
+        this.key_observer_next = this.scene.onKeyboardObservable.add((kbInfo) => {
+            if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.code === "Space" && !kbInfo.event.repeat) {
+                this.callback_next();
             }
         });
-        // ゲームパッドの接続とボタン監視
-        if (!this.pad){
-            this.pad = this.findCompatiblePad();
-        }
-        if (this.pad){
-            this.button_observer = this.pad.onButtonDownObservable.add((button, state) => {
+        this.registerPadNextAction();
+    }
+
+    registerConfirmAction(callback) {
+        this.callback_confirm = callback;
+        // キーボード入力の監視
+        this.key_observer_confirm = this.scene.onKeyboardObservable.add((kbInfo) => {
+            // console.log("kbinfo.event.code", kbInfo.event.code);
+            if (kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN && kbInfo.event.code === "KeyZ" && !kbInfo.event.repeat) {
+                this.callback_confirm();
+            }
+        });
+        this.registerPadConfirmAction();
+    }
+
+    registerPadNextAction(){
+        // console.log("registerPadNextAction:", GameState.pad, this.callback_next);
+        if (GameState.pad && this.callback_next){
+            this.button_observer_next = GameState.pad.onButtonDownObservable.add((button, state) => {
                 if (button === 9) { // STARTボタン
-                    callback();
+                    this.callback_next();
                 }
             });
         }
+    }
+
+    registerPadConfirmAction(){
+        if (GameState.pad && this.callback_confirm){
+            this.button_observer_confirm = GameState.pad.onButtonDownObservable.add((button, state) => {
+                if (button === 0) { // Aボタン
+                    this.callback_confirm();
+                }
+            });
+        }
+    }
+
+    // Pad の 途中接続・再接続時に呼ばれ、改めて Observable を登録する
+    registerPadAction(){
+        this.registerPadNextAction();
+        this.registerPadConfirmAction();
     }
 
     update() {
@@ -189,13 +181,139 @@ export class MyInput {
     }
 
     dispose(){
-        if (this.key_observer){
-            this.scene.onKeyboardObservable.remove(this.key_observer);
-            this.key_observer = null;
+        if (this.key_observer_next){
+            this.scene.onKeyboardObservable.remove(this.key_observer_next);
+            this.key_observer_next = null;
         }
-        if (this.pad && this.button_observer) {
-            this.pad.onButtonDownObservable.remove(this.button_observer);
-            this.button_observer = null;
+        if (this.key_observer_confirm){
+            this.scene.onKeyboardObservable.remove(this.key_observer_confirm);
+            this.key_observer_confirm = null;
         }
+        // console.log("my_input.dispose:",GameState.pad, this.button_observer_next);
+        if (GameState.pad && this.button_observer_next) {
+            GameState.pad.onButtonDownObservable.remove(this.button_observer_next);
+            this.button_observer_next = null;
+        }
+        if (GameState.pad && this.button_observer_confirm) {
+            GameState.pad.onButtonDownObservable.remove(this.button_observer_confirm);
+            this.button_observer_confirm = null;
+        }
+
+        // この Sceneの registerPadAction() を呼ばないようにする
+        GameState.pad_manager.registerUpdateCallback(null);
+    }
+}
+
+
+export class PadManager {
+    constructor() {
+        this.gamepad_manager = new BABYLON.GamepadManager();
+        this.update_callback = null;
+        this.create();
+    }
+
+    create(){
+        GameState.pad = null;
+        if (this.gamepad_manager.gamepads.length > 0) {
+            GameState.pad = this.findCompatiblePad();
+        }
+        this.gamepad_manager.onGamepadConnectedObservable.add((gamepad) => {
+            if (!GameState.pad) {
+                GameState.pad = this.findCompatiblePad();
+                if (GameState.pad && this.update_callback){ this.update_callback();}
+            }
+        });
+        this.gamepad_manager.onGamepadDisconnectedObservable.add((gamepad) => {
+            if (GameState.pad === gamepad) {
+                GameState.pad = this.findCompatiblePad();
+                if (GameState.pad && this.update_callback){ this.update_callback();}
+            }
+        });
+    }
+
+    findCompatiblePad() {
+        const gamepads = this.gamepad_manager.gamepads;
+
+        for (let i = 0; i < gamepads.length; i++) {
+            const pad = gamepads[i];
+            if (!pad || !pad.browserGamepad?.buttons) continue;
+
+            const buttons = pad.browserGamepad.buttons;
+            const hasMainButton = buttons[0] !== undefined;
+            const hasStartButton = buttons[9] !== undefined;
+            const hasDPad =
+                buttons[12] !== undefined &&
+                buttons[13] !== undefined &&
+                buttons[14] !== undefined &&
+                buttons[15] !== undefined;
+
+            if (hasMainButton && hasDPad && hasStartButton) {
+                console.log(`Selected Gamepad: ${pad.id}`);
+                return pad;
+            }
+        }
+
+        console.warn("No compatible Gamepad found.");
+        return null;
+    }
+
+    registerUpdateCallback(callback){
+        this.update_callback = callback;
+    }
+}
+
+
+export class RepeatManager {
+    constructor(params) {
+        this.initialDelay = params.initialDelay;
+        this.startInterval = params.startInterval;
+        this.accel = params.accel;
+        this.minInterval = params.minInterval;
+
+        this.reset();
+    }
+
+    reset() {
+        this.isPressing = false;
+        this.timer = 0;
+        this.interval = this.startInterval;
+        this.first = true;
+    }
+
+    update(isPressed, delta) {
+        if (!isPressed) {
+            this.reset();
+            return false;
+        }
+
+        // 押された瞬間
+        if (!this.isPressing) {
+            this.isPressing = true;
+            this.timer = 0;
+            this.interval = this.startInterval;
+            this.first = true;
+            return true; // 初回 即発火
+        }
+
+        this.timer += delta;
+
+        if (this.first) {
+            if (this.timer >= this.initialDelay) {
+                this.timer = 0;
+                this.first = false;
+                return true; // リピート開始 即発火
+            }
+        } else {
+            if (this.timer >= this.interval) {
+                this.timer = 0;
+                this.interval = Math.max(
+                    this.minInterval,
+                    this.interval - this.accel
+                );
+                return true; // リピート 加速発火
+            }
+        }
+
+        return false;
     }
 }

@@ -18,7 +18,7 @@ export class Map {
       this.create_materials();
       this.create_map();
       GameState.explored_map = Array.from({ length: GLOBALS.MAP.CELL.SIZE }, () => 
-        Array(GLOBALS.MAP.CELL.SIZE).fill(false)
+        Array(GLOBALS.MAP.CELL.SIZE).fill(GLOBALS.MAP.EXPLORED.NOT)
       );
 
       this.mesh.cages = [];
@@ -46,7 +46,12 @@ export class Map {
 
       // 部屋
       this.material.room = new BABYLON.StandardMaterial(`matRoom`, this.scene);
-      this.material.room.diffuseTexture = GameState.asset.texture.room_1;
+      if (GameState.stageInfo.room_texture === 1){
+        this.material.room.diffuseTexture = GameState.asset.texture.room_1;
+      } else if (GameState.stageInfo.room_texture === 2){
+        this.material.room.diffuseTexture = GameState.asset.texture.room_2;        
+      }
+      // this.material.room.diffuseTexture = GameState.asset.texture.room_1;
 
       // 出入口の壁
       this.material.room_exit = new BABYLON.StandardMaterial(`matRoomExit`, this.scene);
@@ -148,14 +153,14 @@ export class Map {
       let mapSelected, rectangles, tmpMeshes;
 
       // 通路：壁
-      mapSelected = map_selecter(result.map, [0]);
+      mapSelected = map_selecter(result.map, [GLOBALS.MAP.ELEMENT.EMPTY]);
       rectangles = greedyTileMaxRectangles(mapSelected);
       tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.CORRIDOR.HEIGHT, scene, this.material.corridor, true);
       this.mesh.soil = mergeMeshGroup(tmpMeshes, "meshCorridorWall", scene);
       this.mesh.soil.isTerrain = true;
 
       // 通路：天井・床
-      mapSelected = map_selecter(result.map, [0,4]);
+      mapSelected = map_selecter(result.map, [GLOBALS.MAP.ELEMENT.EMPTY,GLOBALS.MAP.ELEMENT.CORRIDOR]);
       rectangles = greedyTileMaxRectangles(mapSelected);
 
       tmpMeshes = makeBoxesForRectangles(rectangles, -1.0, 0.0, scene, this.material.corridor, true);
@@ -165,14 +170,14 @@ export class Map {
       this.mesh.corridor_ceiling = mergeMeshGroup(tmpMeshes, "meshCorridorCeiling", scene);
 
       // 部屋：壁
-      mapSelected = map_selecter(result.map, [1]);
+      mapSelected = map_selecter(result.map, [GLOBALS.MAP.ELEMENT.WALL]);
       rectangles = greedyTileMaxRectangles(mapSelected);
       tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room, true);
       this.mesh.room_wall = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
       this.mesh.room_wall.isTerrain = true;
 
       // 部屋：天井・床
-      mapSelected = map_selecter(result.map, [2,3]);
+      mapSelected = map_selecter(result.map, [GLOBALS.MAP.ELEMENT.ROOM, GLOBALS.MAP.ELEMENT.EXIT, GLOBALS.MAP.ELEMENT.START, GLOBALS.MAP.ELEMENT.GOAL]);
       rectangles = greedyTileMaxRectangles(mapSelected);
       tmpMeshes = makeBoxesForRectangles(rectangles, -1.0, 0.0, scene, this.material.room, true);
       this.mesh.room_floor = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
@@ -180,7 +185,7 @@ export class Map {
       this.mesh.room_ceiling = mergeMeshGroup(tmpMeshes, "meshRoomCeiling", scene);
 
       // 部屋：出入口
-      mapSelected = map_selecter(result.map, [3]);
+      mapSelected = map_selecter(result.map, [GLOBALS.MAP.ELEMENT.EXIT]);
       rectangles = greedyTileMaxRectangles(mapSelected);
       tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.CORRIDOR.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room_exit, false);
       this.mesh.room_exit = mergeMeshGroup(tmpMeshes, "meshRoomExit", scene);
@@ -190,7 +195,10 @@ export class Map {
       const ctx = GameState.minimap_bitmap.getContext();
       for (let y = 0; y < GameState.map.length; y++) {
           for (let x = 0; x < GameState.map[y].length; x++) {
-             draw_cell(x, y, GameState.map[y][x], ctx);
+            if (GameState.explored_map[y][x] === GLOBALS.MAP.EXPLORED.NOT){
+              draw_cell(x, y, GameState.map[y][x], ctx);
+            }
+            GameState.explored_map[y][x] = GLOBALS.MAP.EXPLORED.FIX;
           }
       }   
       GameState.minimap_bitmap.update();
@@ -810,12 +818,12 @@ function draw_cell(x, y, type, ctx){
         ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
         break;
 
-    case GLOBALS.MAP.ELEMENT.FLOOR:
+    case GLOBALS.MAP.ELEMENT.ROOM:
         ctx.beginPath();
         ctx.arc(
             px + CELL_SIZE / 2,
             py + CELL_SIZE / 2,
-            CELL_SIZE * 0.1,
+            CELL_SIZE * 0.15,
             0,
             Math.PI * 2
         );
@@ -834,7 +842,40 @@ function draw_cell(x, y, type, ctx){
     case GLOBALS.MAP.ELEMENT.CORRIDOR:
         ctx.strokeRect(px + 0.5, py + 0.5, CELL_SIZE - 1, CELL_SIZE - 1);
         break;
-    // EMPTY → 何も描かない
+
+    case GLOBALS.MAP.ELEMENT.START:
+        ctx.beginPath();
+        ctx.moveTo(px + CELL_SIZE / 2, py);
+        ctx.lineTo(px, py + CELL_SIZE);
+        ctx.lineTo(px + CELL_SIZE, py + CELL_SIZE);
+        ctx.lineTo(px + CELL_SIZE / 2, py);
+        ctx.fill();
+        break;
+
+    case GLOBALS.MAP.ELEMENT.GOAL:
+        const r1 = 0.2;
+        const r2 = 0.5;
+        ctx.beginPath();
+        ctx.arc(
+            px + CELL_SIZE / 2,
+            py + CELL_SIZE / 2,
+            CELL_SIZE * r1,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+        ctx.moveTo( px + CELL_SIZE / 2 + CELL_SIZE * r2, py + CELL_SIZE / 2 );
+        ctx.arc(
+            px + CELL_SIZE / 2,
+            py + CELL_SIZE / 2,
+            CELL_SIZE * r2,
+            0,
+            Math.PI * 2
+        );
+        ctx.stroke();
+        break;
+
+    // 上記以外 → 何も描かない
   }
 }
 
@@ -857,17 +898,19 @@ function update_exploration(player_pos) {
     const cell = MyMath.world_to_cell(player_pos);
     const ctx = GameState.minimap_bitmap.getContext();
     let updated = false;
-
-    // 未探索かつ部屋内部なら部屋内の全てを描画して探索済
-    if (!!GameState.explored_map[Math.floor(cell.y)][Math.floor(cell.x)]){
+    // 未FIXかつ部屋内部なら、部屋内の全てを描画してFIX（updated = true）
+    if (GameState.explored_map[Math.floor(cell.y)][Math.floor(cell.x)] !== GLOBALS.MAP.EXPLORED.FIX){
       for (let i = 0; i < GameState.rooms.length; i++){
         const room = GameState.rooms[i];
         if ( (room.x + 1 < cell.x) && ( cell.x < room.x + room.w - 1) &&
             (room.y + 1 < cell.y) && ( cell.y < room.y + room.h - 1) ){
+          // console.log("draw room:",i, cell.x, cell.y, Math.floor(cell.x), Math.floor(cell.y));
           for (let y = room.y; y < room.y + room.h; y++) {
               for (let x = room.x; x < room.x + room.w; x++) {
-                draw_cell(x, y, GameState.map[y][x], ctx);
-                GameState.explored_map[y][x] = true;
+                if (GameState.explored_map[y][x] === GLOBALS.MAP.EXPLORED.NOT){
+                  draw_cell(x, y, GameState.map[y][x], ctx);
+                }
+                GameState.explored_map[y][x] = GLOBALS.MAP.EXPLORED.FIX;
               }
           }
           updated = true;
@@ -876,18 +919,17 @@ function update_exploration(player_pos) {
       }
     }
 
-    // 自機を中心とした3x3の範囲をループ
+    // 自機を中心とした3x3の範囲をNEAR
     if (!updated){
       for (let dy = -1; dy <= 1; dy++) {
           for (let dx = -1; dx <= 1; dx++) {
               const tx = Math.floor(cell.x + dx);
               const ty = Math.floor(cell.y + dy);
-
               // マップの範囲内かつ未探索の場合
-              if (isValidCell(tx, ty) && !GameState.explored_map[ty][tx]) {
+              if (isValidCell(tx, ty) && (GameState.explored_map[ty][tx] === GLOBALS.MAP.EXPLORED.NOT)) {
                   // 描画実行
                   draw_cell(tx, ty, GameState.map[ty][tx], ctx);
-                  GameState.explored_map[ty][tx] = true;
+                  GameState.explored_map[ty][tx] = GLOBALS.MAP.EXPLORED.NEAR;
                   updated = true;
               }
           }

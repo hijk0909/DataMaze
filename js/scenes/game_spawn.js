@@ -139,6 +139,7 @@ export class Spawn {
         // [Player] 自機の設定 (必須：rooms[0])
         const player_position = this.center_of_room(GameState.rooms[0]);
         used_positions.add(`${player_position.x},${player_position.y}`);
+        GameState.map[player_position.y][player_position.x] = GLOBALS.MAP.ELEMENT.START;
         const p_pos = MyMath.cell_to_world(player_position.x, player_position.y);
         p_pos.y = GLOBALS.MOVABLE.Y.INIT;
         GameState.player = new Player(scene);
@@ -147,6 +148,7 @@ export class Spawn {
         // [Goal] 目的地の設定 (必須：rooms[1])
         const goal_position = this.center_of_room(GameState.rooms[1]);
         used_positions.add(`${goal_position.x},${goal_position.y}`);
+        GameState.map[goal_position.y][goal_position.x] = GLOBALS.MAP.ELEMENT.GOAL;
         const g_pos = MyMath.cell_to_world(goal_position.x, goal_position.y);
         g_pos.y = 0.5;
         const itm_goal = new Item_Goal(scene);

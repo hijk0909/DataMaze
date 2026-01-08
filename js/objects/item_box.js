@@ -59,7 +59,7 @@ export class Item_Box extends Item {
         GameState.add_score(100);
         let item = "item";
         let disp = `${item}`;
-        const r = Math.floor(Math.random()*4);
+        const r = Math.floor(Math.random()*3);
         if (r === 0){
             item = "HP Tank";
             GameState.ui_manager.add_item(item);
@@ -83,7 +83,7 @@ export class Item_Box extends Item {
                 disp = "EMPTY";
             }
         } else {
-            disp = "EMPTY";
+            disp = "ERROR";
         }
 
         const eff = new Eff_Text(this.scene);

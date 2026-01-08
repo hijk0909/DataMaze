@@ -4,7 +4,7 @@
       "stage": 1,
       "num_room": 9,
       "corridor_texture": 2,
-      "room_texture": 1,
+      "room_texture": 2,
       "enemies": [
         { "className":"Enemy_7", "num":10},
         { "className":"Enemy_1", "num":5},
@@ -14,7 +14,6 @@
       "items":[
         { "className":"Item_Box", "num":5},
         { "className":"Item_Key", "num":5},
-        { "className":"Item_Fluxcore", "num":3},
         { "className":"Item_Feed", "num":5},
         { "className":"Item_Mass", "num":5},
         { "className":"Item_SpeedMax", "num":3},
@@ -26,7 +25,7 @@
       "stage": 2,
       "num_room": 8,
       "corridor_texture": 2,
-      "room_texture": 1,
+      "room_texture": 2,
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":2},
@@ -39,14 +38,14 @@
         { "className":"Item_Box", "num":4},
         { "className":"Item_Key", "num":4},
         { "className":"Item_Feed", "num":1},
-        { "className":"Item_SpeedMax", "num":1}
+        { "className":"Item_Fluxcore", "num":3}
       ]
     },
     {
       "stage": 3,
       "num_room": 7,
       "corridor_texture": 2,
-      "room_texture": 1,
+      "room_texture": 2,
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":2},
@@ -59,8 +58,7 @@
         { "className":"Item_Box", "num":3},
         { "className":"Item_Key", "num":3},
         { "className":"Item_Feed", "num":1},
-        { "className":"Item_ShotPower", "num":3},
-        { "className":"Item_ShotSpeed", "num":3}
+        { "className":"Item_Fluxcore", "num":3}
       ]
     },
     {
@@ -70,18 +68,16 @@
       "room_texture": 1,
       "enemies": [
         { "className":"Enemy_5", "num":3},
-        { "className":"Enemy_4", "num":2},
+        { "className":"Enemy_4", "num":3},
         { "className":"Enemy_1", "num":3},
         { "className":"Enemy_3", "num":5},
-        { "className":"Enemy_7", "num":5},        
+        { "className":"Enemy_7", "num":3},        
         { "className":"Enemy_2", "num":8}
       ],
       "items":[
         { "className":"Item_Box", "num":2},
         { "className":"Item_Key", "num":2},
-        { "className":"Item_Feed", "num":1},
-        { "className":"Item_ShotPower", "num":3},
-        { "className":"Item_ShotSpeed", "num":3}
+        { "className":"Item_Fluxcore", "num":2}
       ]
     },
     {
@@ -99,10 +95,7 @@
       ],
       "items":[
         { "className":"Item_Box", "num":1},
-        { "className":"Item_Key", "num":1},
-        { "className":"Item_Feed", "num":1},
-        { "className":"Item_ShotPower", "num":3},
-        { "className":"Item_ShotSpeed", "num":3}
+        { "className":"Item_Key", "num":1}
       ]
     }
   ]

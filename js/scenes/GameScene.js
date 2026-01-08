@@ -93,7 +93,7 @@ export class GameScene extends Scene {
         GameState.start_time = Date.now();
 
         // UI画面の生成
-        GameState.ui_manager = new UI();
+        GameState.ui_manager = new UI(this.scene);
 
         // 入力ユーティリティの生成
         this.my_input = new MyInput(scene, this.game);
@@ -128,16 +128,16 @@ export class GameScene extends Scene {
                 this.map_manager = null;
             }
             this.map_manager = new Map(this.scene);
-            // ミニマップ生成
-            GameState.ui_manager.minimap.dispose();
-            GameState.ui_manager.minimap.create();
-            // 敵やアイテムの配置
+            // 自機・敵機・アイテム等の配置
             if (GameState.spawn){
                 GameState.spawn.dispose();
                 GameState.spawn = null;
             }
             GameState.spawn = new Spawn(this.scene);
             GameState.spawn.initial_placement();
+            // ミニマップ生成
+            GameState.ui_manager.minimap.dispose();
+            GameState.ui_manager.minimap.create();
             // [STATUS_MSG]
             GameState.ui_manager.show_status_message(`GET READY\nSTAGE ${GameState.stage}`);
             // [WIPE]
@@ -261,12 +261,12 @@ export class GameScene extends Scene {
         }
 
         // 空の時間経過（消去予定）
-        this.sky_time += this.sky_speed * delta / 1000;
+        // this.sky_time += this.sky_speed * delta / 1000;
         // console.log("sky_time", this.sky_time);
-        if (this.sky_time > 1) this.sky_time -= 2;
-        if (this.skyMaterial){
-            this.skyMaterial.inclination = this.sky_time;
-        }
+        // if (this.sky_time > 1) this.sky_time -= 2;
+        // if (this.skyMaterial){
+        //     this.skyMaterial.inclination = this.sky_time;
+        // }
 
         super.update();
     }
@@ -297,10 +297,7 @@ export class GameScene extends Scene {
             GameState.asset.dispose();
             GameState.asset = null;
         }
-        if (GameState.ui_manager){
-            GameState.ui_manager.dispose();
-            GameState.ui_manager = null;
-        }
+
         if (this.map_manager){
             this.map_manager.dispose();
             this.map_manager = null;
@@ -313,6 +310,11 @@ export class GameScene extends Scene {
         if (this.my_input){
             this.my_input.dispose();
             this.my_input = null;
+        }
+
+        if (GameState.ui_manager){
+            GameState.ui_manager.dispose();
+            GameState.ui_manager = null;
         }
 
         if (GameState.camera){

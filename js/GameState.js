@@ -5,6 +5,8 @@ export const GameState = {
     game : null,
     camera : null,
     asset : null,
+    pad_manager : null,
+    pad : null,
     inputKey : null,
     inputPad : {
         left : false,

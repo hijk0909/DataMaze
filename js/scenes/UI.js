@@ -19,9 +19,9 @@ const BLINK_PERIOD = 2.0
 const MSG_OFFSET_Y = -100;
 
 export class UI {
-    constructor() {
+    constructor(scene) {
         // UI の生成
-        this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true);
+        this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
         this.ui.layer.layerMask = GLOBALS.MASK_UI;
         this.ui.idealWidth = GLOBALS.UI.WIDTH;
         this.ui.idealHeight = GLOBALS.UI.HEIGHT;
@@ -44,7 +44,7 @@ export class UI {
         // ◆ ミニマップ
         this.minimap = new Minimap(this.ui);
 
-        // ◆ バッグ
+        // ◆ バッグ（荷物入れ）
         this.bag = new Bag();
         this.bag_view = new BagView(this.ui);
         this.bag_blink = new BagBlink(this.bag, this.bag_view);

@@ -72,7 +72,7 @@ export class GameAsset extends Asset {
 
         // await this.delay(1000); // [TEST]
         // console.log("敵機読み込み完了");
-        GameState.game.sceneManager.add_progress(0.3);
+        GameState.game.sceneManager.add_progress(0.45);
 
         // アイテムモデル
         this.mesh.item_box = await BABYLON.SceneLoader.LoadAssetContainerAsync(
@@ -89,7 +89,7 @@ export class GameAsset extends Asset {
 
         // await this.delay(1000); // [TEST]
         // console.log("アイテム読み込み完了");
-        GameState.game.sceneManager.add_progress(0.2);
+        GameState.game.sceneManager.add_progress(0.1);
 
         // ■ テクスチャ
         const ptx = new BABYLON.Texture("./assets/textures/flare.png", this.scene);
@@ -111,6 +111,11 @@ export class GameAsset extends Asset {
         r1.wrapV = BABYLON.Texture.WRAP_MODE;
         this.texture.room_1 = r1;
 
+        const r2 = new BABYLON.Texture("./assets/textures/room_2.png", this.scene);
+        r2.wrapU = BABYLON.Texture.WRAP_MODE;
+        r2.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.room_2 = r2;
+
         const rx = new BABYLON.Texture("./assets/textures/room_exit.png", this.scene);
         this.texture.room_exit = rx;
 
@@ -120,7 +125,7 @@ export class GameAsset extends Asset {
         const gl = new BABYLON.Texture("./assets/textures/goal_light.png", this.scene);
         gl.hasAlpha = true;
         this.texture.goal_light = gl;
-        GameState.game.sceneManager.add_progress(0.1);
+        GameState.game.sceneManager.add_progress(0.05);
 
         // ■ スプライト
         this.sprite.dust = new BABYLON.SpriteManager(

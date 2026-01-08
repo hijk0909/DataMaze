@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.5a",
-    DATE : "2026.1.3",
+    VERSION : "0.5b",
+    DATE : "2026.1.8",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -39,9 +39,16 @@ export const GLOBALS = {
         ELEMENT : {
             EMPTY : 0,
             WALL : 1,
-            FLOOR : 2,
+            ROOM : 2,
             EXIT : 3,
-            CORRIDOR : 4
+            CORRIDOR : 4,
+            START : 5,
+            GOAL : 6
+        },
+        EXPLORED : {
+            NOT : 0,
+            NEAR : 1,
+            FIX : 2
         },
         ROOM : {
             HEIGHT : 2.0

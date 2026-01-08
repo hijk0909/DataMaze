@@ -33,7 +33,7 @@ export class GameClearScene extends Scene {
 
         // Input
         this.my_input = new MyInput(scene, this.game);
-        this.my_input.registerNextAction(() => this.return_to_title());
+        this.my_input.registerNextAction(() => this.goto_title());
 
         // Image
         this.image = new BABYLON.GUI.Image("myImage", "./assets/textures/game_clear.jpg");
@@ -53,12 +53,15 @@ export class GameClearScene extends Scene {
         this.ui.addControl(this.text);
     }
 
-    return_to_title(){
+    goto_title(){
         // タイトル画面に遷移
         Game.sceneManager.changeScene(new TitleScene(Game));
     }
 
-    update(){
+    update(time, delta){
+        if (this.my_input){
+            this.my_input.update(time, delta);
+        }
         super.update();
     }
 
