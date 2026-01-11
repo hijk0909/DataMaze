@@ -42,6 +42,8 @@ export class Map {
         this.material.corridor.diffuseTexture = GameState.asset.texture.corridor_1;
       } else if (GameState.stageInfo.corridor_texture === 2){
         this.material.corridor.diffuseTexture = GameState.asset.texture.corridor_2;        
+      } else if (GameState.stageInfo.corridor_texture === 3){
+        this.material.corridor.diffuseTexture = GameState.asset.texture.corridor_3;
       }
 
       // 部屋
@@ -50,8 +52,9 @@ export class Map {
         this.material.room.diffuseTexture = GameState.asset.texture.room_1;
       } else if (GameState.stageInfo.room_texture === 2){
         this.material.room.diffuseTexture = GameState.asset.texture.room_2;        
+      } else if (GameState.stageInfo.room_texture === 3){
+        this.material.room.diffuseTexture = GameState.asset.texture.room_3;
       }
-      // this.material.room.diffuseTexture = GameState.asset.texture.room_1;
 
       // 出入口の壁
       this.material.room_exit = new BABYLON.StandardMaterial(`matRoomExit`, this.scene);
@@ -157,6 +160,7 @@ export class Map {
       rectangles = greedyTileMaxRectangles(mapSelected);
       tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.CORRIDOR.HEIGHT, scene, this.material.corridor, true);
       this.mesh.soil = mergeMeshGroup(tmpMeshes, "meshCorridorWall", scene);
+      this.mesh.soil.checkCollisions = true;
       this.mesh.soil.isTerrain = true;
 
       // 通路：天井・床
@@ -174,6 +178,7 @@ export class Map {
       rectangles = greedyTileMaxRectangles(mapSelected);
       tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room, true);
       this.mesh.room_wall = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
+      this.mesh.room_wall.checkCollisions = true;
       this.mesh.room_wall.isTerrain = true;
 
       // 部屋：天井・床
@@ -207,7 +212,7 @@ export class Map {
     update(time, delta){
       if (this.material.cage){
         const v = 0.8 + 0.2 * Math.sin(time / 1200);
-        this.material.cage.emissiveColor.set(0.20*v, 0.32*v, 0.20*v);
+        this.material.cage.emissiveColor.set(0.20*v, 0.64*v, 0.20*v);
       }
       if (this.material.corridor){
         const v = 0.5 + 0.5 * Math.sin(time / 800);
@@ -785,7 +790,7 @@ function makeBoxesForRectangles(rects, h0, h1, scene, material, UV = false) {
 }
 
 // 多数のメッシュ → 1メッシュに統合（GPU負荷を下げる）
-function mergeMeshGroup(meshes, name, scene) {
+function mergeMeshGroup(meshes, name) {
     if (meshes.length === 0) return null;
 
     const merged = BABYLON.Mesh.MergeMeshes(
@@ -798,8 +803,6 @@ function mergeMeshGroup(meshes, name, scene) {
     );
 
     merged.name = name;
-    merged.checkCollisions = true;
-
     return merged;
 }
 

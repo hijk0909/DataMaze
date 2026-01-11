@@ -17,6 +17,7 @@ export class Enemy_3 extends Enemy {
         this.accel = 0.003;
         this.mass = 0.5;
         this.hp_max = this.hp = 250;
+        this.back_weakness = 8.0;
 
         this.turn_speed = 0.6;
     }

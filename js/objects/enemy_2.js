@@ -25,8 +25,9 @@ export class Enemy_2 extends Enemy {
         this.mesh.scaling = new BABYLON.Vector3(DISP_SCALE, DISP_SCALE, DISP_SCALE);
         this.mesh.position = position.clone();
 
+        this.mesh.ellipsoid = new BABYLON.Vector3(0.4, 0.5, 0.4);
+        // this.create_debug_ellipsoid(this.mesh.ellipsoid); // [DEBUG]
         this.mesh.checkCollisions = true; //障害物との衝突判定
-
 
         // アニメーション
         this.anim_fly = inst.animationGroups.find(group => group.name === `fly_enemy_2_${id}`);

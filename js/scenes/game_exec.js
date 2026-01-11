@@ -5,8 +5,6 @@ import { Eff_Firework } from '../objects/eff_firework.js';
 import { Eff_Extinction } from '../objects/eff_extinction.js';
 import { Eff_Text } from '../objects/eff_text.js';
 
-const IMPULSE_RATIO = 10;
-
 export class Exec {
     constructor(scene) {
         this.scene = scene;
@@ -122,13 +120,13 @@ export class Exec {
             }
         }
 
-        // 障害物の管理
-        for (let i = GameState.obstacles.length - 1; i >= 0; i--) {
-            const obs = GameState.obstacles[i];
+        // 小道具の管理
+        for (let i = GameState.props.length - 1; i >= 0; i--) {
+            const obs = GameState.props[i];
             obs.update(time, delta);
             if (!obs.isAlive()) {
                 obs.dispose();
-                GameState.obstacles.splice(i, 1);
+                GameState.props.splice(i, 1);
                 continue;
             }
         }
@@ -176,7 +174,7 @@ export class Exec {
             const relative = obj1.velocity.subtract(obj2.velocity);
             const dot = BABYLON.Vector3.Dot(relative, normal);
             if (dot < 0) {
-                const impulse = (2 * dot) / (obj1.mass + obj2.mass) * GLOBALS.IMPULSE_RATIO;
+                const impulse = (2 * dot) / (obj1.mass + obj2.mass) * GLOBALS.DAMAGE.IMPULSE_RATE;
                 obj1.add_impulse(normal.scale(impulse * obj2.mass * (-1)));
                 obj2.add_impulse(normal.scale(impulse * obj1.mass));
                 // ◆ 敵と自機との当たり判定
@@ -187,8 +185,9 @@ export class Exec {
                     const enemy_additional_damage = obj1.add_damage(Math.abs(impulse * obj2.mass), relative.scale(-1));
                     if ( enemy_additional_damage > 0){
                         // console.log("ATTACK +",enemy_additional_damage, "/", Math.abs(impulse * obj2.mass));
+                        const size = enemy_additional_damage / 10;
                         const eff = new Eff_Text(this.scene);
-                        eff.create(obj1.mesh.position, `BACKSTUB! +${enemy_additional_damage}`, "#ffffff");
+                        eff.create(obj1.mesh.position, `BACKSTUB! +${enemy_additional_damage}`, "#ffffff", size);
                         GameState.effects.push(eff);
                     }
                     obj1.flash(); // 点滅させる

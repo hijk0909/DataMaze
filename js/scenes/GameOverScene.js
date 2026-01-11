@@ -52,6 +52,7 @@ export class GameOverScene extends Scene {
         this.text.text = "GAME OVER\nPUSH SPACE KEY";
         this.text.color = "white";
         this.text.fontSize = 80;
+        this.text.fontFamily = "MyGameFont";
         this.ui.addControl(this.text);
 
         // Sound

@@ -21,6 +21,8 @@ export class Enemy extends Movable {
         this.hp = 100;
         this.hpFrame = null;
         this.hpFill = null;
+
+        this.debugEllipsoid = null;
     }
 
     create(){
@@ -39,6 +41,7 @@ export class Enemy extends Movable {
         super.create();
     }
 
+    // HPバー
     create_hp_bar(){
 
         // 外枠
@@ -64,6 +67,28 @@ export class Enemy extends Movable {
         this.hpFrame.addControl(this.hpFill);
 
     }
+
+    // デバッグ用のellipsoid可視化
+    create_debug_ellipsoid(ellipsoid){
+        this.debugEllipsoid = BABYLON.MeshBuilder.CreateSphere("debugEllipsoid", {
+            diameterX: ellipsoid.x * 2,
+            diameterY: ellipsoid.y * 2,
+            diameterZ: ellipsoid.z * 2
+        }, this.scene);
+
+        this.debugEllipsoid.material = new BABYLON.StandardMaterial("debugMat", this.scene);
+        this.debugEllipsoid.material.wireframe = true;
+        this.debugEllipsoid.material.emissiveColor = new BABYLON.Color3(1, 0, 0);
+
+        // 毎フレーム追従
+        this.scene.registerBeforeRender(() => {
+            if (this.mesh && this.debugEllipsoid){
+                this.debugEllipsoid.position = this.mesh.position.add(this.mesh.ellipsoidOffset || BABYLON.Vector3.Zero());
+            }
+        });
+    }
+
+
 
     is_occluded_by_terrain() {
         // const camera = this.scene.activeCamera;
@@ -162,6 +187,10 @@ export class Enemy extends Movable {
             }
             this.hpFill.dispose();
             this.hpFill = null;
+        }
+        if (this.debugEllipsoid){
+            this.debugEllipsoid.dispose();
+            this.debugEllipsoid = null;
         }
         super.dispose();
     }

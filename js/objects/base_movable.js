@@ -14,6 +14,7 @@ export class Movable extends Drawable {
         this.hp = 100;
         this.hp_max = 100;
         this.damage = 0;
+        this.back_weakness = 1.0;
     }
 
     create(){
@@ -25,7 +26,7 @@ export class Movable extends Drawable {
     }
 
     add_damage(damage, relative){
-        this.damage += damage * GLOBALS.DAMAGE_RATIO;
+        this.damage += damage * GLOBALS.DAMAGE.RATE;
 
         // 追加ダメージの計算
         let collisionDir = relative.normalize();
@@ -37,8 +38,9 @@ export class Movable extends Drawable {
 
         let additionalDamage = 0;
         if (dotProduct < 0) {
-            additionalDamage = Math.floor(Math.abs(dotProduct) * damage * GLOBALS.ADDITIONAL_DAMAGE_RATIO); // 正の内積: 側面/背面から → 追加ダメージ
-            this.damage += additionalDamage;
+            additionalDamage = Math.floor(Math.abs(dotProduct) * damage * GLOBALS.DAMAGE.ADDITIONAL_RATE); // 正の内積: 側面/背面から → 追加ダメージ
+            this.damage += additionalDamage * this.back_weakness;
+            // console.log("additional damage:this.velocity_new:", this.velocity, this.velocity_new, this.velocity_new.length(), "damage:",this.damage, "mass:",this.mass);
         }
         return additionalDamage;
     }
@@ -58,11 +60,42 @@ export class Movable extends Drawable {
         return this.hp;
     }
 
-    update(time, delta){
-        if (this.damage > GLOBALS.DAMAGE_SPEED){
-            this.damage -= GLOBALS.DAMAGE_SPEED;
-            this.hp = Math.max(0, this.hp - GLOBALS.DAMAGE_SPEED);
+    process_damage(delta){
+        if (this.damage <= 0) { return; }
+        // console.log("process_damage[1] damage:",this.damage);
+
+        // 1秒あたりのダメージ消費スピード（対 this.hp_max比）の決定
+        const k = this.damage / this.hp_max;
+        let damage_speed;
+        if (k < GLOBALS.DAMAGE.MIN_RATIO) {
+            damage_speed = GLOBALS.DAMAGE.MIN_SPEED;
+        } else if (k > GLOBALS.DAMAGE.MAX_RATIO) {
+            damage_speed = GLOBALS.DAMAGE.MAX_SPEED;
+        } else {
+            const t =
+                (k - GLOBALS.DAMAGE.MIN_RATIO) /
+                (GLOBALS.DAMAGE.MAX_RATIO - GLOBALS.DAMAGE.MIN_RATIO);
+            damage_speed =
+               GLOBALS.DAMAGE.MIN_SPEED +
+                t * (GLOBALS.DAMAGE.MAX_SPEED - GLOBALS.DAMAGE.MIN_SPEED);
         }
+        // このフレームで削れるHPの上限量
+        const hp_delta_limit = damage_speed * (delta / 1000) * this.hp_max;
+        // console.log("process_damage[2] hp_delta_limit:", hp_delta_limit);
+
+        // ダメージ量とHPを更新
+        if (hp_delta_limit < this.damage) {
+            this.damage -= hp_delta_limit;
+            this.hp = Math.max(0, this.hp - hp_delta_limit);
+        } else {
+            this.damage = 0;
+            this.hp = Math.max(0, this.hp - this.damage);
+        }
+        // console.log("process_damage[3] hp:", this.hp, " damage:", this.damage);
+    }
+
+    update(time, delta){
+        this.process_damage(delta);
         super.update(time, delta);
     }
 

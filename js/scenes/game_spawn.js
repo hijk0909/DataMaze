@@ -13,7 +13,6 @@ import { Item_SpeedMax } from "../objects/item_speed_max.js";
 import { Item_ShotSpeed } from "../objects/item_shot_speed.js";
 import { Item_ShotPower } from "../objects/item_shot_power.js";
 import { Item_Fluxcore } from "../objects/item_fluxcore.js";
-import { Prop_Cube } from "../objects/prop_cube.js";
 import { Enemy_1 } from "../objects/enemy_1.js";
 import { Enemy_2 } from "../objects/enemy_2.js";
 import { Enemy_3 } from "../objects/enemy_3.js";
@@ -21,6 +20,8 @@ import { Enemy_4 } from "../objects/enemy_4.js";
 import { Enemy_5 } from "../objects/enemy_5.js";
 import { Enemy_6 } from "../objects/enemy_6.js";
 import { Enemy_7 } from "../objects/enemy_7.js";
+import { Prop_Cube } from "../objects/prop_cube.js";
+import { Prop_Display } from "../objects/prop_display.js";
 
 const EnemyClassList = {
     'Enemy_1' : Enemy_1,
@@ -45,6 +46,11 @@ const ItemClassList = {
     'Item_Fluxcore' :Item_Fluxcore
 }
 
+const PropClassList = {
+    'Prop_Cube' :    Prop_Cube,
+    'Prop_Display' : Prop_Display
+}
+
 
 export class Spawn {
     constructor(scene) {
@@ -56,7 +62,6 @@ export class Spawn {
         this.used_positions = [];
         this.available_for_enemy_positions = [];
         this.available_for_item_positions = [];
-
     }
 
     center_of_room(room) {
@@ -88,6 +93,15 @@ export class Spawn {
         return item;
     }
 
+    spawn_prop(prop_name, pos){
+        GameState.num_props++;
+        const PropClass = PropClassList[prop_name];
+        const prop = new PropClass(this.scene);
+        prop.create(pos, GameState.num_props);
+        GameState.props.push(prop);        
+        return prop;
+    }
+
     spawn_enemies_from_array(enemy_name, num, array, used){
         for (let i = 0; i < num; i++){
             if (array.length === 0) break;
@@ -109,6 +123,18 @@ export class Spawn {
             this.spawn_item(item_name, pos);
         }
     }
+
+    spawn_props_from_array(prop_name, num, array, used){
+        for (let i = 0; i < num; i++) {
+            if (array.length === 0) break;
+            const prop_position = array.pop();
+            used.add(`${prop_position.x},${prop_position.y}`);            
+            const pos = MyMath.cell_to_world(prop_position.x, prop_position.y);
+            pos.y = 2.0 + Math.random() * 2.5;
+            this.spawn_prop(prop_name, pos);
+        }
+    }
+
 
     // ◆初期配置
     initial_placement(){
@@ -188,17 +214,14 @@ export class Spawn {
         }
 
         // [PROP] 小道具
-        // console.log("[OBS] available_positions", available_positions);
-        for (let i = 0; i < 15; i++) {
-            if (available_positions.length === 0) break;
-            const obs = new Prop_Cube(scene);
-            const obs_position = available_positions.pop();
-            used_positions.add(`${obs_position.x},${obs_position.y}`);
-            const pos = MyMath.cell_to_world(obs_position.x, obs_position.y);
-            pos.y = 2.0 + Math.random() * 2.5;
-            obs.create(pos);
-            GameState.obstacles.push(obs);
+        // console.log("[PROP] available_positions", available_positions);
+        if (GameState.stageInfo.props){
+            for (const prop of GameState.stageInfo.props){
+                const {className, num} = prop;
+                this.spawn_props_from_array(className, num, available_positions, used_positions);
+            }
         }
+
     } // End of initial_placement
 
     dispose(){
@@ -222,12 +245,12 @@ export class Spawn {
         }
         GameState.items = [];
 
-        // 障害物
-        for (let i = GameState.obstacles.length - 1; i >= 0; i--) {
-            GameState.obstacles[i].dispose();
-            GameState.obstacles.splice(i, 1);
+        // 小道具
+        for (let i = GameState.props.length - 1; i >= 0; i--) {
+            GameState.props[i].dispose();
+            GameState.props.splice(i, 1);
         }
-        GameState.obstacles = [];
+        GameState.props = [];
 
         // エフェクト
         for (let i = GameState.effects.length - 1; i >= 0; i--) {

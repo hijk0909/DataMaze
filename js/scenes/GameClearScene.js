@@ -50,6 +50,7 @@ export class GameClearScene extends Scene {
         this.text.text = "ALL CLEAR\nPUSH SPACE KEY";
         this.text.color = "white";
         this.text.fontSize = 80;
+        this.text.fontFamily = "MyGameFont";
         this.ui.addControl(this.text);
     }
 

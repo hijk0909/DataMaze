@@ -106,6 +106,11 @@ export class GameAsset extends Asset {
         c2.wrapV = BABYLON.Texture.WRAP_MODE;
         this.texture.corridor_2 = c2;
 
+        const c3 = new BABYLON.Texture("./assets/textures/corridor_3.png", this.scene);
+        c3.wrapU = BABYLON.Texture.WRAP_MODE;
+        c3.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.corridor_3 = c3;
+
         const r1 = new BABYLON.Texture("./assets/textures/room_1.png", this.scene);
         r1.wrapU = BABYLON.Texture.WRAP_MODE;
         r1.wrapV = BABYLON.Texture.WRAP_MODE;
@@ -116,11 +121,22 @@ export class GameAsset extends Asset {
         r2.wrapV = BABYLON.Texture.WRAP_MODE;
         this.texture.room_2 = r2;
 
+        const r3 = new BABYLON.Texture("./assets/textures/room_3.png", this.scene);
+        r3.wrapU = BABYLON.Texture.WRAP_MODE;
+        r3.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.room_3 = r3;
+
         const rx = new BABYLON.Texture("./assets/textures/room_exit.png", this.scene);
         this.texture.room_exit = rx;
 
-        const obs = new BABYLON.Texture("./assets/textures/obstacle.png", this.scene);
-        this.texture.obstacle = obs;
+        const prop_cube = new BABYLON.Texture("./assets/textures/prop_cube.png", this.scene);
+        this.texture.prop_cube = prop_cube;
+
+        const prop_display = new BABYLON.Texture("./assets/textures/prop_display.png", this.scene);
+        prop_display.wrapU = BABYLON.Texture.WRAP_MODE;
+        prop_display.wrapV = BABYLON.Texture.WRAP_MODE;
+        prop_display.hasAlpha = true;
+        this.texture.prop_display = prop_display;
 
         const gl = new BABYLON.Texture("./assets/textures/goal_light.png", this.scene);
         gl.hasAlpha = true;

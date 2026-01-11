@@ -116,14 +116,14 @@ export class MyDraw {
         });
     }
 
-    static link_text(tobj, mesh, scene, offsetY = 0){
+    static link_text(tobj, mesh, scene, offsetY = 0, alpha = 1.0){
         const screen_pos = MyMath.world_to_screen(mesh.position);
         if (screen_pos.z < 0.5 || screen_pos.z > 1.0){
             tobj.alpha = 0.0;
         } else if ( MyMath.is_occluded_by_terrain(mesh.position, scene)){
             tobj.alpha = 0.0;
         } else {
-            tobj.alpha = 1.0;
+            tobj.alpha = alpha;
             const tw = tobj.widthInPixels;
             const th = tobj.heightInPixels;
             tobj.left = screen_pos.x - tw /2;

@@ -133,8 +133,23 @@ export class Item_Fluxcore extends Item {
     }
 
     update(time, delta){
+        const MIN_DIST = 2.5;
+        const MAX_DIST = 4.5;
+        const MIN_ALPHA = 0.0;
+        const MAX_ALPHA = 1.0;
+        const toPlayerDistance = GameState.player.mesh.position
+            .subtract(this.mesh.position)
+            .length();
+        let alpha = 0;
+        if (toPlayerDistance < MIN_DIST){
+            alpha = MAX_ALPHA;
+        } else if (toPlayerDistance > MAX_DIST){
+            alpha = MIN_ALPHA;
+        } else{
+            alpha = (MAX_DIST - toPlayerDistance)/(MAX_DIST - MIN_DIST)*(MAX_ALPHA - MIN_ALPHA);
+        }
 
-        MyDraw.link_text(this.caption, this.mesh, this.scene, CAPTION_OFFSET);
+        MyDraw.link_text(this.caption, this.mesh, this.scene, CAPTION_OFFSET, alpha);
 
         this.flux_counter -= delta / 1000;
         if (this.flux_counter < 0){

@@ -25,6 +25,7 @@ export class Enemy_1 extends Enemy {
         this.mesh.scaling = new BABYLON.Vector3(DISP_SCALE, DISP_SCALE, DISP_SCALE);
         this.mesh.position = position.clone();
         this.mesh.ellipsoid = new BABYLON.Vector3(0.9, 1.0, 0.9);
+        // this.create_debug_ellipsoid(this.mesh.ellipsoid); // [DEBUG]
         this.mesh.checkCollisions = true; //障害物との衝突判定
 
         super.create();

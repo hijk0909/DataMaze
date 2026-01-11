@@ -17,9 +17,10 @@ export class Eff_Text extends Effect {
         this.textObject = null;
     }
 
-    create(pos, text, color="#ffffff"){
+    create(pos, text, color="#ffffff", size = 1.0){
         this.pos = pos.clone();
         this.text = text;
+        size = Math.min(2.0, Math.max(0.5, size));
 
         super.create(null); // meshは存在しない
         this.counter = EFF_PERIOD_TEXT;
@@ -28,8 +29,11 @@ export class Eff_Text extends Effect {
         const tobj = this.textObject;
         tobj.text = text;
         tobj.color = color;
-        tobj.fontSize = 72;
+        tobj.fontSize = 72 * size;
         tobj.fontFamily = "MyGameFont";
+        tobj.shadowBlur = 6;
+        tobj.shadowOffsetX = 1;
+        tobj.shadowOffsetY = 1;
 
         const screen_pos = MyMath.world_to_screen(pos);
         let x = screen_pos.x;

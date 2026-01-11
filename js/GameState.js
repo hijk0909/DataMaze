@@ -39,13 +39,14 @@ export const GameState = {
     score : 0,
     num_enemies : 0, // 生成された敵の総数
     num_items : 0, // 生成されたアイテムの総数
+    num_props : 0, // 生成された小道具の総数
     start_time : 0, //ゲーム開始時の時刻
 
     // キャラクター
     player : null,
     enemies : [],
     items : [],
-    obstacles : [],
+    props : [],
     effects : [],
     bullets : [],
 

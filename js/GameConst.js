@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.5b",
-    DATE : "2026.1.8",
+    VERSION : "0.5c",
+    DATE : "2026.1.11",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -12,7 +12,7 @@ export const GLOBALS = {
         FONT_RATIO : 1.7
     },
 
-    STAGE_MAX : 5,
+    STAGE_MAX : 6,
 
     STAGE_STATE: {
         START : 1,
@@ -61,10 +61,15 @@ export const GLOBALS = {
         }
     },
 
-    IMPULSE_RATIO : 200,
-    DAMAGE_RATIO : 1,
-    DAMAGE_SPEED : 1.2,
-    ADDITIONAL_DAMAGE_RATIO : 2,
+    DAMAGE : {
+        IMPULSE_RATE : 200,
+        RATE : 1,
+        ADDITIONAL_RATE : 3,
+        MIN_RATIO : 0.1,
+        MAX_RATIO : 0.6,
+        MIN_SPEED : 0.3,
+        MAX_SPEED : 5
+    },
 
     PLAYER_STATS : {
         INIT : {
@@ -79,7 +84,7 @@ export const GLOBALS = {
         LIMIT : {
             HP_MAX : 1000,
             HP_DELTA : 1.0,
-            MASS : 10,
+            MASS : 20,
             SPEED_MAX : 12,
             SHOT_SPEED : 10,
             SHOT_POWER : 10
