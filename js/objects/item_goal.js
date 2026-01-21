@@ -63,8 +63,8 @@ export class Item_Goal extends Item {
         shader.backFaceCulling = false;
         shader.alphaMode = BABYLON.Engine.ALPHA_ADD;
         // shader.alphaMode = BABYLON.Engine.ALPHA_COMBINE;
-        shader.alpha = 0.1; // Shader自体の透過を有効にするため
-        shader.setFloat("alpha", 0.1);
+        shader.alpha = 0.01; // Shader自体の透過を有効にするため
+        shader.setFloat("alpha", 0.01);
         shader.setTexture("diffuseSampler", GameState.asset.texture.goal_light);
         this.scene.onBeforeRenderObservable.add(() => {
             this.time += this.scene.getEngine().getDeltaTime() * 0.001;

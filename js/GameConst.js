@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.5c",
-    DATE : "2026.1.11",
+    VERSION : "0.6",
+    DATE : "2026.1.21",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -12,7 +12,7 @@ export const GLOBALS = {
         FONT_RATIO : 1.7
     },
 
-    STAGE_MAX : 6,
+    STAGE_MAX : 7,
 
     STAGE_STATE: {
         START : 1,
@@ -62,9 +62,10 @@ export const GLOBALS = {
     },
 
     DAMAGE : {
-        IMPULSE_RATE : 200,
-        RATE : 1,
+        IMPULSE_RATE : 2.0,
+        RATE : 100,
         ADDITIONAL_RATE : 3,
+        COOLDOWN : 0.5,
         MIN_RATIO : 0.1,
         MAX_RATIO : 0.6,
         MIN_SPEED : 0.3,
@@ -91,12 +92,27 @@ export const GLOBALS = {
         }
     },
 
+    ENEMY : {
+        STATE : {
+            WAIT : 0,
+            CHASE : 1,
+            ESCAPE : 2,
+            REST : 3,
+            CHARGING : 4,
+            RUSH :5,
+            THUNDER : 6,
+            SCARED : 7
+        }
+    },
+
     MOVABLE : {
         Y : {
             INIT : 1.0,
             MIN : 0.8,
             MAX : 1.2
-        }
+        },
+        CONTROL_LOSS_THRESHOLD : 0.1,
+        MAX_EXTERNAL_VELOCITY : 1.5
     },
 
     ITEM : {
@@ -109,6 +125,13 @@ export const GLOBALS = {
             SPEED_MAX : new BABYLON.Color3(1, 0.7, 0.9),
             SHOT_SPEED : new BABYLON.Color3(0.6, 1, 0.6),
             SHOT_POWER : new BABYLON.Color3(0, 0.5, 1)
+        },
+        FRESNEL_COLOR : {
+            FEED : new BABYLON.Color3(1, 1, 0),
+            MASS : new BABYLON.Color3(1, 0, 1),
+            SPEED_MAX : new BABYLON.Color3(1, 0.7, 1),
+            SHOT_SPEED : new BABYLON.Color3(0.8, 1, 0.8),
+            SHOT_POWER : new BABYLON.Color3(0, 0.8, 1)
         }
     }
 }

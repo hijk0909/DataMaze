@@ -21,7 +21,8 @@
         { "className":"Item_ShotSpeed", "num":3}
       ],
       "props":[
-        { "className":"Prop_Display", "num":15}
+        { "className":"Prop_Display", "num":15},
+        { "className":"Prop_Rain", "num":15}
       ]
     },
     {
@@ -122,6 +123,24 @@
         { "className":"Enemy_1", "num":5},
         { "className":"Enemy_3", "num":5},
         { "className":"Enemy_5", "num":1}
+      ],
+      "items":[
+        { "className":"Item_Box", "num":3},
+        { "className":"Item_Key", "num":3},
+        { "className":"Item_Feed", "num":5},
+        { "className":"Item_Fluxcore", "num":10}
+      ],
+      "props":[
+        { "className":"Prop_Display", "num":15}
+      ]
+    },
+    {
+      "stage": 7,
+      "num_room": 9,
+      "corridor_texture": 1,
+      "room_texture": 1,
+      "enemies": [
+        { "className":"Enemy_3", "num":20}
       ],
       "items":[
         { "className":"Item_Box", "num":3},

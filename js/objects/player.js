@@ -6,6 +6,8 @@ import { MyMath } from "../utils/MathUtils.js";
 import { Eff_Dust } from "./eff_dust.js";
 import { Bullet } from "./bullet.js";
 
+const EXTERNAL_VELOCITY_DAMPING = 0.80;
+
 const HP_BAR_WIDTH = 720;
 const HP_BAR_HEIGHT = 80;
 const HP_BAR_PADDING = 5;
@@ -17,6 +19,7 @@ export class Player extends Movable {
     constructor(scene){
         super(scene);
         this.radius = 0.6;
+        this.mass = 1.0;
 
         this.load_player_stats();
 
@@ -133,12 +136,12 @@ export class Player extends Movable {
                 this.create_dust(this.right);
             }
             if (GameState.inputKey["arrowup"] || GameState.inputPad.up || GameState.inputMouse.up){
-                this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel));
+                this.control_velocity.addInPlace(this.forward.normalize().scale(this.accel));
                 // this.change_pitch(-0.04);
                 this.create_dust(this.forward.scale(2));
             }
             if (GameState.inputKey["arrowdown"] || GameState.inputPad.down || GameState.inputMouse.down){
-                this.velocity_new.addInPlace(this.forward.normalize().scale(this.accel * -1));
+                this.control_velocity.addInPlace(this.forward.normalize().scale(this.accel * -1));
                 // this.change_pitch(0.04);
                 this.create_dust(this.zero);
             }
@@ -158,26 +161,24 @@ export class Player extends Movable {
         }
 
         // 速度制限・減速
-        if (this.velocity_new.length() > this.speed_max / 100) {
-            this.velocity_new.normalize().scaleInPlace(this.speed_max / 100);
+        if (this.control_velocity.length() > this.speed_max / 100) {
+            this.control_velocity.normalize().scaleInPlace(this.speed_max / 100);
         }
-        this.velocity_new.scaleInPlace(this.decel);
+        this.control_velocity.scaleInPlace(this.decel);
+        // 外部からの速度の減衰
+        this.external_velocity.scaleInPlace(EXTERNAL_VELOCITY_DAMPING);
         // 回転速度の減速と回転
         this.yaw_speed *= this.yaw_decel;
         this.change_yaw(this.yaw_speed);
         // 見た目のroll（演出用）
         const roll = (this.yaw_speed / this.yaw_speed_max) * this.roll_max;
 
-        // 移動
-        this.mesh.moveWithCollisions(this.velocity_new);
-        this.velocity = this.velocity_new.clone();
-
         // 上下の動きを制限
         if (this.mesh.position.y < GLOBALS.MOVABLE.Y.MIN) this.mesh.position.y = GLOBALS.MOVABLE.Y.MIN;
         if (this.mesh.position.y > GLOBALS.MOVABLE.Y.MAX) this.mesh.position.y = GLOBALS.MOVABLE.Y.MAX;
 
         // 停止時にdust生成
-        if (this.velocity.length() < 0.1 && this.yaw_speed < 0.001){
+        if (this.control_velocity.length() < 0.1 && this.yaw_speed < 0.001){
                 this.create_dust(this.forward);
         }
 
@@ -207,15 +208,23 @@ export class Player extends Movable {
         ));
         BABYLON.Quaternion.FromRotationMatrixToRef(tempMatrix, this.mesh.rotationQuaternion);
 
+        // 定期的なhpの減少／微増
         if (this.alive){
-            this.hp = Math.max(1, Math.min(this.hp_max, this.hp + this.hp_delta * delta / 1000));
+            const hpd = this.hp_delta * delta / 1000; 
+            if (this.hp_delta > 0){
+                this.hp = Math.min(this.hp_max, this.hp + hpd);
+            } else if (this.hp_delta < 0 && this.hp > Math.abs(hpd)){
+                this.hp += hpd;
+            }
         }
+
         this.update_hp_bar();
 
         // 連射のクールダウン
         this.cooldown = Math.max(this.cooldown - delta / 1000, 0);
 
         super.update(time, delta);
+        // console.log("player:damage:", this.damage, " hp:", this.hp);
     }
 
     // [回転計算] yaw: 上下を軸に左右に舵を切る
@@ -278,6 +287,10 @@ export class Player extends Movable {
 
     add_hp_max(hp){
         this.hp_max = Math.min(GLOBALS.PLAYER_STATS.LIMIT.HP_MAX, this.hp_max + hp);
+    }
+
+    add_mass(mass){
+        this.mass = Math.min(GLOBALS.PLAYER_STATS.LIMIT.MASS, this.mass + mass);
     }
 
     add_hp_delta(hpd){

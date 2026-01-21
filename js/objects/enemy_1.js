@@ -1,19 +1,22 @@
 // enemy_1.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
-import { Enemy } from "./base_enemy.js";
+import { EnemyAero } from "./base_enemy_aero.js";
 
 const DISP_SCALE = 0.8;
+const TERRITORY = 5;
+const DECEL = 0.95;
 
 // 生首
-export class Enemy_1 extends Enemy {
+export class Enemy_1 extends EnemyAero {
 
     constructor(scene){
         super(scene);
         this.radius = 0.3;
         this.max_speed = 0.065;
         this.accel = 0.001;
-        this.mass = 0.1;
+        this.mass = 0.9;
+        this.rotation_speed = 1.5;
     }
 
     create(position, id){
@@ -32,41 +35,21 @@ export class Enemy_1 extends Enemy {
     }
 
     update(time, delta){
-        const dir = GameState.player.mesh.position
-            .subtract(this.mesh.position)
-            .normalize();
-        this.velocity_new.addInPlace(dir.scale(this.accel));
-        // 速度制限
-        if (this.velocity_new.length() > this.max_speed) {
-            this.velocity_new.normalize().scaleInPlace(this.max_speed);
+        const toPlayer = GameState.player.mesh.position
+            .subtract(this.mesh.position);
+        const dir = toPlayer.clone().normalize();
+
+        // プレイヤーに向かって移動
+        if (toPlayer.lengthSquared()  <  TERRITORY * TERRITORY && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
+            this.control_velocity.addInPlace(dir.scale(this.accel));
+        } else {
+            this.control_velocity.scaleInPlace(DECEL);
         }
-        this.mesh.moveWithCollisions(this.velocity_new);
-        this.velocity = this.velocity_new.clone();
 
-        // 上下の動きを制限
-        if (this.mesh.position.y < GLOBALS.MOVABLE.Y.MIN) this.mesh.position.y = GLOBALS.MOVABLE.Y.MIN;
-        if (this.mesh.position.y > GLOBALS.MOVABLE.Y.MAX) this.mesh.position.y = GLOBALS.MOVABLE.Y.MAX;
-
-        // 回転速度を制御する定数 (値が小さいほど滑らかで遅い)
-        const ROTATION_SPEED = 0.02; // 毎フレームの接近量（パーセント）
-        // ターゲット方向ベクトルを取得
-        const targetPosition = GameState.player.mesh.position;
-        const currentPosition = this.mesh.position;
-        const targetDir = targetPosition.subtract(currentPosition).normalize();
-        // メッシュのローカルZ軸 (this.forward) を targetDir に向ける回転を計算
-        const targetQuaternion = new BABYLON.Quaternion();
-        BABYLON.Quaternion.FromUnitVectorsToRef(
-            BABYLON.Axis.Z, 
-            targetDir, 
-            targetQuaternion
-        );
-        // 球面線形補間で滑らかに回転
-        BABYLON.Quaternion.SlerpToRef(
-            this.mesh.rotationQuaternion, // 現在の回転
-            targetQuaternion,             // 目標の回転
-            ROTATION_SPEED,               // 補間率
-            this.mesh.rotationQuaternion  // 結果をメッシュのクォータニオンに書き込み
-        );
+        // 速度制限
+        if (this.control_velocity.length() > this.max_speed) {
+            this.control_velocity.normalize().scaleInPlace(this.max_speed);
+        }
 
         super.update(time, delta);
     }

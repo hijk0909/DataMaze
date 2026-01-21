@@ -1,9 +1,11 @@
 // base_enemy.js
+import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Movable } from "./base_movable.js";
 import { MyMath } from "../utils/MathUtils.js";
 
 const FLASH_TIME = 0.15; //秒
+const SHOT_MASS = 0.1;
 
 const HP_OFFSET_Y = 0.2;
 const HP_BAR_WIDTH = 160;
@@ -21,6 +23,14 @@ export class Enemy extends Movable {
         this.hp = 100;
         this.hpFrame = null;
         this.hpFill = null;
+
+        this.shot_weakness = 1.0;
+        this.shot_knockback = 1.0;
+
+        this.angst = 0;
+        this.angst_threshold = 5;
+        this.confuse = 0;
+        this.confuse_threshold = 5;
 
         this.debugEllipsoid = null;
     }
@@ -88,26 +98,23 @@ export class Enemy extends Movable {
         });
     }
 
-
-
-    is_occluded_by_terrain() {
-        // const camera = this.scene.activeCamera;
-        const camera = GameState.camera;
-        const origin = camera.position.clone();
-        const toEnemy = this.mesh.getAbsolutePosition ? this.mesh.getAbsolutePosition() : this.mesh.position.clone();
-        const dirVec = toEnemy.subtract(origin);
-        const dist = dirVec.length();
-        if (dist <= 0.0001) return false; // ほぼ同位置なら見えているとする
-        const dir = dirVec.scale(1 / dist); // normalize
-        const ray = new BABYLON.Ray(origin, dir, dist - 0.01);
-        const hit = this.scene.pickWithRay(ray, (mesh) => {
-            return mesh && mesh.isTerrain === true;
-        });
-        return hit && hit.pickedMesh && hit.pickedMesh.isTerrain === true;
-    }
+    // is_occluded_by_terrain() {
+    //     // const camera = this.scene.activeCamera;
+    //     const camera = GameState.camera;
+    //     const origin = camera.position.clone();
+    //     const toEnemy = this.mesh.getAbsolutePosition ? this.mesh.getAbsolutePosition() : this.mesh.position.clone();
+    //     const dirVec = toEnemy.subtract(origin);
+    //     const dist = dirVec.length();
+    //     if (dist <= 0.0001) return false; // ほぼ同位置なら見えているとする
+    //     const dir = dirVec.scale(1 / dist); // normalize
+    //     const ray = new BABYLON.Ray(origin, dir, dist - 0.01);
+    //     const hit = this.scene.pickWithRay(ray, (mesh) => {
+    //         return mesh && mesh.isTerrain === true;
+    //     });
+    //     return hit && hit.pickedMesh && hit.pickedMesh.isTerrain === true;
+    // }
 
     update_hp_bar(){
-
         // 壁の影に隠れていないか
         if (MyMath.is_occluded_by_terrain(this.mesh.position, this.scene)){
             this.hpFrame.isVisible = false;
@@ -119,13 +126,6 @@ export class Enemy extends Movable {
         world_pos.y += this.radius + HP_OFFSET_Y;
         const screen_pos = MyMath.world_to_screen(world_pos);
 
-        // [本体] 3D → スクリーン座標
-        // const screen_pos = BABYLON.Vector3.Project(
-        //     world_pos,
-        //     BABYLON.Matrix.Identity(),
-        //     this.scene.getTransformMatrix(),
-        //     GameState.camera.viewport.toGlobal(rw, rh)
-        // );
         // 視錐体の near と far の範囲内ではない場合は表示しない
         if (screen_pos.z < 0.0 || screen_pos.z > 1.0) {
             this.hpFrame.isVisible = false;
@@ -154,6 +154,30 @@ export class Enemy extends Movable {
 
         // 黄色バーの位置と幅
         this.hpFill.width = `${barWidth}px`;
+
+        // プレイヤーとの距離に応じた透明度の変化
+        const MIN_DIST = 2.5;
+        const MAX_DIST = 10.0;
+        const MIN_ALPHA = 0.0;
+        const MAX_ALPHA = 1.0;
+        const toPlayerDistance = GameState.player.mesh.position
+            .subtract(this.mesh.position)
+            .length();
+        let alpha = 0;
+        if (toPlayerDistance < MIN_DIST){
+            alpha = MAX_ALPHA;
+        } else if (toPlayerDistance > MAX_DIST){
+            alpha = MIN_ALPHA;
+        } else{
+            alpha = (MAX_DIST - toPlayerDistance)/(MAX_DIST - MIN_DIST)*(MAX_ALPHA - MIN_ALPHA);
+        }
+        this.hpFrame.alpha = alpha;
+        this.hpFill.alpha = alpha;
+    }
+
+    shot_from_player(power, velocity){
+        this.subtract_hp(power * this.shot_weakness);
+        this.add_impulse(velocity.scale(this.shot_knockback * SHOT_MASS));
     }
 
     update(time, delta){
@@ -166,6 +190,7 @@ export class Enemy extends Movable {
                 mat.emissiveColor.set(t,t,t);
             });
         }
+
         super.update(time, delta);
     }
 

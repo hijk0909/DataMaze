@@ -30,8 +30,10 @@ export class Exec {
 
             // 敵と自機との当たり判定
             if (GameState.player.alive){
-                this.check_collision(enemy, GameState.player, true);
-                // check_collision の第３引数 == ture　はダメージ判定あり
+                const {impulse, relative, normal} = this.check_collision(enemy, GameState.player);
+                if (Math.abs(impulse) > 0){
+                    this.process_damage(enemy, GameState.player, impulse, relative, normal);
+                }
                 if (enemy.hp <= 0){
                     enemy.alive = false;
                     GameState.add_score(1000);
@@ -52,7 +54,7 @@ export class Exec {
             const obj1 = GameState.enemies[i];
             for (let j = i + 1; j < GameState.enemies.length; j++){
                 const obj2 = GameState.enemies[j];
-                this.check_collision(obj1, obj2, false);
+                this.check_collision(obj1, obj2);
             }
         }
 
@@ -78,7 +80,7 @@ export class Exec {
                     eff_ext.create(bullet.sprite.position);
                     GameState.effects.push(eff_ext);
 
-                    enemy.subtract_hp(bullet.strength);
+                    enemy.shot_from_player(bullet.strength, bullet.direction);
                     enemy.flash();
 
                     if (enemy.hp <= 0){
@@ -152,54 +154,57 @@ export class Exec {
     }
 
     // Movableクラス間の当たり判定
-    check_collision(obj1, obj2, dmg_flg){
+    check_collision(obj1, obj2){
         const distance = BABYLON.Vector3.Distance(obj1.mesh.position, obj2.mesh.position);
+        let impulse = 0;
+        let relative = null;
+        let normal = null;
         if (distance < obj1.radius + obj2.radius){
-
-            // 衝突方向を計算
-            let normal;
+            // 衝突方向（normal は、obj1 から見た obj2 の相対位置）
             const diff = obj1.mesh.position.subtract(obj2.mesh.position);
             if (diff.length() === 0) {
                 normal = new BABYLON.Vector3(0,0,1);
             } else {
                 normal = diff.normalize();
             }
-
             // 重なりを解消
             const overlap = (obj1.radius + obj2.radius) - distance;
             obj1.mesh.position.addInPlace(normal.scale(overlap * 0.5));
             obj2.mesh.position.addInPlace(normal.scale(- overlap * 0.5));
-
-            // 運動量を交換
-            const relative = obj1.velocity.subtract(obj2.velocity);
+            // 運動量を交換 (relative は obj1 から見た obj2 の相対速度)
+            relative = obj1.velocity.subtract(obj2.velocity);
             const dot = BABYLON.Vector3.Dot(relative, normal);
-            if (dot < 0) {
-                const impulse = (2 * dot) / (obj1.mass + obj2.mass) * GLOBALS.DAMAGE.IMPULSE_RATE;
-                obj1.add_impulse(normal.scale(impulse * obj2.mass * (-1)));
-                obj2.add_impulse(normal.scale(impulse * obj1.mass));
-                // ◆ 敵と自機との当たり判定
-                if (dmg_flg){
-                    // obj1 = 敵、obj2 = 自機 であること
-                    GameState.asset.se.collision.play_3D(obj1, this.scene); // 3D音声
-                    // console.log("obj1:", obj1.mesh.position, GameState.enemies.length);
-                    const enemy_additional_damage = obj1.add_damage(Math.abs(impulse * obj2.mass), relative.scale(-1));
-                    if ( enemy_additional_damage > 0){
-                        // console.log("ATTACK +",enemy_additional_damage, "/", Math.abs(impulse * obj2.mass));
-                        const size = enemy_additional_damage / 10;
-                        const eff = new Eff_Text(this.scene);
-                        eff.create(obj1.mesh.position, `BACKSTUB! +${enemy_additional_damage}`, "#ffffff", size);
-                        GameState.effects.push(eff);
-                    }
-                    obj1.flash(); // 点滅させる
-                    const player_additional_damage = obj2.add_damage(Math.abs(impulse * obj1.mass), relative.scale(-1));
-                    if  ( player_additional_damage > 0){
-                        // console.log("DAMAGE +",player_additional_damage, "/",Math.abs(impulse * obj1.mass));
-                        const eff = new Eff_Text(this.scene);
-                        eff.create(obj2.mesh.position, `BACKSTUBBED -${player_additional_damage}`, "#ff0000");
-                        GameState.effects.push(eff);
-                    }
-                }
-            }
+            impulse = (2 * dot) / (obj1.mass + obj2.mass) * GLOBALS.DAMAGE.IMPULSE_RATE;
+            obj1.add_impulse(normal.scale(impulse * obj2.mass * (-1)));
+            obj2.add_impulse(normal.scale(impulse * obj1.mass));
+        }
+        return {impulse, relative, normal};
+    }
+
+    // 敵機と自機のダメージ処理
+    process_damage(enemy, player, impulse, relative, normal){
+
+        // console.log("process_damage:", impulse, relative);
+        const {damage : enemy_damage, backstub : enemy_backstub} = enemy.add_damage(Math.abs(impulse * player.mass), normal);
+        // console.log("game_exec enemy_damage:", enemy_damage, " enemy_backstub:", enemy_backstub);
+        if ( enemy_damage > 0){
+            GameState.asset.se.collision.play_3D(enemy, this.scene); // 3D音声
+            enemy.flash() //点滅
+        }
+        if ( enemy_backstub > 0){
+            // console.log("ATTACK +",enemy_additional_damage, "/", Math.abs(impulse * obj2.mass));
+            const size = enemy_backstub / 10;
+            const eff = new Eff_Text(this.scene);
+            eff.create(enemy.mesh.position, `BACKSTUB! +${enemy_backstub}`, "#ffffff", size);
+            GameState.effects.push(eff);
+        }
+
+        const {damage : player_damage, backstub : player_backstub} = player.add_damage(Math.abs(impulse * enemy.mass), normal);
+        if  ( player_backstub > 0){
+            // console.log("DAMAGE +",player_additional_damage, "/",Math.abs(impulse * obj1.mass));
+            const eff = new Eff_Text(this.scene);
+            eff.create(player.mesh.position, `BACKSTUBBED -${player_backstub}`, "#ff0000");
+            GameState.effects.push(eff);
         }
     }
 }

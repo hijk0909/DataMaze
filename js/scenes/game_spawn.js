@@ -22,6 +22,7 @@ import { Enemy_6 } from "../objects/enemy_6.js";
 import { Enemy_7 } from "../objects/enemy_7.js";
 import { Prop_Cube } from "../objects/prop_cube.js";
 import { Prop_Display } from "../objects/prop_display.js";
+import { Prop_Rain } from "../objects/prop_rain.js";
 
 const EnemyClassList = {
     'Enemy_1' : Enemy_1,
@@ -47,8 +48,9 @@ const ItemClassList = {
 }
 
 const PropClassList = {
-    'Prop_Cube' :    Prop_Cube,
-    'Prop_Display' : Prop_Display
+    'Prop_Cube'     : Prop_Cube,
+    'Prop_Display'  : Prop_Display,
+    'Prop_Rain'     : Prop_Rain
 }
 
 

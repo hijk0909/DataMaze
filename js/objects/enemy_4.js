@@ -1,9 +1,11 @@
 // enemy_4.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
-import { Enemy } from "./base_enemy.js";
+import { EnemyGeo } from "./base_enemy_geo.js";
 
 const DISP_SCALE = 0.4;
+const TERRITORY = 6;
+const DECEL = 0.92;
 
 const STATUS_WALK   = 0;
 const STATUS_ESCAPE = 1;
@@ -11,20 +13,22 @@ const STATUS_IDLE   = 2;
 const STATUS_WALK_PERIOD    = 5;
 const STATUS_ESCAPE_PERIOD  = 3;
 const STATUS_IDLE_PERIOD    = 5;
-const DECEL = 0.92;
 
 // ケルビム
-export class Enemy_4 extends Enemy {
+export class Enemy_4 extends EnemyGeo {
 
     constructor(scene){
         super(scene);
         this.radius = 0.5;
         this.max_speed = 0.10;
-        this.escape_speed = 0.05;
+        this.escape_speed = 0.03;
         this.accel = 0.01;
-        this.mass = 1.2;
+        this.mass = 1.1;
         this.hp_max = this.hp = 300;
+
         this.back_weakness = 5.0;
+        this.shot_knockback = 8.0;
+
         this.turn_speed = 2.5;
         this.status = STATUS_WALK;
         this.status_counter = STATUS_WALK_PERIOD;
@@ -40,9 +44,7 @@ export class Enemy_4 extends Enemy {
         this.mesh.position = position.clone();
 
         this.mesh.ellipsoid = new BABYLON.Vector3(0.8, 0.9, 0.8);
-        // this.create_debug_ellipsoid(this.mesh.ellipsoid);  // [DEBUG]
         this.mesh.checkCollisions = true;           //障害物との衝突判定
-        this.mesh.rotationQuaternion = null; //クオータニオンは使わない（オイラー角で回転制御)
 
         // アニメーション
         this.anim_walk = inst.animationGroups.find(group => group.name === `walk_enemy_4_${id}`);
@@ -68,33 +70,27 @@ export class Enemy_4 extends Enemy {
 
     update(time, delta){
 
-        // 上下の動きを制限
-        this.mesh.position.y = GLOBALS.MOVABLE.Y.MIN;
+        // 現在の forward
+        const forward = this.mesh.forward.clone();
+        forward.y = 0;
+        forward.normalize();
+        // プレイヤーの方向
+        const toPlayer = GameState.player.mesh.position
+            .subtract(this.mesh.position);
+        toPlayer.y = 0;
+        const dir = toPlayer.clone().normalize();
 
         if (this.status === STATUS_WALK){
             // [プレイヤーを向く]
-            const forward = this.mesh.forward.clone(); // 現在の forward
-            forward.y = 0;
-            forward.normalize();
-            const toPlayer = GameState.player.mesh.position // プレイヤー方向
-                .subtract(this.mesh.position);
-            toPlayer.y = 0;
-            toPlayer.normalize();
-            const dot = BABYLON.Vector3.Dot(forward, toPlayer); // 角度差（符号付き）
-            const cross = BABYLON.Vector3.Cross(forward, toPlayer);
-            let angle = Math.atan2(cross.y, dot);
-            const maxTurn = this.turn_speed * delta / 1000; // 最大回転角制限
-            angle = BABYLON.Scalar.Clamp(angle, -maxTurn, maxTurn);
-            this.mesh.rotation.y += angle; // Y 軸回転
+            this.turn_reverse = false;
 
             // [プレイヤーを追跡]
-            const dir = GameState.player.mesh.position
-                .subtract(this.mesh.position)
-                .normalize();
-            this.velocity_new.addInPlace(dir.scale(this.accel));
-            // 速度制限
-            if (this.velocity_new.length() > this.max_speed) {
-                this.velocity_new.normalize().scaleInPlace(this.max_speed);
+            if (toPlayer.lengthSquared()  <  TERRITORY * TERRITORY && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
+                this.control_velocity.addInPlace(dir.scale(this.accel));
+            }
+            // 速度制限（突進速度）
+            if (this.control_velocity.length() > this.max_speed) {
+                this.control_velocity.normalize().scaleInPlace(this.max_speed);
             }
 
             // [COUNTER]
@@ -106,29 +102,14 @@ export class Enemy_4 extends Enemy {
             }
         } else if (this.status === STATUS_ESCAPE){
             // [プレイヤーに背を向ける]
-            const forward = this.mesh.forward.clone(); // 現在の forward
-            forward.y = 0;
-            forward.normalize();
-            const toPlayer = GameState.player.mesh.position // プレイヤーと逆方向
-                .subtract(this.mesh.position);
-            toPlayer.y = 0;
-            const reverseDir = toPlayer.clone().normalize().scale(-1); // 逆向き
-            const dot = BABYLON.Vector3.Dot(forward, reverseDir); // 角度差（符号付き）
-            const cross = BABYLON.Vector3.Cross(forward, reverseDir);
-            let angle = Math.atan2(cross.y, dot);
-            const maxTurn = this.turn_speed * delta / 1000; // 最大回転角制限
-            angle = BABYLON.Scalar.Clamp(angle, -maxTurn, maxTurn);
-            this.mesh.rotation.y += angle; // Y 軸回転
+            this.turn_reverse = true;
 
             // [プレイヤーから離れる]
-            const dir = GameState.player.mesh.position
-                .subtract(this.mesh.position)
-                .normalize()
-                .scale(-1); //逆向き
-            this.velocity_new.addInPlace(dir.scale(this.accel));
-            // 速度制限
-            if (this.velocity_new.length() > this.escape_speed) {
-                this.velocity_new.normalize().scaleInPlace(this.escape_speed);
+            this.control_velocity.addInPlace(dir.scale(-this.accel));
+
+            // 速度制限（逃避速度）
+            if (this.control_velocity.length() > this.escape_speed) {
+                this.control_velocity.normalize().scaleInPlace(this.escape_speed);
             }
 
             // [COUNTER]
@@ -142,10 +123,10 @@ export class Enemy_4 extends Enemy {
             }
         } else if (this.status === STATUS_IDLE){
             // [減速]
-            this.velocity_new.scaleInPlace(DECEL);
-            // 速度制限
-            if (this.velocity_new.length() > this.escape_speed) {
-                this.velocity_new.normalize().scaleInPlace(this.escape_speed);
+            this.control_velocity.scaleInPlace(DECEL);
+            // 速度制限（逃避速度）
+            if (this.control_velocity.length() > this.escape_speed) {
+                this.control_velocity.normalize().scaleInPlace(this.escape_speed);
             }
 
             // [COUNTER]
@@ -158,9 +139,6 @@ export class Enemy_4 extends Enemy {
                 this.anim_walk.start(true); 
             }
         }
-
-        this.mesh.moveWithCollisions(this.velocity_new);
-        this.velocity = this.velocity_new.clone();
 
         super.update(time, delta);
     }

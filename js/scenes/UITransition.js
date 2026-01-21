@@ -9,7 +9,7 @@ export class UITransition {
     constructor(engine) {
         this.engine = engine;
         this.scene = new BABYLON.Scene(engine);
-        this.scene.autoClear = false; //下のシーンを消さない
+        // this.scene.autoClear = false; //下のシーンを消さない
         this.scene.detachControl(); //入力不要
         this.camera = new BABYLON.FreeCamera("camera_transition", new BABYLON.Vector3(0,2,-5), this.scene);
         this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI( "UI_transition", true, this.scene );

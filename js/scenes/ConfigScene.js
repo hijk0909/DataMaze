@@ -159,12 +159,12 @@ export class ConfigScene extends Scene {
                 action : () => this.reset_values() }
         this.config_items.push(item);
 
-        item = { name : "Return to TITLE", 
+        item = { name : "RETURN to TITLE", 
                 type : ITEM_TYPE_ACTION,
                 action : () => this.goto_title() }
         this.config_items.push(item);
 
-        item = { name : "GAME START", 
+        item = { name : "START GAME", 
                 type : ITEM_TYPE_ACTION,
                 action : () => this.start_game() }
         this.config_items.push(item);

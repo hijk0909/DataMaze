@@ -25,6 +25,14 @@ const ItemColors = [
     GLOBALS.ITEM.COLOR.SHOT_SPEED
 ];
 
+const ItemFresnelColors = [
+    GLOBALS.ITEM.FRESNEL_COLOR.FEED,
+    GLOBALS.ITEM.FRESNEL_COLOR.MASS,
+    GLOBALS.ITEM.FRESNEL_COLOR.SPEED_MAX,
+    GLOBALS.ITEM.FRESNEL_COLOR.SHOT_POWER,
+    GLOBALS.ITEM.FRESNEL_COLOR.SHOT_SPEED
+];
+
 const ItemCaptions = [
     "HP",
     "MASS",
@@ -65,7 +73,7 @@ export class Item_Fluxcore extends Item {
         this.set_core_ball_color();
         super.create();
 
-        // アイテム表示
+        // アイテム名称の表示
         this.caption = new BABYLON.GUI.TextBlock();
         this.caption.resizeToFit = true;
         this.caption.color = "white";
@@ -86,8 +94,11 @@ export class Item_Fluxcore extends Item {
             if (mat instanceof BABYLON.PBRMaterial) {
                 // console.log("set_core_ball_color:", this.flux_state, ItemColors[this.flux_state]);
                 mat.albedoColor = ItemColors[this.flux_state]; 
-                // mat.metallic = 0.3;
-                // mat.roughness = 0.8;
+                mat.metallic = 0.0;
+                mat.roughness = 0.8;
+                mat.clearCoat.isEnabled = true;
+                mat.clearCoat.intensity = 10.0;
+                mat.clearCoat.roughness = 0.3;
             }
         }
     }

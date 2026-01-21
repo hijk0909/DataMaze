@@ -23,7 +23,7 @@ export class Eff_Extinction extends Effect {
 
         this.sprite = new BABYLON.Sprite("extinction", GameState.asset.sprite.extinction);
         this.sprite.size = 0.3;
-        // this.sprite.color = new BABYLON.Color4(0.3, 0.9, 1.0, 0);
+        this.sprite.color = new BABYLON.Color4(1.0, 1.0, 1.0, 0);
         this.sprite.position = pos.clone();
     }    
 

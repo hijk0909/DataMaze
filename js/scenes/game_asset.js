@@ -72,7 +72,7 @@ export class GameAsset extends Asset {
 
         // await this.delay(1000); // [TEST]
         // console.log("敵機読み込み完了");
-        GameState.game.sceneManager.add_progress(0.45);
+        GameState.game.sceneManager.add_progress(0.35);
 
         // アイテムモデル
         this.mesh.item_box = await BABYLON.SceneLoader.LoadAssetContainerAsync(
@@ -138,10 +138,15 @@ export class GameAsset extends Asset {
         prop_display.hasAlpha = true;
         this.texture.prop_display = prop_display;
 
+        const prop_rain = new BABYLON.Texture("./assets/textures/prop_rain.png", this.scene);
+        prop_rain.hasAlpha = true;
+        this.texture.prop_rain = prop_rain;
+
         const gl = new BABYLON.Texture("./assets/textures/goal_light.png", this.scene);
         gl.hasAlpha = true;
         this.texture.goal_light = gl;
-        GameState.game.sceneManager.add_progress(0.05);
+
+        GameState.game.sceneManager.add_progress(0.15);
 
         // ■ スプライト
         this.sprite.dust = new BABYLON.SpriteManager(
@@ -149,6 +154,7 @@ export class GameAsset extends Asset {
 
         this.sprite.extinction = new BABYLON.SpriteManager(
             "dustSprites", "./assets/textures/extinction.png", 100, { width: 64, height: 64 }, this.scene);
+        this.sprite.extinction.renderingGroupId = 1;
 
         this.sprite.bullet = new BABYLON.SpriteManager(
             "dustSprites", "./assets/textures/bullet.png", 2000, { width: 64, height: 64 }, this.scene);
@@ -156,7 +162,7 @@ export class GameAsset extends Asset {
 
         // ■　音声
         this.bgm.main = await MyAudio.load( "./assets/audio/bgm/bgm_main.mp3");
-        this.bgm.main.setVolume(0.8);
+        this.bgm.main.setVolume(0.9);
 
         this.se.powerup = await MyAudio.load( "./assets/audio/se/se_powerup.mp3" );
         this.se.powerup.setVolume(0.4);
@@ -165,7 +171,7 @@ export class GameAsset extends Asset {
         this.se.explosion.setVolume(0.4);
 
         this.se.collision = await MyAudio.load( "./assets/audio/se/se_collision.mp3" );
-        this.se.collision.setVolume(0.4);
+        this.se.collision.setVolume(0.2);
 
         this.jingle.stagestart = await MyAudio.load( "./assets/audio/jingle/jingle_stage_start.mp3" );
         this.jingle.stagestart.setVolume(0.8);

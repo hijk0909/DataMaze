@@ -33,11 +33,24 @@ export class GameScene extends Scene {
         camera.attachControl(this.game.canvas, true);
         camera.layerMask &= ~GLOBALS.MASK_UI;
         GameState.camera = camera;
+
         // camera(ui)
         const uiCamera = new BABYLON.FreeCamera("uiCam", BABYLON.Vector3.Zero(), this.scene);
         uiCamera.layerMask = GLOBALS.MASK_UI;
 
+        // 描画順の制御のために activeCameras を設定
         this.scene.activeCameras = [camera, uiCamera];
+
+        // bloom
+        const imgproc= this.scene.imageProcessingConfiguration;
+        imgproc.toneMappingEnabled = true;
+        imgproc.exposure = 1.1;
+        imgproc.contrast = 1.0;
+        const pipeline = new BABYLON.DefaultRenderingPipeline("default", true, this.scene, [camera]);
+        pipeline.bloomEnabled = true;
+        pipeline.bloomThreshold = 0.3; // どの明るさから発光させるか
+        pipeline.bloomIntensity = 2.0; // 発光の強さ
+        pipeline.bloomKernel = 128;    // ブラーの広がり具合
     }
 
     // ■ プリロード
@@ -66,25 +79,13 @@ export class GameScene extends Scene {
         scene.fogStart = 5.0;
         scene.fogEnd = 15.0;
 
-        // sky
-        // this.skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
-        // const skyMaterial = this.skyMaterial;
-        // skyMaterial.backFaceCulling = false;
-        // skyMaterial.inclination = 0.49;
-        // skyMaterial.luminance = 0.2;
-        // skyMaterial.turbidity = 6;
-        // skyMaterial.fogEnabled = false;
-        // const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000 }, scene);
-        // skybox.material = skyMaterial;
-        // this.sky_time = 0;
-        // this.sky_speed = 0.07;
 
-        // bloom
-        // const pipeline = new BABYLON.DefaultRenderingPipeline("default", true, scene, [GameState.camera]);
-        // pipeline.bloomEnabled = true;
-        // pipeline.bloomThreshold = 0.1; // どの明るさから発光させるか
-        // pipeline.bloomIntensity = 1.8; // 発光の強さ
-        // pipeline.bloomKernel = 32;     // ブラーの広がり具合
+
+
+
+
+
+
 
         // シーン内の当たり判定の有効化
         scene.collisionsEnabled = true;
@@ -99,15 +100,11 @@ export class GameScene extends Scene {
         this.my_input = new MyInput(scene, this.game);
         this.my_input.registerNextAction(() => this.toggle_pause());
 
-        // 実行用クラスの生成
+        // 実行クラスの生成
         this.exec = new Exec(scene);
 
         // ワイプの生成
         this.wipe = new Wipe(scene, GameState.camera);
-
-        // [DEBUG]
-        // GameState.ui_manager.add_item("Test Item 1");
-        // GameState.ui_manager.add_item("Test Item 2");
     }
 
     update(time, delta){

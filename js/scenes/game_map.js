@@ -211,7 +211,7 @@ export class Map {
 
     update(time, delta){
       if (this.material.cage){
-        const v = 0.8 + 0.2 * Math.sin(time / 1200);
+        const v = 0.6 + 0.4 * Math.sin(time /600);
         this.material.cage.emissiveColor.set(0.20*v, 0.64*v, 0.20*v);
       }
       if (this.material.corridor){
@@ -219,7 +219,7 @@ export class Map {
         this.material.corridor.emissiveColor.set(1.0*v, 0.8*v, 0.1*v);
       }
       if (this.material.room_exit){
-        const v = 0.5 + 0.5 * Math.sin(time / 400);
+        const v = 0.5 + 0.5 * Math.sin(time / 300);
         this.material.room_exit.emissiveColor.set(1.0*v, 1.0*v, 1.0*v);
       }
       if (GameState.explored_map && GameState.player){

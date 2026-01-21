@@ -21,7 +21,13 @@ export class Item_Mass extends Item {
         // [Material] 色
         const material = new BABYLON.StandardMaterial(`mat`, this.scene);
         material.diffuseColor = GLOBALS.ITEM.COLOR.MASS;
-        material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1); 
+        material.emissiveColor = new BABYLON.Color3(1, 1, 1);
+        material.emissiveFresnelParameters = new BABYLON.FresnelParameters();
+        material.emissiveFresnelParameters.bias = 0.0;
+        material.emissiveFresnelParameters.power = 0.2;
+        material.emissiveFresnelParameters.rightColor = BABYLON.Color3.Black();
+        material.emissiveFresnelParameters.leftColor = new BABYLON.Color3(1,0,1);
+
         this.mesh.material = material;
 
         super.create();
