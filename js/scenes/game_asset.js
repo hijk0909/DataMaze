@@ -162,10 +162,10 @@ export class GameAsset extends Asset {
 
         // ■　音声
         this.bgm.main = await MyAudio.load( "./assets/audio/bgm/bgm_main.mp3");
-        this.bgm.main.setVolume(0.9);
+        this.bgm.main.setVolume(0.8);
 
         this.bgm.middle = await MyAudio.load( "./assets/audio/bgm/bgm_middle.mp3");
-        this.bgm.middle.setVolume(0.9);
+        this.bgm.middle.setVolume(0.6);
 
         this.se.powerup = await MyAudio.load( "./assets/audio/se/se_powerup.mp3" );
         this.se.powerup.setVolume(0.4);
@@ -177,10 +177,10 @@ export class GameAsset extends Asset {
         this.se.collision.setVolume(0.2);
 
         this.jingle.stagestart = await MyAudio.load( "./assets/audio/jingle/jingle_stage_start.mp3" );
-        this.jingle.stagestart.setVolume(0.8);
+        this.jingle.stagestart.setVolume(0.6);
 
         this.jingle.stageclear = await MyAudio.load( "./assets/audio/jingle/jingle_stage_clear.mp3" );
-        this.jingle.stageclear.setVolume(0.8);
+        this.jingle.stageclear.setVolume(0.7);
 
         // await this.delay(1000); // [TEST]
         // console.log("音声読み込み完了");

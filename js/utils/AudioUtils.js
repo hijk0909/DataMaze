@@ -1,6 +1,7 @@
 // AudioUtil.js
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from '../GameState.js';
+import { MyMath } from './MathUtils.js';
 
 export class MyAudio {
 
@@ -59,6 +60,7 @@ class SoundInstance {
         this.isPlaying = false;
         this.isLooping = false;
         this.volume = 1.0;
+        this.hasPan = false;
         this.pan = 0; // -1(左) ~ 0(中央) ~ +1(右)
 
         // 一時停止・再開用
@@ -94,21 +96,26 @@ class SoundInstance {
         this.gainNode = this.audioContext.createGain();
         this.gainNode.gain.value = this.volume;
 
-        // パン用の左右ゲインノード（より確実な方法）
-        this.leftGainNode = this.audioContext.createGain();
-        this.rightGainNode = this.audioContext.createGain();
-        this._updatePanGains();
+        if (this.hasPan){
+            // パン用の左右ゲインノード
+            this.leftGainNode = this.audioContext.createGain();
+            this.rightGainNode = this.audioContext.createGain();
+            this._updatePanGains();
 
-        // ステレオマージャー
-        this.merger = this.audioContext.createChannelMerger(2);
-        
-        // 接続: source → gain → left/right gains → merger → destination
-        this.source.connect(this.gainNode);
-        this.gainNode.connect(this.leftGainNode);
-        this.gainNode.connect(this.rightGainNode);
-        this.leftGainNode.connect(this.merger, 0, 0);  // 左チャンネル
-        this.rightGainNode.connect(this.merger, 0, 1); // 右チャンネル
-        this.merger.connect(this.audioContext.destination);
+            // ステレオマージャー
+            this.merger = this.audioContext.createChannelMerger(2);
+            
+            // 接続: source → gain → left/right gains → merger → destination
+            this.source.connect(this.gainNode);
+            this.gainNode.connect(this.leftGainNode);
+            this.gainNode.connect(this.rightGainNode);
+            this.leftGainNode.connect(this.merger, 0, 0);  // 左チャンネル
+            this.rightGainNode.connect(this.merger, 0, 1); // 右チャンネル
+            this.merger.connect(this.audioContext.destination);
+        } else {
+            this.source.connect(this.gainNode);
+            this.gainNode.connect(this.audioContext.destination);
+        }
         
         // 終了イベント
         this.source.onended = () => {
@@ -232,15 +239,6 @@ class SoundInstance {
         this.leftGainNode.gain.value = Math.cos(panRad);
         this.rightGainNode.gain.value = Math.sin(panRad);
     }
-
-    // 定位（パン）設定: -1(左) ~ 0(中央) ~ +1(右)
-    setPan(pan) {
-        this.pan = Math.max(-1, Math.min(1, pan));
-        if (this.panNode) {
-            this.panNode.pan.value = this.pan;
-            console.log("AudioUtil.setPan",this.pan);
-        }
-    }
   
     // 現在の再生位置を取得（秒）
     getCurrentTime() {
@@ -270,23 +268,27 @@ class SoundInstance {
         this.play(this.isLooping);
     }
 
+    // 定位（パン）設定: -1(左) ~ 0(中央) ~ +1(右)
+    setPan(pan) {
+        this.hasPan = true;
+        this.pan = Math.max(-1, Math.min(1, pan));
+        if (this.panNode) {
+            this.panNode.pan.value = this.pan;
+            console.log("AudioUtil.setPan",this.pan);
+        }
+    }
+
     // 3D定位つきSE再生
     play_3D(obj, scene){
         if (this.isPlaying) { this.stop(); }
-        if (obj !== null){
+        if (obj !== null && obj.mesh !== null){
+            const PAN_RANGE = 2.0;
             // 3D → スクリーン座標
-            const screenPos = BABYLON.Vector3.Project(
-                obj.mesh.position,
-                BABYLON.Matrix.Identity(),
-                scene.getTransformMatrix(),
-                GameState.camera.viewport.toGlobal(
-                    GameState.game.engine.getRenderWidth(),
-                    GameState.game.engine.getRenderHeight()
-                )
-            );
+            const screen_pos = MyMath.world_to_screen(obj.mesh.position);
             const renderWidth = GameState.game.engine.getRenderWidth();
-            const normalizedX = ((screenPos.x / renderWidth) - 0.5) * 2;
+            const normalizedX = ((screen_pos.x / renderWidth) - 0.5) * PAN_RANGE;
             const clampedX = Math.max(-1, Math.min(1, normalizedX));
+            // console.log("play_3D screen_pos.x:", screen_pos.x, " normalizedX:", normalizedX, " clampedX:",clampedX);
             this.setPan(clampedX);
         }
         this.play(false);
