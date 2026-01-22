@@ -18,7 +18,7 @@ export class Enemy_2 extends EnemyAero{
         this.mass = 0.7;
         this.rotation_speed = 3.0;
 
-        this.shot_weakness = 12.0;
+        this.shot_weakness = 6.0;
         this.shot_knockback = 1.5;
     }
 

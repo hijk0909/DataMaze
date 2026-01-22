@@ -68,7 +68,7 @@ export class Item_Box extends Item {
         } else if (r === 1){
             item = "Auto Recover";
             GameState.ui_manager.add_item(item);
-            GameState.player.add_hp_delta(0.2);
+            GameState.player.add_hp_delta(0.1);
             disp = `GET ${item}`;
         } else if (r === 2){
             item = "Luck";

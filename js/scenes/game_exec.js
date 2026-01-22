@@ -174,7 +174,7 @@ export class Exec {
             // 運動量を交換 (relative は obj1 から見た obj2 の相対速度)
             relative = obj1.velocity.subtract(obj2.velocity);
             const dot = BABYLON.Vector3.Dot(relative, normal);
-            impulse = (2 * dot) / (obj1.mass + obj2.mass) * GLOBALS.DAMAGE.IMPULSE_RATE;
+            impulse = (2 * dot) / (obj1.mass + obj2.mass);
             obj1.add_impulse(normal.scale(impulse * obj2.mass * (-1)));
             obj2.add_impulse(normal.scale(impulse * obj1.mass));
         }

@@ -79,14 +79,6 @@ export class GameScene extends Scene {
         scene.fogStart = 5.0;
         scene.fogEnd = 15.0;
 
-
-
-
-
-
-
-
-
         // シーン内の当たり判定の有効化
         scene.collisionsEnabled = true;
 
@@ -118,6 +110,7 @@ export class GameScene extends Scene {
         // ■ステージステータスによる状態遷移
         if (GameState.stage_state === GLOBALS.STAGE_STATE.START){
             // ◆開始（ステージの初期化処理）
+            // ステージ定義情報の読み込み
             GameState.stageInfo  = GameState.asset.data.stage_data.stages.find(s => s.stage === GameState.stage);
             // マップ生成
             if (this.map_manager){
@@ -140,6 +133,11 @@ export class GameScene extends Scene {
             // [WIPE]
             this.wipe.wipe_in(3000);
             // [SOUND]
+            if (GameState.stageInfo.bgm === "bgm_main"){
+                GameState.bgm = GameState.asset.bgm.main;
+            } else if (GameState.stageInfo.bgm === "bgm_middle"){
+                GameState.bgm = GameState.asset.bgm.middle;
+            }
             GameState.asset.jingle.stagestart.play(false);
             // [TRANSIT]
             this.stage_state_count = 2.5;
@@ -153,7 +151,7 @@ export class GameScene extends Scene {
                 // [STATUS_MSG]
                 GameState.ui_manager.hide_status_message();
                 // [SOUND]
-                GameState.asset.bgm.main.play(true);
+                GameState.bgm.play(true);
             }
         } else if (GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
             // ◆プレイ中
@@ -272,7 +270,7 @@ export class GameScene extends Scene {
     toggle_pause(){
         if (GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
             // [SOUND]
-            GameState.asset.bgm.main.pause();
+            GameState.bgm.pause();
             // [STATUS_MSG]
             GameState.ui_manager.show_status_message(`PAUSE`);
             // [TRANSIT]
@@ -280,7 +278,7 @@ export class GameScene extends Scene {
             // console.log("pause");
         } else if ( GameState.stage_state === GLOBALS.STAGE_STATE.PAUSE){
             // [SOUND]
-            GameState.asset.bgm.main.resume();
+            GameState.bgm.resume();
             // [STATUS_MSG]
             GameState.ui_manager.hide_status_message();
             // [TRANSIT]

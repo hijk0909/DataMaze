@@ -55,7 +55,7 @@ export class Movable extends Drawable {
         // console.log("add_damage dot:", dot, "damage:", damage);
 
         if (dot < 0) {
-            backstub_delta = Math.floor(Math.abs(dot) * damage_delta * GLOBALS.DAMAGE.ADDITIONAL_RATE * this.back_weakness);
+            backstub_delta = Math.floor(Math.abs(dot) * damage_delta * this.back_weakness);
             this.damage += backstub_delta;
         }
         return {damage : damage_delta, backstub : backstub_delta};

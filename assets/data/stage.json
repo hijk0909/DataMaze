@@ -5,6 +5,7 @@
       "num_room": 9,
       "corridor_texture": 2,
       "room_texture": 2,
+      "bgm": "bgm_main",
       "enemies": [
         { "className":"Enemy_7", "num":10},
         { "className":"Enemy_1", "num":5},
@@ -30,9 +31,9 @@
       "num_room": 8,
       "corridor_texture": 2,
       "room_texture": 2,
+      "bgm": "bgm_main",
       "enemies": [
-        { "className":"Enemy_5", "num":3},
-        { "className":"Enemy_4", "num":2},
+        { "className":"Enemy_4", "num":1},
         { "className":"Enemy_1", "num":3},
         { "className":"Enemy_3", "num":5},
         { "className":"Enemy_7", "num":5},        
@@ -53,6 +54,7 @@
       "num_room": 7,
       "corridor_texture": 1,
       "room_texture": 1,
+      "bgm": "bgm_middle",
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":2},
@@ -76,6 +78,7 @@
       "num_room": 7,
       "corridor_texture": 1,
       "room_texture": 1,
+      "bgm": "bgm_middle",
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":3},
@@ -98,6 +101,7 @@
       "num_room": 7,
       "corridor_texture": 3,
       "room_texture": 3,
+      "bgm": "bgm_main",
       "enemies": [
         { "className":"Enemy_5", "num":3},
         { "className":"Enemy_4", "num":2},
@@ -116,6 +120,7 @@
       "num_room": 8,
       "corridor_texture": 2,
       "room_texture": 2,
+      "bgm": "bgm_main",
       "enemies": [
         { "className":"Enemy_7", "num":10},
         { "className":"Enemy_2", "num":8},
@@ -139,6 +144,7 @@
       "num_room": 9,
       "corridor_texture": 1,
       "room_texture": 1,
+      "bgm": "bgm_main",
       "enemies": [
         { "className":"Enemy_3", "num":20}
       ],

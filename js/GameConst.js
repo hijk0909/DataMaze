@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.6",
-    DATE : "2026.1.21",
+    VERSION : "0.6a",
+    DATE : "2026.1.22",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -62,9 +62,7 @@ export const GLOBALS = {
     },
 
     DAMAGE : {
-        IMPULSE_RATE : 2.0,
         RATE : 100,
-        ADDITIONAL_RATE : 3,
         COOLDOWN : 0.5,
         MIN_RATIO : 0.1,
         MAX_RATIO : 0.6,
@@ -75,7 +73,7 @@ export const GLOBALS = {
     PLAYER_STATS : {
         INIT : {
             HP_MAX : 100,
-            HP_DELTA : -1.0,
+            HP_DELTA : 0.0,
             MASS : 1,
             ACCEL : 0.02,
             SPEED_MAX : 4,

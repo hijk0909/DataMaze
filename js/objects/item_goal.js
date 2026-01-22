@@ -94,7 +94,7 @@ export class Item_Goal extends Item {
                 const eff = new Eff_Text(this.scene);
                 eff.create(this.mesh.position, "GOAL");
                 GameState.effects.push(eff);
-                GameState.asset.bgm.main.fadeOut();
+                GameState.bgm.fadeOut();
 
                 // 敵を強制的に全滅
                 for (let i = GameState.enemies.length - 1; i >= 0; i--) {

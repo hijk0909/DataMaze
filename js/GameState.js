@@ -37,6 +37,7 @@ export const GameState = {
     spawn : null,
     bag_items : null,
     score : 0,
+    bgm : null,
     num_enemies : 0, // 生成された敵の総数
     num_items : 0, // 生成されたアイテムの総数
     num_props : 0, // 生成された小道具の総数
