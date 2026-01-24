@@ -48,7 +48,7 @@ export class EnemyGeo extends Enemy {
         const cross = BABYLON.Vector3.Cross(forward, dir);
         let angle = Math.atan2(cross.y, dot);
         // 最大回転量制限
-        const maxTurn = this.turn_speed * delta / 1000;
+        const maxTurn = this.params.speed.turn * delta / 1000;
         angle = BABYLON.Scalar.Clamp(angle, -maxTurn, maxTurn);
         // Y 軸回転
         this.mesh.rotation.y += angle;

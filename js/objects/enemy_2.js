@@ -13,13 +13,14 @@ export class Enemy_2 extends EnemyAero{
     constructor(scene){
         super(scene);
         this.radius = 0.15;
-        this.max_speed = 0.10;
-        this.accel = 0.005;
         this.mass = 0.7;
-        this.rotation_speed = 3.0;
 
-        this.shot_weakness = 6.0;
-        this.shot_knockback = 1.5;
+        this.params.speed.rotation = 3.0;
+        this.params.speed.accel = 0.005;
+        this.params.speed.chase = 0.10;
+        this.params.territory = 6.0;
+        this.params.damage.shot_weakness = 6.0;
+        this.params.damage.shot_knockback = 1.5;
     }
 
     create(position, id){
@@ -37,34 +38,21 @@ export class Enemy_2 extends EnemyAero{
 
         // アニメーション
         this.anim_fly = inst.animationGroups.find(group => group.name === `fly_enemy_2_${id}`);
-        if (this.anim_fly) {
-            this.anim_fly.start(true); // ループ再生
-            this.anim_fly.speedRatio = 3.0;
-        }
+        this.anim_fly.speedRatio = 3.0;
 
         super.create();
     }
 
+    on_chase_enter(state){
+        this.anim_fly.start(true);
+    }
+
+    on_idle_enter(state){
+        this.anim_fly.goToFrame(this.anim_fly.from);
+        this.anim_fly.stop();
+    }
+
     update(time, delta){
-        const toPlayer = GameState.player.mesh.position
-            .subtract(this.mesh.position);
-        const dir = toPlayer.clone().normalize();
-
-        // プレイヤーに向かって移動
-        if (toPlayer.lengthSquared()  <  TERRITORY * TERRITORY && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
-            this.control_velocity.addInPlace(dir.scale(this.accel));
-            this.anim_fly.start(true);
-        } else {
-            this.control_velocity.scaleInPlace(DECEL);
-            this.anim_fly.goToFrame(this.anim_fly.from);
-            this.anim_fly.stop();
-        }
-
-        // 速度制限
-        if (this.control_velocity.length() > this.max_speed) {
-            this.control_velocity.normalize().scaleInPlace(this.max_speed);
-        }
-
         super.update(time, delta);
     }
 

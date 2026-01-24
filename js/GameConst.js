@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.6b",
-    DATE : "2026.1.22",
+    VERSION : "0.6c",
+    DATE : "2026.1.24",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -87,19 +87,6 @@ export const GLOBALS = {
             SPEED_MAX : 12,
             SHOT_SPEED : 10,
             SHOT_POWER : 10
-        }
-    },
-
-    ENEMY : {
-        STATE : {
-            WAIT : 0,
-            CHASE : 1,
-            ESCAPE : 2,
-            REST : 3,
-            CHARGING : 4,
-            RUSH :5,
-            THUNDER : 6,
-            SCARED : 7
         }
     },
 

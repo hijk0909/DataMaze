@@ -17,8 +17,29 @@ export class Movable extends Drawable {
         this.hp_max = 100;
         this.damage = 0;
         this.damage_cooldown = 0;
-        this.back_weakness = 1.0;
 
+        this.params = {
+            territory: 4.0,
+            speed: {
+                chase : 0.10,
+                escape : 0.03,
+                turn : 0.8,
+                rotation : 1.5,
+                accel : 0.003,
+                decel: 0.95
+            },
+            damage: {
+                back_weakness: 1.0,
+                shot_weakness: 1.0,
+                shot_knockback: 1.0
+            },
+            angst: {
+                threshold: 5
+            },
+            confuse: {
+                threshold: 5
+            }
+        };
     }
 
     create(){
@@ -55,7 +76,7 @@ export class Movable extends Drawable {
         // console.log("add_damage dot:", dot, "damage:", damage);
 
         if (dot < 0) {
-            backstub_delta = Math.floor(Math.abs(dot) * damage_delta * this.back_weakness);
+            backstub_delta = Math.floor(Math.abs(dot) * damage_delta * this.params.damage.back_weakness);
             this.damage += backstub_delta;
         }
         return {damage : damage_delta, backstub : backstub_delta};

@@ -2,17 +2,11 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { EnemyGeo } from "./base_enemy_geo.js";
+import { ENEMY_STATE } from "./base_enemy.js";
 
-const DISP_SCALE = 0.4;
-const TERRITORY = 6;
-const DECEL = 0.92;
-
-const STATUS_WALK   = 0;
-const STATUS_ESCAPE = 1;
-const STATUS_IDLE   = 2;
-const STATUS_WALK_PERIOD    = 5;
-const STATUS_ESCAPE_PERIOD  = 3;
-const STATUS_IDLE_PERIOD    = 5;
+const STATE_CHASE_PERIOD   = 5;
+const STATE_ESCAPE_PERIOD  = 3;
+const STATE_IDLE_PERIOD    = 5;
 
 // ケルビム
 export class Enemy_4 extends EnemyGeo {
@@ -20,18 +14,17 @@ export class Enemy_4 extends EnemyGeo {
     constructor(scene){
         super(scene);
         this.radius = 0.5;
-        this.max_speed = 0.10;
-        this.escape_speed = 0.03;
-        this.accel = 0.01;
         this.mass = 1.1;
         this.hp_max = this.hp = 300;
 
-        this.back_weakness = 5.0;
-        this.shot_knockback = 8.0;
-
-        this.turn_speed = 2.5;
-        this.status = STATUS_WALK;
-        this.status_counter = STATUS_WALK_PERIOD;
+        this.params.territory = 6.0;
+        this.params.speed.decel = 0.92;
+        this.params.speed.chase = 0.10;
+        this.params.speed.escape = 0.03;
+        this.params.speed.accel = 0.01;
+        this.params.speed.turn = 2.5;
+        this.params.damage.back_weakness = 5.0;
+        this.params.damage.shot_knockback = 8.0;
     }
 
     create(position, id){
@@ -39,6 +32,7 @@ export class Enemy_4 extends EnemyGeo {
         const container = GameState.asset.mesh.enemy_4;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_4_${id}` );
 
+        const DISP_SCALE = 0.4;
         this.mesh = inst.rootNodes[0];
         this.mesh.scaling = new BABYLON.Vector3(DISP_SCALE, DISP_SCALE, DISP_SCALE);
         this.mesh.position = position.clone();
@@ -68,78 +62,39 @@ export class Enemy_4 extends EnemyGeo {
         super.create();
     }
 
+    on_chase_enter(state){
+        this.color_ball.material.albedoColor = new BABYLON.Color3(0, 0.8, 1);
+        this.anim_idle.stop();
+        this.anim_walk.start(true); 
+        state.hasTimeout = true;
+        state.timer = STATE_CHASE_PERIOD *(1 + Math.random());
+    }
+    on_chase_timeout(state){
+        this.change_state(ENEMY_STATE.ESCAPE);    
+    }
+
+    on_escape_enter(state){
+        this.color_ball.material.albedoColor = new BABYLON.Color3(1, 1, 0);
+        this.turn_reverse = true;
+        state.hasTimeout = true;
+        state.timer = STATE_ESCAPE_PERIOD;
+    }
+    on_escape_timeout(state){
+        this.change_state(ENEMY_STATE.IDLE);    
+    }
+
+    on_idle_enter(state){
+        this.color_ball.material.albedoColor = new BABYLON.Color3(1, 0, 0);
+        this.anim_walk.stop();
+        this.anim_idle.start(true); 
+        state.hasTimeout = true;
+        state.timer = STATE_IDLE_PERIOD *(1 + Math.random());
+    }
+    on_idle_timeout(state){
+        this.change_state(ENEMY_STATE.CHASE);    
+    }
+
     update(time, delta){
-
-        // 現在の forward
-        const forward = this.mesh.forward.clone();
-        forward.y = 0;
-        forward.normalize();
-        // プレイヤーの方向
-        const toPlayer = GameState.player.mesh.position
-            .subtract(this.mesh.position);
-        toPlayer.y = 0;
-        const dir = toPlayer.clone().normalize();
-
-        if (this.status === STATUS_WALK){
-            // [プレイヤーを向く]
-            this.turn_reverse = false;
-
-            // [プレイヤーを追跡]
-            if (toPlayer.lengthSquared()  <  TERRITORY * TERRITORY && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
-                this.control_velocity.addInPlace(dir.scale(this.accel));
-            }
-            // 速度制限（突進速度）
-            if (this.control_velocity.length() > this.max_speed) {
-                this.control_velocity.normalize().scaleInPlace(this.max_speed);
-            }
-
-            // [COUNTER]
-            this.status_counter -= delta / 1000;
-            if (this.status_counter <= 0){
-                this.status = STATUS_ESCAPE;
-                this.status_counter = STATUS_ESCAPE_PERIOD *(1 + Math.random());
-                this.color_ball.material.albedoColor = new BABYLON.Color3(1, 1, 0);
-            }
-        } else if (this.status === STATUS_ESCAPE){
-            // [プレイヤーに背を向ける]
-            this.turn_reverse = true;
-
-            // [プレイヤーから離れる]
-            this.control_velocity.addInPlace(dir.scale(-this.accel));
-
-            // 速度制限（逃避速度）
-            if (this.control_velocity.length() > this.escape_speed) {
-                this.control_velocity.normalize().scaleInPlace(this.escape_speed);
-            }
-
-            // [COUNTER]
-            this.status_counter -= delta / 1000;
-            if (this.status_counter <= 0){
-                this.status = STATUS_IDLE;
-                this.status_counter = STATUS_IDLE_PERIOD *(1 + Math.random());
-                this.color_ball.material.albedoColor = new BABYLON.Color3(1, 0, 0);
-                this.anim_walk.stop();
-                this.anim_idle.start(true); 
-            }
-        } else if (this.status === STATUS_IDLE){
-            // [減速]
-            this.control_velocity.scaleInPlace(DECEL);
-            // 速度制限（逃避速度）
-            if (this.control_velocity.length() > this.escape_speed) {
-                this.control_velocity.normalize().scaleInPlace(this.escape_speed);
-            }
-
-            // [COUNTER]
-            this.status_counter -= delta / 1000;
-            if (this.status_counter <= 0){
-                this.status = STATUS_WALK;
-                this.status_counter = STATUS_WALK_PERIOD *(1 + Math.random());
-                this.color_ball.material.albedoColor = new BABYLON.Color3(0, 0.8, 1);
-                this.anim_idle.stop();
-                this.anim_walk.start(true); 
-            }
-        }
-
         super.update(time, delta);
     }
 

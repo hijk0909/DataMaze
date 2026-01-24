@@ -11,11 +11,12 @@ export class Enemy_6 extends EnemyAero {
     constructor(scene){
         super(scene);
         this.radius = 0.1;
-        this.max_speed = 0.15;
-        this.accel = 0.008;
         this.mass = 0.5;
-        this.rotation_speed = 1.0;
         this.hp_max = this.hp = 60;
+
+        this.params.speed.chase = 0.15;
+        this.params.speed.accel = 0.008;
+        this.params.speed.rotation = 1.0;
     }
 
     create(position, id){
@@ -33,17 +34,6 @@ export class Enemy_6 extends EnemyAero {
     }
 
     update(time, delta){
-        // 自機に向かって移動
-        const toPlayer = GameState.player.mesh.position
-            .subtract(this.mesh.position);
-        const dir = toPlayer.clone().normalize();
-        this.control_velocity.addInPlace(dir.scale(this.accel))
-
-        // 速度制限
-        if (this.control_velocity.length() > this.max_speed) {
-            this.control_velocity.normalize().scaleInPlace(this.max_speed);
-        }
-
         super.update(time, delta);
     }
 

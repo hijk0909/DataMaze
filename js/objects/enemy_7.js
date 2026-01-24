@@ -3,29 +3,28 @@ import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { EnemyGeo } from "./base_enemy_geo.js";
 
-const DISP_SCALE = 0.3;
-const TERRITORY = 4;
-const DECEL = 0.95;
-
 // スライム
 export class Enemy_7 extends EnemyGeo {
 
     constructor(scene){
         super(scene);
         this.radius = 0.2;
-        this.max_speed = 0.03;
-        this.accel = 0.003;
         this.mass = 0.3;
         this.hp_max = this.hp = 60;
 
-        this.turn_speed = 0.8;
+        this.params.speed.chase = 0.03;
+        this.params.speed.accel = 0.003;
+        this.params.speed.turn = 0.8;
+        this.params.territory = 4.0;
     }
 
     create(position, id){
 
+        // メッシュ
         const container = GameState.asset.mesh.enemy_7;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_7_${id}` );
 
+        const DISP_SCALE = 0.3;
         this.mesh = inst.rootNodes[0];
         this.mesh.scaling = new BABYLON.Vector3(DISP_SCALE, DISP_SCALE, DISP_SCALE);
         this.mesh.position = position.clone();
@@ -44,27 +43,16 @@ export class Enemy_7 extends EnemyGeo {
         super.create();
     }
 
+    on_chase_enter(){
+        this.anim_strech.start(true);
+    }
+
+    on_wait_enter(){
+        this.anim_strech.goToFrame(this.anim_strech.from);
+        this.anim_strech.stop();
+    }
+
     update(time, delta){
-        const toPlayer = GameState.player.mesh.position
-            .subtract(this.mesh.position);
-        const dir = toPlayer.clone().normalize();
-        // console.log("Enemy_3 ls:", toPlayer.lengthSquared());
-
-        // プレイヤーに向かって移動
-        if (toPlayer.lengthSquared()  <  TERRITORY * TERRITORY && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
-            this.control_velocity.addInPlace(dir.scale(this.accel));
-            this.anim_strech.start(true);
-        } else {
-            this.control_velocity.scaleInPlace(DECEL);
-            this.anim_strech.goToFrame(this.anim_strech.from);
-            this.anim_strech.stop();
-        }
-
-        // 速度制限
-        if (this.control_velocity.length() > this.max_speed) {
-            this.control_velocity.normalize().scaleInPlace(this.max_speed);
-        }
-
         super.update(time, delta);
     }
 

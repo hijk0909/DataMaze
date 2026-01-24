@@ -165,7 +165,13 @@ export class GameAsset extends Asset {
         this.bgm.main.setVolume(0.8);
 
         this.bgm.middle = await MyAudio.load( "./assets/audio/bgm/bgm_middle.mp3");
-        this.bgm.middle.setVolume(0.6);
+        this.bgm.middle.setVolume(0.7);
+
+        this.bgm.deep = await MyAudio.load( "./assets/audio/bgm/bgm_deep.mp3");
+        this.bgm.deep.setVolume(0.7);
+
+        this.bgm.zero = await MyAudio.load( "./assets/audio/bgm/bgm_zero_mind.mp3");
+        this.bgm.zero.setVolume(0.7);
 
         this.se.powerup = await MyAudio.load( "./assets/audio/se/se_powerup.mp3" );
         this.se.powerup.setVolume(0.4);

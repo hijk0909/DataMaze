@@ -133,11 +133,13 @@ export class GameScene extends Scene {
             // [WIPE]
             this.wipe.wipe_in(3000);
             // [SOUND]
-            if (GameState.stageInfo.bgm === "bgm_main"){
-                GameState.bgm = GameState.asset.bgm.main;
-            } else if (GameState.stageInfo.bgm === "bgm_middle"){
-                GameState.bgm = GameState.asset.bgm.middle;
+            const BgmLists = {
+                "bgm_main"  : GameState.asset.bgm.main,
+                "bgm_middle": GameState.asset.bgm.middle,
+                "bgm_deep"  : GameState.asset.bgm.deep,
+                "bgm_zero"  : GameState.asset.bgm.zero
             }
+            GameState.bgm = BgmLists[GameState.stageInfo.bgm];
             GameState.asset.jingle.stagestart.play(false);
             // [TRANSIT]
             this.stage_state_count = 2.5;

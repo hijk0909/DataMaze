@@ -47,7 +47,7 @@ export class EnemyAero extends Enemy {
         BABYLON.Quaternion.SlerpToRef(
             this.mesh.rotationQuaternion,       // 現在の回転
             targetQuaternion,                   // 目標の回転
-            this.rotation_speed * delta / 1000, // 補間率（値が小さいほど滑らかで遅い）
+            this.params.speed.rotation * delta / 1000, // 補間率（値が小さいほど滑らかで遅い）
             this.mesh.rotationQuaternion        // 結果をメッシュのクォータニオンに書き込み
         );
     }
