@@ -26,6 +26,9 @@ export class Enemy_5 extends EnemyAero {
         this.params.speed.rotation = 0.8;
         this.params.damage.shot_knockback = 0.01;
 
+        this.params.anger.is_valid = false;
+        this.params.confuse.is_valid = false;
+
         this.shot_cooldown = 0;
     }
 

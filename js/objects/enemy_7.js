@@ -14,6 +14,7 @@ export class Enemy_7 extends EnemyGeo {
 
         this.params.speed.chase = 0.03;
         this.params.speed.accel = 0.003;
+        this.params.speed.rush = 0.2;
         this.params.speed.turn = 0.8;
         this.params.territory = 4.0;
     }
@@ -31,7 +32,6 @@ export class Enemy_7 extends EnemyGeo {
 
         this.mesh.ellipsoid = new BABYLON.Vector3(0.5, 0.5, 0.5);
         this.mesh.checkCollisions = true; //障害物との衝突判定
-        this.mesh.rotationQuaternion = null; //クオータニオンは使わない（オイラー角で回転制御)
 
         // アニメーション
         this.anim_strech = inst.animationGroups.find(group => group.name === `strech_enemy_7_${id}`);

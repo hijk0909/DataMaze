@@ -23,21 +23,31 @@ export class Movable extends Drawable {
             speed: {
                 chase : 0.10,
                 escape : 0.03,
+                rush : 0.3,
                 turn : 0.8,
                 rotation : 1.5,
                 accel : 0.003,
                 decel: 0.95
             },
             damage: {
+                is_last_collision : true,
                 back_weakness: 1.0,
                 shot_weakness: 1.0,
                 shot_knockback: 1.0
             },
-            angst: {
-                threshold: 5
+            anger: {
+                is_valid : true,
+                count : 0,
+                threshold: 5,
+                charge_period: 1.0,
+                rush_period: 1.0,
+                thunder_period: 1.0
             },
             confuse: {
-                threshold: 5
+                is_valid : true,
+                count : 0,
+                threshold: 4,
+                confuse_period: 5.0
             }
         };
     }
@@ -82,9 +92,9 @@ export class Movable extends Drawable {
         return {damage : damage_delta, backstub : backstub_delta};
     }
 
-    process_damage(delta){
+    update_damage(delta){
         if (this.damage <= 0) { return; }
-        // console.log("process_damage[1] damage:",this.damage);
+        // console.log("update_damage[1] damage:",this.damage);
 
         // 1秒あたりのダメージ消費スピード damage_speed（対 this.hp_max比）の決定
         const k = this.damage / this.hp_max;
@@ -103,7 +113,7 @@ export class Movable extends Drawable {
         }
         // このフレームで削れるHPの上限量
         const hp_delta_limit = damage_speed * (delta / 1000) * this.hp_max;
-        // console.log("process_damage[2]: hp_max:",this.hp_max," damage:",this.damage, " damage_speed:",damage_speed, " hp_delta_limit:", hp_delta_limit);
+        // console.log("update_damage[2]: hp_max:",this.hp_max," damage:",this.damage, " damage_speed:",damage_speed, " hp_delta_limit:", hp_delta_limit);
 
         // ダメージ量とHPを更新
         if (hp_delta_limit < this.damage) {
@@ -113,7 +123,7 @@ export class Movable extends Drawable {
             this.hp = Math.max(0, this.hp - this.damage);
             this.damage = 0;
         }
-        // console.log("process_damage[3] hp:", this.hp, " damage:", this.damage);
+        // console.log("update_damage[3] hp:", this.hp, " damage:", this.damage);
     }
 
     add_hp(hp){
@@ -128,7 +138,7 @@ export class Movable extends Drawable {
 
     update(time, delta){
         // ダメージ処理
-        this.process_damage(delta);
+        this.update_damage(delta);
         // ダメージ無反応期間        
         if (this.damage_cooldown > 0){
             this.damage_cooldown -= delta / 1000;

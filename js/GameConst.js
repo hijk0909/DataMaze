@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.6c",
-    DATE : "2026.1.24",
+    VERSION : "0.6d",
+    DATE : "2026.1.26",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -63,7 +63,7 @@ export const GLOBALS = {
 
     DAMAGE : {
         RATE : 100,
-        COOLDOWN : 0.5,
+        COOLDOWN : 0.2,
         MIN_RATIO : 0.1,
         MAX_RATIO : 0.6,
         MIN_SPEED : 0.3,

@@ -10,7 +10,6 @@ export class Enemy_1 extends EnemyAero {
         super(scene);
         this.radius = 0.3;
         this.mass = 0.9;
-        this.rotation_speed = 1.5;
 
         this.params.speed.chase = 0.065;
         this.params.speed.accel = 0.001;

@@ -25,6 +25,8 @@ export class Enemy_4 extends EnemyGeo {
         this.params.speed.turn = 2.5;
         this.params.damage.back_weakness = 5.0;
         this.params.damage.shot_knockback = 8.0;
+
+        this.params.anger.is_valid = false;
     }
 
     create(position, id){

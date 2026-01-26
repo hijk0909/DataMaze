@@ -5,6 +5,8 @@ import { Eff_Firework } from '../objects/eff_firework.js';
 import { Eff_Extinction } from '../objects/eff_extinction.js';
 import { Eff_Text } from '../objects/eff_text.js';
 
+const OVERLAP_REPULSION_COEFFICIENT = 1.2;
+
 export class Exec {
     constructor(scene) {
         this.scene = scene;
@@ -167,10 +169,16 @@ export class Exec {
             } else {
                 normal = diff.normalize();
             }
-            // 重なりを解消
             const overlap = (obj1.radius + obj2.radius) - distance;
-            obj1.mesh.position.addInPlace(normal.scale(overlap * 0.5));
-            obj2.mesh.position.addInPlace(normal.scale(- overlap * 0.5));
+            // [1] 重なり解決（座標直接更新バージョン）(禁忌)
+            // obj1.mesh.position.addInPlace(normal.scale(overlap * 0.5));
+            // obj2.mesh.position.addInPlace(normal.scale(- overlap * 0.5));
+
+            // [2] 重なり解決（速度ベクトル更新バージョン）（正しい）
+            const push = normal.scale(overlap * OVERLAP_REPULSION_COEFFICIENT); // overlap比例の反発係数
+            obj1.add_impulse(push);
+            obj2.add_impulse(push.scale(-1));
+
             // 運動量を交換 (relative は obj1 から見た obj2 の相対速度)
             relative = obj1.velocity.subtract(obj2.velocity);
             const dot = BABYLON.Vector3.Dot(relative, normal);
@@ -183,13 +191,14 @@ export class Exec {
 
     // 敵機と自機のダメージ処理
     process_damage(enemy, player, impulse, relative, normal){
-
         // console.log("process_damage:", impulse, relative);
+
+        // ◆敵機のダメージ処理
         const {damage : enemy_damage, backstub : enemy_backstub} = enemy.add_damage(Math.abs(impulse * player.mass), normal);
-        // console.log("game_exec enemy_damage:", enemy_damage, " enemy_backstub:", enemy_backstub);
         if ( enemy_damage > 0){
             GameState.asset.se.collision.play_3D(enemy, this.scene); // 3D音声
             enemy.flash() //点滅
+            enemy.count_attack(true); //衝突によるダメージ付与
         }
         if ( enemy_backstub > 0){
             // console.log("ATTACK +",enemy_additional_damage, "/", Math.abs(impulse * obj2.mass));
@@ -198,7 +207,7 @@ export class Exec {
             eff.create(enemy.mesh.position, `BACKSTUB! +${enemy_backstub}`, "#ffffff", size);
             GameState.effects.push(eff);
         }
-
+        // ◆自機のダメージ処理
         const {damage : player_damage, backstub : player_backstub} = player.add_damage(Math.abs(impulse * enemy.mass), normal);
         if  ( player_backstub > 0){
             // console.log("DAMAGE +",player_additional_damage, "/",Math.abs(impulse * obj1.mass));

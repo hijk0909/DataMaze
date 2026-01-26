@@ -17,10 +17,11 @@ export class Enemy_3 extends EnemyGeo {
         this.params.damage.back_weakness = 8.0;
         this.params.damage.shot_knockback = 1.0;
         this.params.speed.turn = 0.2;
-        this.params.speed.chase = 0.02;
-        this.params.speed.accel = 0.001;
+        this.params.speed.chase = 0.04;
+        this.params.speed.accel = 0.003;
         this.params.speed.decel = 0.95;
         this.params.territory = 4.0;
+        this.params.anger.rush_period = 3.0;
     }
 
     create(position, id){
@@ -40,12 +41,17 @@ export class Enemy_3 extends EnemyGeo {
         // アニメーション
         // console.log("enemy 3 anim:", inst.animationGroups);
         this.anim_walk = inst.animationGroups.find(group => group.name === `walk_enemy_3_${id}`);
-        if (this.anim_walk) {
-            this.anim_walk.speedRatio = 1.1;
-            this.anim_walk.start(true); // ループ再生
-        }
-
+        this.anim_walk.speedRatio = 1.1;
         super.create();
+    }
+
+    on_chase_enter(state){
+        this.anim_walk.start(true); // ループ再生
+    }
+
+    on_confused_enter(state){
+        this.anim_walk.goToFrame(this.anim_walk.from);
+        this.anim_walk.stop();
     }
 
     update(time, delta){

@@ -24,8 +24,13 @@ export class Enemy extends Movable {
         this.hp = 100;
         this.hp_bar = new HpBar(scene);
 
+        this.base_emissive_color = EnemyStateColor.NONE;
         this.flash_time = 0;
 
+        // 状態視覚効果
+        this.state_effects = new StateEffectController(this);
+
+        // [DEBUG] 当たり判定の可視化
         this.debugEllipsoid = null;
     }
 
@@ -86,33 +91,68 @@ export class Enemy extends Movable {
         if (this.current_state.id === ENEMY_STATE.WAIT){
             this.change_state(ENEMY_STATE.CHASE);
         }
+        this.count_attack(false);
+    }
+
+    count_attack(isCollision){
+        if(this.params.damage.is_last_collision === isCollision){
+            this.params.anger.count += 1;
+            if (this.params.anger.is_valid && this.params.anger.count >= this.params.anger.threshold && this.current_state.id === ENEMY_STATE.CHASE){
+                this.params.anger.count = 0;
+                this.params.confuse.count = 0;
+                this.change_state(ENEMY_STATE.CHARGE);
+            }
+        } else {
+            this.params.confuse.count += 1;
+            if (this.params.confuse.is_valid && this.params.confuse.count >= this.params.confuse.threshold && this.current_state.id === ENEMY_STATE.CHASE){
+                this.params.confuse.count = 0;
+                this.params.anger.count = 0;
+                this.change_state(ENEMY_STATE.CONFUSED);
+            }
+        }
+        this.params.damage.is_last_collision = isCollision;
+        // console.log("count_attack isCollision:",isCollision," anger:",this.params.anger.count, " confuse:",this.params.confuse.count);
     }
 
     flash(){
         this.flash_time = FLASH_TIME;
     }
 
+    set_emissive_color(ec, t=0){
+        if (ec){
+            this.base_emissive_color = ec;
+        }
+        this.materials.forEach(mat => {
+            mat.emissiveColor.set(this.base_emissive_color.r + t, this.base_emissive_color.g + t, this.base_emissive_color.b + t);
+        });
+    }
+
+    get_up_vector(){}
+    get_forward_vector(){}
+
     // コールバック関数
     on_wait_enter(state){}
     on_chase_enter(state){}
     on_idle_enter(state){}
     on_escape_enter(state){}
+    on_confused_enter(state){}
     on_chase_timeout(state){}
     on_idle_timeout(state){}
     on_escape_timeout(state){}
+    on_charge_timeout(state){}
 
     update(time, delta){
         // 現在状態のupdate
         this.current_state.update(this, time, delta);
-        // 体力ゲージの表示更新
+        // 状態視覚効果のupdate
+        this.state_effects.update(time, delta);
+        // 体力ゲージのupdate
         this.hp_bar.update(this);
-        // フラッシュの表示更新
+        // emissive color の表示更新
         if (this.flash_time > 0) {
             this.flash_time -= delta / 1000;
             const t = Math.max(0, this.flash_time / FLASH_TIME); // 1→0
-            this.materials.forEach(mat => {
-                mat.emissiveColor.set(t,t,t);
-            });
+            this.set_emissive_color(null, t);
         }
 
         super.update(time, delta);
@@ -120,6 +160,7 @@ export class Enemy extends Movable {
 
     dispose(){
         this.hp_bar.dispose();
+        this.state_effects.dispose();
 
         if (this.debugEllipsoid){
             this.debugEllipsoid.dispose();
@@ -128,7 +169,7 @@ export class Enemy extends Movable {
 
         super.dispose();
     }
-}
+} // End of Enemy
 
 // 状態遷移
 export const ENEMY_STATE = {
@@ -136,7 +177,7 @@ export const ENEMY_STATE = {
     CHASE : 1,
     ESCAPE : 2,
     IDLE : 3,
-    CHARGING : 4,
+    CHARGE : 4,
     RUSH :5,
     THUNDER : 6,
     CONFUSED : 7
@@ -159,6 +200,7 @@ class WaitState extends EnemyState {
     }
     enter(enemy){
         enemy.on_wait_enter(this);
+        enemy.set_emissive_color(EnemyStateColor.NONE);
     }
     update(enemy, time, delta) {
         // 自機がテリトリー内に来たら行動開始
@@ -180,6 +222,8 @@ class ChaseState extends EnemyState {
     enter(enemy){
         enemy.turn_reverse = false;
         enemy.on_chase_enter(this);
+        enemy.set_emissive_color(EnemyStateColor.NONE);
+        // console.log("ChaseState.enter()");
     }
     update(enemy, time, delta) {
         // 追跡行動
@@ -210,6 +254,8 @@ class EscapeState extends EnemyState {
     enter(enemy){
         enemy.turn_reverse = true;
         enemy.on_escape_enter(this);
+        enemy.set_emissive_color(EnemyStateColor.NONE);
+        // console.log("EscapeState.enter()");
     }
     update(enemy, time, delta) {
         // 逃避行動
@@ -239,6 +285,8 @@ class IdleState extends EnemyState {
     }
     enter(enemy){
         enemy.on_idle_enter(this);
+        enemy.set_emissive_color(EnemyStateColor.NONE);
+        // console.log("IdleState.enter()");
     }
     update(enemy, time, delta) {
         // 減速・停止
@@ -255,16 +303,31 @@ class IdleState extends EnemyState {
     }
 }
 
-class ChargingState extends EnemyState {
+class ChargeState extends EnemyState {
     constructor(){
         super();
-        this.id = ENEMY_STATE.CHARGING;
+        this.id = ENEMY_STATE.CHARGE;
     }
     enter(enemy){
+        this.hasTimeout = true;
+        this.timer = enemy.params.anger.charge_period;
+        enemy.set_emissive_color(EnemyStateColor.CHARGE);
+        enemy.state_effects.attach(new ChargeStateEffect(enemy));
+        // console.log("ChargeState.enter()");
     }
     update(enemy, time, delta) {
+        // 減速・停止
+        enemy.control_velocity.scaleInPlace(enemy.params.speed.decel);
+        // 時間制限
+        if (this.hasTimeout){
+            this.timer -= delta / 1000;
+            if (this.timer <= 0){
+                enemy.on_charge_timeout(this);
+            }
+        }
     }
     exit(enemy){
+        enemy.state_effects.detach(ChargeStateEffect);
     }
 }
 
@@ -274,10 +337,31 @@ class RushState extends EnemyState {
         this.id = ENEMY_STATE.RUSH;
     }
     enter(enemy){
+        this.hasTimeout = true;
+        this.timer = enemy.params.anger.rush_period;
+        enemy.set_emissive_color(EnemyStateColor.RUSH);
+        enemy.state_effects.attach(new RushStateEffect(enemy));
+        // console.log("RushState.enter()");
     }
     update(enemy, time, delta) {
+        // 追跡行動
+        const toPlayer = GameState.player.mesh.position
+            .subtract(enemy.mesh.position);
+        const dir = toPlayer.clone().normalize();
+        enemy.control_velocity.addInPlace(dir.scale(enemy.params.speed.accel));
+        if (enemy.control_velocity.length() > enemy.params.speed.rush) {
+            enemy.control_velocity.normalize().scaleInPlace(enemy.params.speed.rush);
+        }
+        // 時間制限
+        if (this.hasTimeout){
+            this.timer -= delta / 1000;
+            if (this.timer <= 0){
+                enemy.change_state(ENEMY_STATE.CHASE);
+            }
+        }
     }
     exit(enemy){
+        enemy.state_effects.detach(RushStateEffect);
     }
 }
 
@@ -287,8 +371,21 @@ class ThunderState extends EnemyState {
         this.id = ENEMY_STATE.THUNDER;
     }
     enter(enemy){
+        this.hasTimeout = true;
+        this.timer = enemy.params.anger.thunder_period;
+        enemy.set_emissive_color(EnemyStateColor.THUNDER);
+        // console.log("ThunderState.enter()");
     }
     update(enemy, time, delta) {
+        // 減速・停止
+        enemy.control_velocity.scaleInPlace(enemy.params.speed.decel);
+        // 時間制限
+        if (this.hasTimeout){
+            this.timer -= delta / 1000;
+            if (this.timer <= 0){
+                enemy.change_state(ENEMY_STATE.CHASE);
+            }
+        }
     }
     exit(enemy){
     }
@@ -300,10 +397,26 @@ class ConfusedState extends EnemyState {
         this.id = ENEMY_STATE.CONFUSED;
     }
     enter(enemy){
+        enemy.on_confused_enter(this);
+        this.hasTimeout = true;
+        this.timer = enemy.params.confuse.confuse_period;
+        enemy.set_emissive_color(EnemyStateColor.CONFUSED);
+        enemy.state_effects.attach(new ConfusedStateEffect(enemy));
+        // console.log("ConfueState.enter()");
     }
     update(enemy, time, delta) {
+        // 減速・停止
+        enemy.control_velocity.scaleInPlace(enemy.params.speed.decel);
+        // 時間制限
+        if (this.hasTimeout){
+            this.timer -= delta / 1000;
+            if (this.timer <= 0){
+                enemy.change_state(ENEMY_STATE.CHASE);
+            }
+        }
     }
     exit(enemy){
+        enemy.state_effects.detach(ConfusedStateEffect);
     }
 }
 
@@ -312,11 +425,274 @@ const EnemyStateList = {
     [ENEMY_STATE.CHASE]:      ChaseState,
     [ENEMY_STATE.ESCAPE]:     EscapeState,
     [ENEMY_STATE.IDLE]:       IdleState,
-    [ENEMY_STATE.CHARGING]:   ChargingState,
+    [ENEMY_STATE.CHARGE]:     ChargeState,
     [ENEMY_STATE.RUSH]:       RushState,
     [ENEMY_STATE.THUNDER]:    ThunderState,
     [ENEMY_STATE.CONFUSED]:   ConfusedState    
 }
+
+const EnemyStateColor = {
+    NONE : new BABYLON.Color3(0.0, 0.0, 0.0),
+    CHARGE : new BABYLON.Color3(1.0, 0.4, 0.3),
+    RUSH : new BABYLON.Color3(1.0, 0.0, 0.0),
+    THUNDER : new BABYLON.Color3(1.0, 1.0, 0.6),
+    CONFUSED : new BABYLON.Color3(0.0, 0.5, 1.0)
+}
+
+// ◆状態視覚効果
+class StateEffectController {
+  constructor(enemy) {
+    this.enemy = enemy;
+    this.effects = [];
+  }
+
+  attach(effect) {
+    effect.start(this.enemy);
+    this.effects.push(effect);
+  }
+
+  update(time, delta) {
+    for (const effect of this.effects) {
+      effect.update(time, delta);
+    }
+  }
+
+  detach(EffectClass) {
+    this.effects = this.effects.filter(effect => {
+      if (effect instanceof EffectClass) {
+        effect.stop(this.enemy);
+        effect.dispose();
+        return false; // filter で、配列から除外
+      }
+      return true;
+    });
+  }
+
+  dispose() {
+    for (const effect of this.effects) {
+      effect.stop();
+      effect.dispose();
+    }
+    this.effects.length = 0;
+  }
+}
+
+class StateEffect {
+    constructor(enemy){
+        this.enemy = enemy;
+    }
+    start(){}
+    update(time, delta){}
+    stop(){}
+    dispose(){}
+}
+
+class ConfusedStateEffect extends StateEffect {
+    constructor(enemy){
+        super(enemy);
+        this.mesh = enemy.mesh;
+        this.distance = enemy.radius;
+        this.sprites = [];
+        this.rotationAngle = 0;
+    }
+    start(){
+        const spriteIndices = [0, 1, 2, 3, 0, 1];
+        for (let i = 0; i < 6; i++) {
+            const sprite = new BABYLON.Sprite("confused", GameState.asset.sprite.confused);
+            sprite.width = 0.2;
+            sprite.height = 0.2;
+            sprite.cellIndex = spriteIndices[i];
+            sprite.isPickable = false;
+            this.sprites.push(sprite);
+        }
+    }
+    update(time, delta){
+        const up = this.enemy.get_up_vector();
+        const forward = this.enemy.get_forward_vector();
+        const right = BABYLON.Vector3.Cross(up, forward).normalize();
+        const center = this.mesh.position.add(up.scale(this.distance));
+
+        this.rotationAngle += delta * 0.0007 * Math.PI; // 回転速度
+
+        for (let i = 0; i < this.sprites.length; i++) {
+            const angle = this.rotationAngle + (Math.PI * 2 / 6) * i;
+            const x = Math.cos(angle);
+            const z = Math.sin(angle);
+
+            // 回転平面上の位置を計算
+            const offset = right.scale(x).add(forward.scale(z)).scale(0.6); // 回転半径
+            const position = center.add(offset);
+            this.sprites[i].position = position;
+        }
+    }
+    stop(){
+    }
+
+    dispose(){
+        for (const sprite of this.sprites) {
+            sprite.dispose();
+        }
+        this.sprites = [];
+    }
+} // End of ConfusedStateEffect
+
+class ChargeStateEffect extends StateEffect {
+    constructor(enemy){
+        super(enemy);
+        this.enemy = enemy;
+        this.scene = enemy.scene;
+        this.particleSystem = null;
+    }
+
+    start(){
+        const up = this.enemy.get_up_vector();
+        const radius = this.enemy.radius;
+
+        const ps = new BABYLON.ParticleSystem("charge", 2000, this.scene);
+        this.particleSystem = ps;
+
+        ps.particleTexture = GameState.asset.texture.particle.clone();
+        ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+
+        // サイズ・寿命
+        ps.minSize = 0.1;
+        ps.maxSize = 0.2;
+        ps.minLifeTime = 0.8;
+        ps.maxLifeTime = 1.2;
+
+        // 色（淡い光）
+        ps.color1 = new BABYLON.Color4(1.0, 1.0, 0.2, 0.6);
+        ps.color2 = new BABYLON.Color4(1.0, 0.9, 0.1, 0.4);
+        ps.colorDead = new BABYLON.Color4(1.0, 0.6, 0.1, 0.0);
+
+        // 円筒の範囲で発生させる
+        const height = radius * 2.0;
+        const cylinder = new BABYLON.CylinderParticleEmitter(
+            radius * 0.5,   // 上半径
+            radius * 0.5,   // 下半径
+            height
+        );
+        ps.particleEmitterType = cylinder;
+
+        // エミッター位置（敵の中心）
+        ps.emitter = this.enemy.mesh.position;
+
+        // 上方向に流す
+        const dir = up.normalize();
+        ps.direction1 = dir.scale(1.0);
+        ps.direction2 = dir.scale(1.0);
+
+        ps.minEmitPower = 1.0;
+        ps.maxEmitPower = 2.0;
+
+        ps.emitRate = 150;
+        ps.gravity = ps.gravity = dir.scale(1.5);
+
+        // ◆パーティクルが一つも無くなったらパーティクルシステムを dispose
+        this._particleObserver = this.scene.onBeforeRenderObservable.add(() => {
+             if (!this.particleSystem.isStarted() && this.particleSystem.getActiveCount() === 0) {
+                this.particleSystem.stop(); //念のため
+                this.particleSystem.dispose();
+                this.particleSystem = null;
+                this.scene.onBeforeRenderObservable.remove(this._particleObserver);
+             }
+        });
+
+        ps.start();
+    }
+
+    update(time, delta){
+        // ここで intensity に応じて emitRate や速度を上げても良い
+    }
+
+    stop(){
+        this.particleSystem.stop();
+    }
+
+    dispose(){
+        // [注] 複数の ParticleSystem が同じ Texture を共有していると
+        // -> 急に dispose() すると Texture や内部バッファが破棄
+        // -> 他の ParticleSystem が参照不能になる
+        // 共有Textureは clone() して使うこと
+
+        // if (this.particleSystem) {
+        //     this.particleSystem.stop();
+        //     this.particleSystem.dispose();
+        //     this.particleSystem = null;
+        // }
+        // [注] いきなり dispose すると 全てのパーティクルが
+        //    突然消えるので、onBeforeRenderObservable を使って
+        //    パーティクルが無くなった後で disposeする
+ 
+        super.dispose();
+    }
+} // End of ChargeStateEffect
+
+class RushStateEffect extends StateEffect {
+    constructor(enemy){
+        super(enemy);
+        this.enemy = enemy;
+        this.scene = enemy.scene;
+        this.particleSystem = null;
+    }
+
+    start(){
+        const forward = this.enemy.get_forward_vector().normalize();
+
+        const ps = new BABYLON.ParticleSystem("rush", 1500, this.scene);
+        this.particleSystem = ps;
+
+        ps.particleTexture = GameState.asset.texture.particle.clone();
+        ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_STANDARD;
+
+        ps.minSize = 0.15;
+        ps.maxSize = 0.35;
+        ps.minLifeTime = 0.3;
+        ps.maxLifeTime = 0.6;
+
+        ps.color1 = new BABYLON.Color4(1.0, 0.2, 0.1, 0.6);
+        ps.color2 = new BABYLON.Color4(0.8, 0.1, 0.1, 0.4);
+        ps.colorDead = new BABYLON.Color4(0.4, 0.1, 0.1, 0.0);
+
+        // 発生位置：敵の中心
+        ps.emitter = this.enemy.mesh.position;
+
+        // ★逆方向に噴射
+        const back = forward.scale(-1);
+        ps.direction1 = back.scale(2.0);
+        ps.direction2 = back.scale(4.0);
+
+        ps.minEmitPower = 1.0;
+        ps.maxEmitPower = 2.0;
+
+        ps.emitRate = 300;
+        ps.gravity = BABYLON.Vector3.Zero();
+
+        // ◆パーティクルが一つも無くなったらパーティクルシステムを dispose
+        this._particleObserver = this.scene.onBeforeRenderObservable.add(() => {
+             if (!this.particleSystem.isStarted() && this.particleSystem.getActiveCount() === 0) {
+                this.particleSystem.stop(); //念のため
+                this.particleSystem.dispose();
+                this.particleSystem = null;
+                this.scene.onBeforeRenderObservable.remove(this._particleObserver);
+             }
+        });
+
+        ps.start();
+    }
+
+    update(time, delta){
+        // enemy の移動に追従するなら emitter を更新しても良い
+    }
+
+    stop(){
+        this.particleSystem.stop();
+    }
+
+    dispose(){
+        super.dispose();
+    }
+} // End of RushStateEffect
 
 // 体力ゲージの管理クラス
 class HpBar {

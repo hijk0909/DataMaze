@@ -153,12 +153,16 @@ export class GameAsset extends Asset {
             "dustSprites", "./assets/textures/dust.png", 2000, { width: 64, height: 64 }, this.scene);
 
         this.sprite.extinction = new BABYLON.SpriteManager(
-            "dustSprites", "./assets/textures/extinction.png", 100, { width: 64, height: 64 }, this.scene);
+            "extinctionSprites", "./assets/textures/extinction.png", 100, { width: 64, height: 64 }, this.scene);
         this.sprite.extinction.renderingGroupId = 1;
 
         this.sprite.bullet = new BABYLON.SpriteManager(
-            "dustSprites", "./assets/textures/bullet.png", 2000, { width: 64, height: 64 }, this.scene);
-        GameState.game.sceneManager.add_progress(0.05);
+            "bulletSprites", "./assets/textures/bullet.png", 100, { width: 64, height: 64 }, this.scene);
+
+        this.sprite.confused = new BABYLON.SpriteManager(
+            "confusedSprites", "./assets/textures/confused.png", 100, { width: 64, height: 64 }, this.scene);
+
+         GameState.game.sceneManager.add_progress(0.05);
 
         // ■　音声
         this.bgm.main = await MyAudio.load( "./assets/audio/bgm/bgm_main.mp3");

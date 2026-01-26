@@ -2,9 +2,11 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Enemy } from "./base_enemy.js";
+import { ENEMY_STATE } from "./base_enemy.js";
 import { MyMath } from "../utils/MathUtils.js";
 
 const EXTERNAL_VELOCITY_DAMPING = 0.85;
+const UP_VECTOR = new BABYLON.Vector3(0, 1, 0);
 
 export class EnemyGeo extends Enemy {
 
@@ -17,6 +19,17 @@ export class EnemyGeo extends Enemy {
     create(){
         super.create();
         this.mesh.rotationQuaternion = null; //クオータニオンは使わない（オイラー角で回転制御)
+    }
+
+    get_up_vector(){
+        return UP_VECTOR;
+    }
+    get_forward_vector(){
+        return this.mesh.forward.normalize();
+    }
+
+    on_charge_timeout(state){
+        this.change_state(ENEMY_STATE.RUSH);
     }
 
     update(time, delta){

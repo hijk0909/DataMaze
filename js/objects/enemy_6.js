@@ -17,6 +17,9 @@ export class Enemy_6 extends EnemyAero {
         this.params.speed.chase = 0.15;
         this.params.speed.accel = 0.008;
         this.params.speed.rotation = 1.0;
+
+        this.params.anger.is_valid = false;
+        this.params.confuse.is_valid = false;
     }
 
     create(position, id){

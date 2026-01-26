@@ -64,6 +64,7 @@ export class Eff_Firework extends Effect {
         this._particleObserver = this.scene.onBeforeRenderObservable.add(() => {
             if (!particleSystem.isStarted() && particleSystem.getActiveCount() === 0) {
                 this.alive = false;
+                particleSystem.dispose();
                 this.scene.onBeforeRenderObservable.remove(this._particleObserver);
             }
         });

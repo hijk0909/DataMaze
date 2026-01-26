@@ -2,6 +2,7 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Enemy } from "./base_enemy.js";
+import { ENEMY_STATE } from "./base_enemy.js";
 import { MyMath } from "../utils/MathUtils.js";
 
 const EXTERNAL_VELOCITY_DAMPING = 0.95;
@@ -10,11 +11,21 @@ export class EnemyAero extends Enemy {
 
     constructor(scene){
         super(scene);
-        this.roation_speed = 0.2;
     }
 
     create(){
         super.create();
+    }
+
+    get_up_vector(){
+        return BABYLON.Vector3.TransformNormal(BABYLON.Axis.Y, this.mesh.getWorldMatrix()).normalize();
+    }
+    get_forward_vector(){
+        return BABYLON.Vector3.TransformNormal(BABYLON.Axis.Z, this.mesh.getWorldMatrix()).normalize();
+    }
+
+    on_charge_timeout(state){
+        this.change_state(ENEMY_STATE.THUNDER);        
     }
 
     update(time, delta){
@@ -30,8 +41,6 @@ export class EnemyAero extends Enemy {
     }
 
     rotate_towards_player(delta){
-        // 回転速度を制御する定数 (値が小さいほど滑らかで遅い)
-        const ROTATION_SPEED = 0.02; // 毎フレームの接近量（パーセント）
         // ターゲット方向ベクトルを取得
         const targetPosition = GameState.player.mesh.position;
         const currentPosition = this.mesh.position;
