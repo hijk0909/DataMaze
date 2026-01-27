@@ -38,10 +38,12 @@ export class Movable extends Drawable {
             anger: {
                 is_valid : true,
                 count : 0,
-                threshold: 5,
-                charge_period: 1.0,
-                rush_period: 1.0,
-                thunder_period: 1.0
+                threshold: 3,
+                charge_period: 2.0,
+                rush_period: 1.5,
+                thunder_period: 1.0,
+                thunder_area: 3.0,
+                thunder_damage: 2.5
             },
             confuse: {
                 is_valid : true,
@@ -90,6 +92,10 @@ export class Movable extends Drawable {
             this.damage += backstub_delta;
         }
         return {damage : damage_delta, backstub : backstub_delta};
+    }
+
+    add_damage_direct(dmg){
+        this.damage += dmg;
     }
 
     update_damage(delta){

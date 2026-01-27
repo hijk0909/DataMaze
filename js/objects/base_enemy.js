@@ -374,11 +374,20 @@ class ThunderState extends EnemyState {
         this.hasTimeout = true;
         this.timer = enemy.params.anger.thunder_period;
         enemy.set_emissive_color(EnemyStateColor.THUNDER);
+        enemy.state_effects.attach(new ThunderStateEffect(enemy));
         // console.log("ThunderState.enter()");
     }
     update(enemy, time, delta) {
         // 減速・停止
         enemy.control_velocity.scaleInPlace(enemy.params.speed.decel);
+        // プレイヤーに連続ダメージ
+        const toPlayer = GameState.player.mesh.position
+            .subtract(enemy.mesh.position);
+            // console.log("thunder area:", toPlayer.length(), enemy.params.anger.thunder_area);
+        if (toPlayer.length()  <  enemy.params.anger.thunder_area && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
+            GameState.player.add_damage_direct(enemy.params.anger.thunder_damage);
+            // console.log("thunder damage:", enemy.params.anger.thunder_damage);
+        }        
         // 時間制限
         if (this.hasTimeout){
             this.timer -= delta / 1000;
@@ -388,6 +397,7 @@ class ThunderState extends EnemyState {
         }
     }
     exit(enemy){
+        enemy.state_effects.detach(ThunderStateEffect);
     }
 }
 
@@ -545,48 +555,46 @@ class ChargeStateEffect extends StateEffect {
     }
 
     start(){
-        const up = this.enemy.get_up_vector();
+        const up = this.enemy.get_up_vector().normalize();
         const radius = this.enemy.radius;
 
         const ps = new BABYLON.ParticleSystem("charge", 2000, this.scene);
         this.particleSystem = ps;
 
-        ps.particleTexture = GameState.asset.texture.particle.clone();
+        ps.particleTexture = GameState.asset.texture.charge.clone();
         ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
 
         // サイズ・寿命
-        ps.minSize = 0.1;
-        ps.maxSize = 0.2;
-        ps.minLifeTime = 0.8;
-        ps.maxLifeTime = 1.2;
+        ps.minSize = 0.2;
+        ps.maxSize = 0.4;
+        ps.minLifeTime = 0.4;
+        ps.maxLifeTime = 0.6;
 
         // 色（淡い光）
         ps.color1 = new BABYLON.Color4(1.0, 1.0, 0.2, 0.6);
         ps.color2 = new BABYLON.Color4(1.0, 0.9, 0.1, 0.4);
-        ps.colorDead = new BABYLON.Color4(1.0, 0.6, 0.1, 0.0);
+        ps.colorDead = new BABYLON.Color4(0.3, 0.1, 0.0, 0.0);
 
-        // 円筒の範囲で発生させる
-        const height = radius * 2.0;
-        const cylinder = new BABYLON.CylinderParticleEmitter(
-            radius * 0.5,   // 上半径
-            radius * 0.5,   // 下半径
-            height
-        );
-        ps.particleEmitterType = cylinder;
-
-        // エミッター位置（敵の中心）
+        // エミッター位置：敵の動きに同期
         ps.emitter = this.enemy.mesh.position;
 
-        // 上方向に流す
-        const dir = up.normalize();
-        ps.direction1 = dir.scale(1.0);
-        ps.direction2 = dir.scale(1.0);
-
-        ps.minEmitPower = 1.0;
-        ps.maxEmitPower = 2.0;
-
-        ps.emitRate = 150;
-        ps.gravity = ps.gravity = dir.scale(1.5);
+        // カスタムエミッター：足元の円周から発生
+        const emitter = new BABYLON.CustomParticleEmitter();
+        ps.particleEmitterType = emitter;
+        emitter.particlePositionGenerator = (index, particle, out) => {
+            const angle = Math.random() * 2 * Math.PI;
+            out.x = Math.cos(angle) * radius;
+            out.z = Math.sin(angle) * radius;
+            out.y = -radius;       //足元から湧き上がる
+        };
+        // 方向：真上に吹き上げる
+        emitter.particleDirectionGenerator = (index, particle, out) => {
+            out.copyFrom(up);
+        };
+        // 速度：真上に加速する
+        ps.minEmitPower = 2.5;
+        ps.maxEmitPower = 2.5;
+        ps.gravity = up.scale(3.0);
 
         // ◆パーティクルが一つも無くなったらパーティクルシステムを dispose
         this._particleObserver = this.scene.onBeforeRenderObservable.add(() => {
@@ -598,6 +606,7 @@ class ChargeStateEffect extends StateEffect {
              }
         });
 
+        ps.emitRate = 150;
         ps.start();
     }
 
@@ -634,6 +643,7 @@ class RushStateEffect extends StateEffect {
         this.enemy = enemy;
         this.scene = enemy.scene;
         this.particleSystem = null;
+        this.gravity = new BABYLON.Vector3(0,1,0).scale(10.0);
     }
 
     start(){
@@ -666,7 +676,8 @@ class RushStateEffect extends StateEffect {
         ps.maxEmitPower = 2.0;
 
         ps.emitRate = 300;
-        ps.gravity = BABYLON.Vector3.Zero();
+        // ps.gravity = BABYLON.Vector3.Zero();
+        ps.gravity = this.gravity;
 
         // ◆パーティクルが一つも無くなったらパーティクルシステムを dispose
         this._particleObserver = this.scene.onBeforeRenderObservable.add(() => {
@@ -693,6 +704,43 @@ class RushStateEffect extends StateEffect {
         super.dispose();
     }
 } // End of RushStateEffect
+
+class ThunderStateEffect extends StateEffect {
+    constructor(enemy){
+        super(enemy);
+        this.enemy = enemy;
+        this.sprite = null;
+        this.counter = 0;
+        this.index = 0;
+    }
+
+    start(){
+        this.sprite = new BABYLON.Sprite("thunder", GameState.asset.sprite.thunder);
+        this.sprite.cellIndex = 0;
+        this.sprite.width = 5.0;
+        this.sprite.height= 5.0;
+        this.sprite.position = this.enemy.mesh.position;
+    }
+
+    update(time, delta){
+        this.counter += delta;
+        if (this.counter > 100){
+            this.counter = 0;
+            this.index = this.index >= 3 ? 0 : this.index + 1;
+            this.sprite.cellIndex = this.index;
+        }        
+    }
+
+    stop(){
+    }
+
+    dispose(){
+        this.sprite.dispose();
+        this.sprite = null;
+        super.dispose();
+    }
+} // End of ThunderStateEffect
+
 
 // 体力ゲージの管理クラス
 class HpBar {

@@ -96,6 +96,9 @@ export class GameAsset extends Asset {
         ptx.hasAlpha = true;
         this.texture.particle = ptx;
 
+        const chg = new BABYLON.Texture("./assets/textures/charge.png", this.scene);
+        chg.hasAlpha = true;
+        this.texture.charge = chg;
         const c1 = new BABYLON.Texture("./assets/textures/corridor_1.png", this.scene);
         c1.wrapU = BABYLON.Texture.WRAP_MODE;
         c1.wrapV = BABYLON.Texture.WRAP_MODE;
@@ -162,7 +165,10 @@ export class GameAsset extends Asset {
         this.sprite.confused = new BABYLON.SpriteManager(
             "confusedSprites", "./assets/textures/confused.png", 100, { width: 64, height: 64 }, this.scene);
 
-         GameState.game.sceneManager.add_progress(0.05);
+        this.sprite.thunder = new BABYLON.SpriteManager(
+            "thunderSprites", "./assets/textures/thunder.png", 100, { width: 256, height: 256 }, this.scene);
+
+        GameState.game.sceneManager.add_progress(0.05);
 
         // ■　音声
         this.bgm.main = await MyAudio.load( "./assets/audio/bgm/bgm_main.mp3");
