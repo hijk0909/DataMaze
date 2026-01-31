@@ -93,12 +93,7 @@ export class Item_Fluxcore extends Item {
             const mat = this.core_ball.material;
             if (mat instanceof BABYLON.PBRMaterial) {
                 // console.log("set_core_ball_color:", this.flux_state, ItemColors[this.flux_state]);
-                mat.albedoColor = ItemColors[this.flux_state]; 
-                mat.metallic = 0.0;
-                mat.roughness = 0.8;
-                mat.clearCoat.isEnabled = true;
-                mat.clearCoat.intensity = 10.0;
-                mat.clearCoat.roughness = 0.3;
+                this.set_color(mat, ItemColors[this.flux_state]); 
             }
         }
     }

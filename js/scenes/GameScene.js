@@ -66,9 +66,24 @@ export class GameScene extends Scene {
         const scene = this.scene;
 
         // Light
-        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0.5,1,0), scene);
-        light.intensity = 0.7;
-        light.groundColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+        // フィールド全体を明るく照らす
+        const hemiLight = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0.5, 1, 0), scene);
+        hemiLight.intensity = 0.2;
+        hemiLight.groundColor = new BABYLON.Color3(0.05, 0.05, 0.025);
+        GameState.hemiLight = hemiLight;
+        // プレイヤーの前方だけ照らす
+        const torchLight = new BABYLON.SpotLight("torch", 
+            new BABYLON.Vector3(0,0,0),
+            new BABYLON.Vector3(1,0,0),
+            Math.PI / 2,  // angle
+            1.0,          // exponent（大きい：中心が強く端が暗い）
+            scene);
+        torchLight.intensity = 1.0;
+        torchLight.range = 20;
+        scene.registerBeforeRender(() => {
+            torchLight.position = GameState.player.mesh.position.clone();
+            torchLight.direction = GameState.player.forward.clone().normalize();
+        });
 
         // scene.ambientColor = new BABYLON.Color3(0.25, 0.25, 0.25);
 

@@ -18,14 +18,14 @@ export class Prop_Cube extends Prop {
         this.mesh.position = pos.clone();
         this.y_base = this.mesh.position.y;
         this.mesh.checkCollisions = false;
-        const prop_cube_material = new BABYLON.StandardMaterial("prop_cube_material", this.scene); 
-        prop_cube_material.diffuseTexture = GameState.asset.texture.prop_cube;
-        prop_cube_material.alpha = 0.8;
+        const prop_cube_material = new BABYLON.PBRMaterial("prop_cube_material", this.scene); 
+        prop_cube_material.albedoTexture = GameState.asset.texture.prop_cube;
+        prop_cube_material.metallic = 0.0;     // 金属ではない
+        prop_cube_material.roughness = 1.0;    // 0.1(ツヤツヤ) 〜 1.0(ザラザラ) 
+        prop_cube_material.alpha = 1.0;
         this.mesh.material = prop_cube_material;
         super.create();
     }
-
-
 
     update(time, delta){
         if (this.mesh && this.mesh.position){

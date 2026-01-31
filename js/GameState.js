@@ -4,6 +4,7 @@ import { GLOBALS } from './GameConst.js';
 export const GameState = {
     game : null,
     camera : null,
+    hemiLight : null,
     asset : null,
     pad_manager : null,
     pad : null,

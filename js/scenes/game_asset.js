@@ -118,16 +118,22 @@ export class GameAsset extends Asset {
         r1.wrapU = BABYLON.Texture.WRAP_MODE;
         r1.wrapV = BABYLON.Texture.WRAP_MODE;
         this.texture.room_1 = r1;
+        const r1n = new BABYLON.Texture("./assets/textures/room_1_normal.png", this.scene);
+        this.texture.room_1_normal = r1n;
 
         const r2 = new BABYLON.Texture("./assets/textures/room_2.png", this.scene);
         r2.wrapU = BABYLON.Texture.WRAP_MODE;
         r2.wrapV = BABYLON.Texture.WRAP_MODE;
         this.texture.room_2 = r2;
+        const r2n = new BABYLON.Texture("./assets/textures/room_2_normal.png", this.scene);
+        this.texture.room_2_normal = r2n;
 
         const r3 = new BABYLON.Texture("./assets/textures/room_3.png", this.scene);
         r3.wrapU = BABYLON.Texture.WRAP_MODE;
         r3.wrapV = BABYLON.Texture.WRAP_MODE;
         this.texture.room_3 = r3;
+        const r3n = new BABYLON.Texture("./assets/textures/room_3_normal.png", this.scene);
+        this.texture.room_3_normal = r3n;
 
         const rx = new BABYLON.Texture("./assets/textures/room_exit.png", this.scene);
         this.texture.room_exit = rx;

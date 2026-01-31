@@ -19,15 +19,8 @@ export class Item_Mass extends Item {
         this.mesh.position = pos.clone();
 
         // [Material] 色
-        const material = new BABYLON.StandardMaterial(`mat`, this.scene);
-        material.diffuseColor = GLOBALS.ITEM.COLOR.MASS;
-        material.emissiveColor = new BABYLON.Color3(1, 1, 1);
-        material.emissiveFresnelParameters = new BABYLON.FresnelParameters();
-        material.emissiveFresnelParameters.bias = 0.0;
-        material.emissiveFresnelParameters.power = 0.2;
-        material.emissiveFresnelParameters.rightColor = BABYLON.Color3.Black();
-        material.emissiveFresnelParameters.leftColor = new BABYLON.Color3(1,0,1);
-
+        const material = new BABYLON.PBRMaterial(`mat`, this.scene);
+        this.set_color(material, GLOBALS.ITEM.COLOR.MASS);
         this.mesh.material = material;
 
         super.create();

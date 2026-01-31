@@ -36,29 +36,67 @@ export class Map {
       this.material.cage.disableLighting = true;
       this.material.cage.fogEnabled = false;
 
-      // 通路
-      this.material.corridor = new BABYLON.StandardMaterial(`matCorridor`, this.scene);
-      if (GameState.stageInfo.corridor_texture === 1){
-        this.material.corridor.diffuseTexture = GameState.asset.texture.corridor_1;
-      } else if (GameState.stageInfo.corridor_texture === 2){
-        this.material.corridor.diffuseTexture = GameState.asset.texture.corridor_2;        
-      } else if (GameState.stageInfo.corridor_texture === 3){
-        this.material.corridor.diffuseTexture = GameState.asset.texture.corridor_3;
+      // PBRマテリアル設定のヘルパー関数
+      const set_pbr_params = (material) => {
+          material.metallic = 0.0;     // 金属ではない
+          material.roughness = 1.0;    // 0.1(ツヤツヤ) 〜 1.0(ザラザラ) ：SpotLightを反射させない
+      }
+      const set_bump_params = (material) => {
+          material.useParallax = true;
+          material.useParallaxOcclusion = true;
+          material.parallaxScaleBias = 0.075;
+          material.bumpTexture.level = 5.0;
+          material.environmentIntensity = 0.0; // 環境光（HemisphericLight）の影響度を下げる
+          material.directIntensity = 50.0; // 直接光（SpotLight）の影響度を上げる
+          material.specularIntensity = 0.0; // 鏡面反射：東西南北にSpotLightの反射が出るので0.0固定
+          material.useRoughnessFromMetallicTextureAlpha = false;
+          material.useMicroSurfaceFromReflectivityMapAlpha = false;
+          material.usePhysicalLightFalloff = true; // 環境光の影響をカットする
+          //   material.invertNormalMapY = true;
       }
 
+      // 通路
+      this.material.corridor = new BABYLON.PBRMaterial(`matCorridor`, this.scene);
+      if (GameState.stageInfo.corridor_texture === 1){
+        this.material.corridor.albedoTexture = GameState.asset.texture.corridor_1;
+        this.material.corridor.emissiveTexture = GameState.asset.texture.corridor_1;
+        this.material.corridor.emissiveColor = new BABYLON.Color3(1.0, 0.8, 0.2);
+      } else if (GameState.stageInfo.corridor_texture === 2){
+        this.material.corridor.albedoTexture = GameState.asset.texture.corridor_2;
+        this.material.corridor.emissiveTexture = GameState.asset.texture.corridor_2; 
+        this.material.corridor.emissiveColor = new BABYLON.Color3(0.8, 0.8, 1.0);
+      } else if (GameState.stageInfo.corridor_texture === 3){
+        this.material.corridor.albedoTexture = GameState.asset.texture.corridor_3;
+        this.material.corridor.emissiveTexture = GameState.asset.texture.corridor_3;
+        this.material.corridor.emissiveColor = new BABYLON.Color3(1.0, 0.3, 1.0);
+      }
+      set_pbr_params(this.material.corridor);
+
+
       // 部屋
-      this.material.room = new BABYLON.StandardMaterial(`matRoom`, this.scene);
+      this.material.room = new BABYLON.PBRMaterial("roomMat", this.scene);
+      set_pbr_params(this.material.room);
       if (GameState.stageInfo.room_texture === 1){
-        this.material.room.diffuseTexture = GameState.asset.texture.room_1;
+        this.material.room.albedoTexture = GameState.asset.texture.room_1;
+        this.material.room.bumpTexture = GameState.asset.texture.room_1_normal;
+        set_bump_params(this.material.room);
       } else if (GameState.stageInfo.room_texture === 2){
-        this.material.room.diffuseTexture = GameState.asset.texture.room_2;        
+        this.material.room.albedoTexture = GameState.asset.texture.room_2;
+        this.material.room.bumpTexture = GameState.asset.texture.room_2_normal;
+        // this.material.room.bumpTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/normal.png", this.scene);
+        set_bump_params(this.material.room);
       } else if (GameState.stageInfo.room_texture === 3){
-        this.material.room.diffuseTexture = GameState.asset.texture.room_3;
+        this.material.room.albedoTexture = GameState.asset.texture.room_3;
+        this.material.room.bumpTexture = GameState.asset.texture.room_3_normal;
+        set_bump_params(this.material.room);
       }
 
       // 出入口の壁
-      this.material.room_exit = new BABYLON.StandardMaterial(`matRoomExit`, this.scene);
-      this.material.room_exit.diffuseTexture = GameState.asset.texture.room_exit;
+      this.material.room_exit = new BABYLON.PBRMaterial(`matRoomExit`, this.scene);
+      this.material.room_exit.albedoTexture = GameState.asset.texture.room_exit;
+      this.material.room_exit.emissiveTexture = GameState.asset.texture.room_exit;
+      this.material.room_exit.emissiveColor = new BABYLON.Color3(1.0, 1.0, 1.0);
+      set_pbr_params(this.material.room_exit);
     }
 
     // 格子状のカゴを生成
@@ -161,7 +199,6 @@ export class Map {
       tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.CORRIDOR.HEIGHT, scene, this.material.corridor, true);
       this.mesh.soil = mergeMeshGroup(tmpMeshes, "meshCorridorWall", scene);
       this.mesh.soil.checkCollisions = true;
-      this.mesh.soil.isTerrain = true;
 
       // 通路：天井・床
       mapSelected = map_selecter(result.map, [GLOBALS.MAP.ELEMENT.EMPTY,GLOBALS.MAP.ELEMENT.CORRIDOR]);
@@ -178,6 +215,7 @@ export class Map {
       rectangles = greedyTileMaxRectangles(mapSelected);
       tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.ROOM.HEIGHT, scene, this.material.room, true);
       this.mesh.room_wall = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
+      GameState.hemiLight.excludedMeshes.push(this.mesh.room_wall);
       this.mesh.room_wall.checkCollisions = true;
       this.mesh.room_wall.isTerrain = true;
 
@@ -186,8 +224,10 @@ export class Map {
       rectangles = greedyTileMaxRectangles(mapSelected);
       tmpMeshes = makeBoxesForRectangles(rectangles, -1.0, 0.0, scene, this.material.room, true);
       this.mesh.room_floor = mergeMeshGroup(tmpMeshes, "meshRoomFloor", scene);
+      GameState.hemiLight.excludedMeshes.push(this.mesh.room_floor);
       tmpMeshes = makeBoxesForRectangles(rectangles, GLOBALS.MAP.ROOM.HEIGHT, GLOBALS.MAP.ROOM.HEIGHT + 1.0, scene, this.material.room, true);
       this.mesh.room_ceiling = mergeMeshGroup(tmpMeshes, "meshRoomCeiling", scene);
+      GameState.hemiLight.excludedMeshes.push(this.mesh.room_ceiling);
 
       // 部屋：出入口
       mapSelected = map_selecter(result.map, [GLOBALS.MAP.ELEMENT.EXIT]);
@@ -215,12 +255,12 @@ export class Map {
         this.material.cage.emissiveColor.set(0.20*v, 0.64*v, 0.20*v);
       }
       if (this.material.corridor){
-        const v = 0.5 + 0.5 * Math.sin(time / 800);
-        this.material.corridor.emissiveColor.set(1.0*v, 0.8*v, 0.1*v);
+        const v = (0.5 + 0.5 * Math.sin(time / 800));
+        this.material.corridor.emissiveIntensity = v * 1.2;
       }
       if (this.material.room_exit){
-        const v = 0.5 + 0.5 * Math.sin(time / 300);
-        this.material.room_exit.emissiveColor.set(1.0*v, 1.0*v, 1.0*v);
+        const v = (0.5 + 0.5 * Math.sin(time / 300));
+        this.material.room_exit.emissiveIntensity = v * 3.0;
       }
       if (GameState.explored_map && GameState.player){
         update_exploration(GameState.player.mesh.position);
@@ -799,11 +839,74 @@ function mergeMeshGroup(meshes, name) {
         true,   // allow32BitsIndices
         undefined,
         false,  // subdivideWithSubMeshes
-        true    // multiMultiMaterials
+        true    // multiMaterials
     );
 
     merged.name = name;
+
+    // 法線の計算
+    merged.createNormals(true);
+    // 接線の計算
+    computeTangents(merged);
+
     return merged;
+}
+
+function computeTangents(mesh) {
+    const positions = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+    const normals = mesh.getVerticesData(BABYLON.VertexBuffer.NormalKind);
+    const uvs = mesh.getVerticesData(BABYLON.VertexBuffer.UVKind);
+    const indices = mesh.getIndices();
+
+    if (!positions || !normals || !uvs || !indices) return;
+
+    const tangents = new Float32Array((positions.length / 3) * 4);
+    const tan1 = new Array(positions.length / 3).fill(null).map(() => new BABYLON.Vector3(0, 0, 0));
+    const tan2 = new Array(positions.length / 3).fill(null).map(() => new BABYLON.Vector3(0, 0, 0));
+
+    for (let i = 0; i < indices.length; i += 3) {
+        const i1 = indices[i];
+        const i2 = indices[i + 1];
+        const i3 = indices[i + 2];
+
+        const v1 = BABYLON.Vector3.FromArray(positions, i1 * 3);
+        const v2 = BABYLON.Vector3.FromArray(positions, i2 * 3);
+        const v3 = BABYLON.Vector3.FromArray(positions, i3 * 3);
+
+        const w1 = BABYLON.Vector2.FromArray(uvs, i1 * 2);
+        const w2 = BABYLON.Vector2.FromArray(uvs, i2 * 2);
+        const w3 = BABYLON.Vector2.FromArray(uvs, i3 * 2);
+
+        const x1 = v2.x - v1.x; const x2 = v3.x - v1.x;
+        const y1 = v2.y - v1.y; const y2 = v3.y - v1.y;
+        const z1 = v2.z - v1.z; const z2 = v3.z - v1.z;
+
+        const s1 = w2.x - w1.x; const s2 = w3.x - w1.x;
+        const t1 = w2.y - w1.y; const t2 = w3.y - w1.y;
+
+        const r = 1.0 / (s1 * t2 - s2 * t1);
+        const sdir = new BABYLON.Vector3((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
+        const tdir = new BABYLON.Vector3((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+
+        tan1[i1].addInPlace(sdir); tan1[i2].addInPlace(sdir); tan1[i3].addInPlace(sdir);
+        tan2[i1].addInPlace(tdir); tan2[i2].addInPlace(tdir); tan2[i3].addInPlace(tdir);
+    }
+
+    for (let a = 0; a < positions.length / 3; a++) {
+        const n = BABYLON.Vector3.FromArray(normals, a * 3);
+        const t = tan1[a];
+        
+        // Gram-Schmidt orthogonalization
+        const tangent = t.subtract(n.scale(BABYLON.Vector3.Dot(n, t))).normalize();
+        const w = (BABYLON.Vector3.Dot(BABYLON.Vector3.Cross(n, t), tan2[a]) < 0.0) ? -1.0 : 1.0;
+        
+        tangents[a * 4] = tangent.x;
+        tangents[a * 4 + 1] = tangent.y;
+        tangents[a * 4 + 2] = tangent.z;
+        tangents[a * 4 + 3] = w;
+    }
+
+    mesh.setVerticesData(BABYLON.VertexBuffer.TangentKind, tangents);
 }
 
 function draw_cell(x, y, type, ctx){

@@ -20,6 +20,20 @@ export class Item extends Drawable {
         super.create();
     }
 
+    set_color(material, color){
+        material.albedoColor = color;
+        material.metallic = 0.0;
+        material.roughness = 0.8;
+        material.emissiveColor = color;
+        material.emissiveIntensity = 0.2;
+        material.clearCoat.isEnabled = true;
+        material.clearCoat.intensity = 10.0;
+        material.clearCoat.roughness = 0.3;
+        material.sheen.isEnabled = true;
+        material.sheen.intensity = 10.0;
+        material.sheen.color = color;
+    }
+
     drop(){
         this.isDropping = true;
         this.velocity_y = SPEED_Y_INIT;

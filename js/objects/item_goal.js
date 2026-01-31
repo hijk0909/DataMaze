@@ -42,15 +42,14 @@ export class Item_Goal extends Item {
         this.goal_light_mesh.position = pos.clone();
         this.goal_light_mesh.position.y = 1.95; // 地面に立たせる
         
-        // 実体用のマテリアルを生成
-        const material = new BABYLON.StandardMaterial(`mat`, this.scene);
-        material.diffuseColor = new BABYLON.Color3(1.0, 1.0, 0.0);
-        material.specularColor = new BABYLON.Color3(0.8, 0.8, 0.8); 
-
-        material.alpha = 0.5;
-        material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
-        material.needDepthPrePass = true; // 重なり順が正しくなる
-
+        const material = new BABYLON.PBRMaterial(`mat`, this.scene);
+        material.albedoColor = new BABYLON.Color3(1.0, 1.0, 0.0);
+        material.metallic = 0.0;
+        material.roughness = 0.2;
+        material.alpha = 0.8;
+        material.transparencyMode = BABYLON.PBRMaterial.PBR_ALPHABLEND; 
+        material.needDepthPrePass = true; //重なり順の解決
+        material.useAlphaFromAlbedoTexture = false; //鏡面反射を見せる
         this.mesh.material = material;
 
         // 演出用のシェーダーを生成
