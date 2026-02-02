@@ -14,7 +14,7 @@ export class Enemy_3 extends EnemyGeo {
         this.mass = 1.1;
         this.hp_max = this.hp = 250;
 
-        this.params.damage.back_weakness = 8.0;
+        this.damage_back_weakness = 8.0;
         this.params.damage.shot_knockback = 1.0;
         this.params.speed.turn = 0.2;
         this.params.speed.chase = 0.04;
@@ -46,12 +46,17 @@ export class Enemy_3 extends EnemyGeo {
     }
 
     on_chase_enter(state){
+        this.params.speed.turn = 0.2;
         this.anim_walk.start(true); // ループ再生
     }
 
     on_confused_enter(state){
         this.anim_walk.goToFrame(this.anim_walk.from);
         this.anim_walk.stop();
+    }
+
+    on_rush_enter(state){
+        this.params.speed.turn = 2.0;
     }
 
     update(time, delta){

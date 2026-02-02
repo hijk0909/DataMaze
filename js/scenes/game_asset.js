@@ -96,9 +96,14 @@ export class GameAsset extends Asset {
         ptx.hasAlpha = true;
         this.texture.particle = ptx;
 
+        const rsh = new BABYLON.Texture("./assets/textures/rush.png", this.scene);
+        rsh.hasAlpha = true;
+        this.texture.rush = rsh;
+
         const chg = new BABYLON.Texture("./assets/textures/charge.png", this.scene);
         chg.hasAlpha = true;
         this.texture.charge = chg;
+
         const c1 = new BABYLON.Texture("./assets/textures/corridor_1.png", this.scene);
         c1.wrapU = BABYLON.Texture.WRAP_MODE;
         c1.wrapV = BABYLON.Texture.WRAP_MODE;
@@ -113,6 +118,11 @@ export class GameAsset extends Asset {
         c3.wrapU = BABYLON.Texture.WRAP_MODE;
         c3.wrapV = BABYLON.Texture.WRAP_MODE;
         this.texture.corridor_3 = c3;
+
+        const c4 = new BABYLON.Texture("./assets/textures/corridor_4.png", this.scene);
+        c4.wrapU = BABYLON.Texture.WRAP_MODE;
+        c4.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.corridor_4 = c4;
 
         const r1 = new BABYLON.Texture("./assets/textures/room_1.png", this.scene);
         r1.wrapU = BABYLON.Texture.WRAP_MODE;
@@ -134,6 +144,13 @@ export class GameAsset extends Asset {
         this.texture.room_3 = r3;
         const r3n = new BABYLON.Texture("./assets/textures/room_3_normal.png", this.scene);
         this.texture.room_3_normal = r3n;
+
+        const r4 = new BABYLON.Texture("./assets/textures/room_4.png", this.scene);
+        r4.wrapU = BABYLON.Texture.WRAP_MODE;
+        r4.wrapV = BABYLON.Texture.WRAP_MODE;
+        this.texture.room_4 = r4;
+        const r4n = new BABYLON.Texture("./assets/textures/room_4_normal.png", this.scene);
+        this.texture.room_4_normal = r4n;
 
         const rx = new BABYLON.Texture("./assets/textures/room_exit.png", this.scene);
         this.texture.room_exit = rx;

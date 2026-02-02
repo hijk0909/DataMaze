@@ -15,43 +15,11 @@ export class Movable extends Drawable {
 
         this.hp = 100;
         this.hp_max = 100;
+
         this.damage = 0;
         this.damage_cooldown = 0;
-
-        this.params = {
-            territory: 4.0,
-            speed: {
-                chase : 0.10,
-                escape : 0.03,
-                rush : 0.3,
-                turn : 0.8,
-                rotation : 1.5,
-                accel : 0.003,
-                decel: 0.95
-            },
-            damage: {
-                is_last_collision : true,
-                back_weakness: 1.0,
-                shot_weakness: 1.0,
-                shot_knockback: 1.0
-            },
-            anger: {
-                is_valid : true,
-                count : 0,
-                threshold: 3,
-                charge_period: 2.0,
-                rush_period: 1.5,
-                thunder_period: 1.0,
-                thunder_area: 3.0,
-                thunder_damage: 2.5
-            },
-            confuse: {
-                is_valid : true,
-                count : 0,
-                threshold: 4,
-                confuse_period: 5.0
-            }
-        };
+        this.damage_back_weakness = 1.0;
+        this.damage_magnification = 1.0;
     }
 
     create(){
@@ -78,7 +46,7 @@ export class Movable extends Drawable {
         this.damage_cooldown = GLOBALS.DAMAGE.COOLDOWN;
 
         // 最低でも 1 のダメージを発生
-        damage_delta = Math.max(1, momentum * GLOBALS.DAMAGE.RATE);
+        damage_delta = Math.max(1, momentum * GLOBALS.DAMAGE.RATE * this.damage_magnification);
         this.damage += damage_delta;
 
         // バックスタブ（追加ダメージ）
@@ -88,12 +56,13 @@ export class Movable extends Drawable {
         // console.log("add_damage dot:", dot, "damage:", damage);
 
         if (dot < 0) {
-            backstub_delta = Math.floor(Math.abs(dot) * damage_delta * this.params.damage.back_weakness);
+            backstub_delta = Math.floor(Math.abs(dot) * damage_delta * this.damage_back_weakness);
             this.damage += backstub_delta;
         }
         return {damage : damage_delta, backstub : backstub_delta};
     }
 
+    // 直接ダメージ（衝突と関係ない）（例）敵→プレイヤーへの雷撃
     add_damage_direct(dmg){
         this.damage += dmg;
     }

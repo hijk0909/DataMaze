@@ -54,12 +54,12 @@ export class Enemy_5 extends EnemyAero {
 
     update(time, delta){
 
-        if (this.current_state === ENEMY_STATE.CHASE){
+        if (this.current_state.id === ENEMY_STATE.CHASE){
             this.shot_cooldown -= delta / 1000;
             if (this.shot_cooldown < 0){
                 this.shot_cooldown = SHOT_COOLDOWN;
                 // 射出
-                this.shot(dir);
+                this.shot(this.get_forward_vector());
             }
         }
         super.update(time, delta);

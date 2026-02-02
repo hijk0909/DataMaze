@@ -5,8 +5,8 @@ import { Eff_Extinction } from "./eff_extinction.js";
 
 const BULLET_SPEED = 0.13;
 const BULLET_SIZE = 0.50;
-const BULLET_STRENGTH = 5;
 const BULLET_ALPHA = 0.5;
+const BULLET_MASS = 0.1;
 
 export class Bullet extends Drawable {
 
@@ -16,9 +16,11 @@ export class Bullet extends Drawable {
         this.direction = null;
         this.speed = BULLET_SPEED;
         this.radius = BULLET_SIZE;
+        this.mass = BULLET_MASS;
+        this.strength = 1.0;
     }
 
-    create(pos, velocity, pow = GameState.player_stats.fire_power){
+    create(pos, velocity, pow = GameState.player_stats.shot_power){
         super.create(null); // meshは存在しない
 
         this.sprite = new BABYLON.Sprite("bullet", GameState.asset.sprite.bullet);
@@ -29,8 +31,7 @@ export class Bullet extends Drawable {
 
         this.direction = velocity.clone().normalize();
         this.speed = BULLET_SPEED;
-
-        this.strength = pow
+        this.strength = pow; // playerの現在値
     }    
 
     update(time, delta){

@@ -5,7 +5,6 @@ import { Movable } from "./base_movable.js";
 import { MyMath } from "../utils/MathUtils.js";
 
 const FLASH_TIME = 0.15; //秒
-const SHOT_MASS = 0.1;
 
 const HP_OFFSET_Y = 0.2;
 const HP_BAR_WIDTH = 160;
@@ -32,6 +31,43 @@ export class Enemy extends Movable {
 
         // [DEBUG] 当たり判定の可視化
         this.debugEllipsoid = null;
+
+        // パラメータ
+        this.params = {
+            territory: 4.0,
+            speed: {
+                chase : 0.10,
+                escape : 0.03,
+                rush : 0.3,
+                turn : 0.8,
+                rotation : 1.5,
+                accel : 0.003,
+                decel: 0.95
+            },
+            damage: {
+                is_last_collision : true,
+                shot_weakness: 1.0,
+                shot_knockback: 1.0,
+                confused_weakness: 3.0,
+                rush_defence: 5.0
+            },
+            anger: {
+                is_valid : true,
+                count : 0,
+                threshold: 3,
+                charge_period: 2.0,
+                rush_period: 1.5,
+                thunder_period: 1.0,
+                thunder_area: 3.0,
+                thunder_damage: 2.5
+            },
+            confuse: {
+                is_valid : true,
+                count : 0,
+                threshold: 4,
+                confuse_period: 5.0
+            }
+        };
     }
 
     create(){
@@ -85,9 +121,9 @@ export class Enemy extends Movable {
         this.current_state.enter(this);
     }
 
-    shot_from_player(power, velocity){
+    shot_from_player(power, velocity, mass){
         this.subtract_hp(power * this.params.damage.shot_weakness);
-        this.add_impulse(velocity.scale(this.params.damage.shot_knockback * SHOT_MASS));
+        this.add_impulse(velocity.scale(this.params.damage.shot_knockback * mass));
         if (this.current_state.id === ENEMY_STATE.WAIT){
             this.change_state(ENEMY_STATE.CHASE);
         }
@@ -96,18 +132,22 @@ export class Enemy extends Movable {
 
     count_attack(isCollision){
         if(this.params.damage.is_last_collision === isCollision){
-            this.params.anger.count += 1;
-            if (this.params.anger.is_valid && this.params.anger.count >= this.params.anger.threshold && this.current_state.id === ENEMY_STATE.CHASE){
-                this.params.anger.count = 0;
-                this.params.confuse.count = 0;
-                this.change_state(ENEMY_STATE.CHARGE);
+            if (this.current_state.id === ENEMY_STATE.CHASE){
+                this.params.anger.count += 1;
+                if (this.params.anger.is_valid && this.params.anger.count >= this.params.anger.threshold){
+                    this.params.anger.count = 0;
+                    this.params.confuse.count = 0;
+                    this.change_state(ENEMY_STATE.CHARGE);
+                }
             }
         } else {
-            this.params.confuse.count += 1;
-            if (this.params.confuse.is_valid && this.params.confuse.count >= this.params.confuse.threshold && this.current_state.id === ENEMY_STATE.CHASE){
-                this.params.confuse.count = 0;
-                this.params.anger.count = 0;
-                this.change_state(ENEMY_STATE.CONFUSED);
+            if (this.current_state.id === ENEMY_STATE.CHASE){
+                this.params.confuse.count += 1;
+                if (this.params.confuse.is_valid && this.params.confuse.count >= this.params.confuse.threshold){
+                    this.params.confuse.count = 0;
+                    this.params.anger.count = 0;
+                    this.change_state(ENEMY_STATE.CONFUSED);
+                }
             }
         }
         this.params.damage.is_last_collision = isCollision;
@@ -136,6 +176,7 @@ export class Enemy extends Movable {
     on_idle_enter(state){}
     on_escape_enter(state){}
     on_confused_enter(state){}
+    on_rush_enter(state){}
     on_chase_timeout(state){}
     on_idle_timeout(state){}
     on_escape_timeout(state){}
@@ -337,9 +378,11 @@ class RushState extends EnemyState {
         this.id = ENEMY_STATE.RUSH;
     }
     enter(enemy){
+        enemy.on_rush_enter(this);
         this.hasTimeout = true;
         this.timer = enemy.params.anger.rush_period;
         enemy.set_emissive_color(EnemyStateColor.RUSH);
+        enemy.damage_magnification = 1 / enemy.params.damage.rush_defence;
         enemy.state_effects.attach(new RushStateEffect(enemy));
         // console.log("RushState.enter()");
     }
@@ -361,6 +404,7 @@ class RushState extends EnemyState {
         }
     }
     exit(enemy){
+        enemy.damage_magnification = 1.0;
         enemy.state_effects.detach(RushStateEffect);
     }
 }
@@ -412,6 +456,7 @@ class ConfusedState extends EnemyState {
         this.timer = enemy.params.confuse.confuse_period;
         enemy.set_emissive_color(EnemyStateColor.CONFUSED);
         enemy.state_effects.attach(new ConfusedStateEffect(enemy));
+        enemy.damage_magnification = enemy.params.damage.confused_weakness;
         // console.log("ConfueState.enter()");
     }
     update(enemy, time, delta) {
@@ -426,6 +471,7 @@ class ConfusedState extends EnemyState {
         }
     }
     exit(enemy){
+        enemy.damage_magnification = 1.0;
         enemy.state_effects.detach(ConfusedStateEffect);
     }
 }
@@ -571,9 +617,9 @@ class ChargeStateEffect extends StateEffect {
         ps.maxLifeTime = 0.6;
 
         // 色（淡い光）
-        ps.color1 = new BABYLON.Color4(1.0, 1.0, 0.2, 0.6);
-        ps.color2 = new BABYLON.Color4(1.0, 0.9, 0.1, 0.4);
-        ps.colorDead = new BABYLON.Color4(0.3, 0.1, 0.0, 0.0);
+        ps.color1 = new BABYLON.Color4(0.0, 0.9, 1.0, 0.6);
+        ps.color2 = new BABYLON.Color4(0.0, 0.7, 0.9, 0.4);
+        ps.colorDead = new BABYLON.Color4(0.0, 0.1, 0.5, 0.0);
 
         // エミッター位置：敵の動きに同期
         ps.emitter = this.enemy.mesh.position;
@@ -643,7 +689,6 @@ class RushStateEffect extends StateEffect {
         this.enemy = enemy;
         this.scene = enemy.scene;
         this.particleSystem = null;
-        this.gravity = new BABYLON.Vector3(0,1,0).scale(10.0);
     }
 
     start(){
@@ -652,7 +697,7 @@ class RushStateEffect extends StateEffect {
         const ps = new BABYLON.ParticleSystem("rush", 1500, this.scene);
         this.particleSystem = ps;
 
-        ps.particleTexture = GameState.asset.texture.particle.clone();
+        ps.particleTexture = GameState.asset.texture.rush.clone();
         ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_STANDARD;
 
         ps.minSize = 0.15;
@@ -660,24 +705,24 @@ class RushStateEffect extends StateEffect {
         ps.minLifeTime = 0.3;
         ps.maxLifeTime = 0.6;
 
-        ps.color1 = new BABYLON.Color4(1.0, 0.2, 0.1, 0.6);
-        ps.color2 = new BABYLON.Color4(0.8, 0.1, 0.1, 0.4);
-        ps.colorDead = new BABYLON.Color4(0.4, 0.1, 0.1, 0.0);
+        ps.color1 = new BABYLON.Color4(1.0, 0.5, 0.1, 0.6);
+        ps.color2 = new BABYLON.Color4(0.8, 0.3, 0.1, 0.4);
+        ps.colorDead = new BABYLON.Color4(0.4, 0.1, 0.0, 0.0);
 
         // 発生位置：敵の中心
         ps.emitter = this.enemy.mesh.position;
 
         // ★逆方向に噴射
         const back = forward.scale(-1);
-        ps.direction1 = back.scale(2.0);
-        ps.direction2 = back.scale(4.0);
+        ps.direction1 = back.scale(1.0);
+        ps.direction2 = back.scale(2.0);
 
         ps.minEmitPower = 1.0;
         ps.maxEmitPower = 2.0;
 
         ps.emitRate = 300;
         // ps.gravity = BABYLON.Vector3.Zero();
-        ps.gravity = this.gravity;
+        ps.gravity = new BABYLON.Vector3(0,1,0).scale(5.0);
 
         // ◆パーティクルが一つも無くなったらパーティクルシステムを dispose
         this._particleObserver = this.scene.onBeforeRenderObservable.add(() => {
@@ -715,16 +760,17 @@ class ThunderStateEffect extends StateEffect {
     }
 
     start(){
+        const disp_ratio = 0.75;
         this.sprite = new BABYLON.Sprite("thunder", GameState.asset.sprite.thunder);
         this.sprite.cellIndex = 0;
-        this.sprite.width = 5.0;
-        this.sprite.height= 5.0;
+        this.sprite.width = this.enemy.params.anger.thunder_area * disp_ratio; //大きさ
+        this.sprite.height= this.enemy.params.anger.thunder_area * disp_ratio;
         this.sprite.position = this.enemy.mesh.position;
     }
 
     update(time, delta){
         this.counter += delta;
-        if (this.counter > 100){
+        if (this.counter > 50){ //アニメーション間隔
             this.counter = 0;
             this.index = this.index >= 3 ? 0 : this.index + 1;
             this.sprite.cellIndex = this.index;

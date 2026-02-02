@@ -142,8 +142,8 @@
     {
       "stage": 7,
       "num_room": 5,
-      "corridor_texture": 1,
-      "room_texture": 1,
+      "corridor_texture": 4,
+      "room_texture": 4,
       "bgm": "bgm_zero",
       "enemies": [
         { "className":"Enemy_3", "num":20}

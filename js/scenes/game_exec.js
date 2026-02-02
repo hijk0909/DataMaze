@@ -82,7 +82,7 @@ export class Exec {
                     eff_ext.create(bullet.sprite.position);
                     GameState.effects.push(eff_ext);
 
-                    enemy.shot_from_player(bullet.strength, bullet.direction);
+                    enemy.shot_from_player(bullet.strength, bullet.direction, bullet.mass);
                     enemy.flash();
 
                     if (enemy.hp <= 0){

@@ -17,15 +17,14 @@ export class Enemy_4 extends EnemyGeo {
         this.mass = 1.1;
         this.hp_max = this.hp = 300;
 
+        this.damage_back_weakness = 5.0;
         this.params.territory = 6.0;
         this.params.speed.decel = 0.92;
         this.params.speed.chase = 0.10;
         this.params.speed.escape = 0.03;
         this.params.speed.accel = 0.01;
         this.params.speed.turn = 2.5;
-        this.params.damage.back_weakness = 5.0;
         this.params.damage.shot_knockback = 8.0;
-
         this.params.anger.is_valid = false;
     }
 
