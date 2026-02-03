@@ -430,6 +430,7 @@ class ThunderState extends EnemyState {
             // console.log("thunder area:", toPlayer.length(), enemy.params.anger.thunder_area);
         if (toPlayer.length()  <  enemy.params.anger.thunder_area && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
             GameState.player.add_damage_direct(enemy.params.anger.thunder_damage);
+            GameState.player.shake.start();
             // console.log("thunder damage:", enemy.params.anger.thunder_damage);
         }        
         // 時間制限

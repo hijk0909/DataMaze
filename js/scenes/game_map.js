@@ -78,7 +78,6 @@ export class Map {
 
       set_pbr_params(this.material.corridor);
 
-
       // 部屋
       this.material.room = new BABYLON.PBRMaterial("roomMat", this.scene);
       set_pbr_params(this.material.room);

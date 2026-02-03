@@ -57,7 +57,6 @@ export class Item extends Drawable {
     }
 
     activate(){
-        
     }
 
     dispose(){

@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.7a",
-    DATE : "2026.2.2",
+    VERSION : "0.7b",
+    DATE : "2026.2.4",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -76,7 +76,7 @@ export const GLOBALS = {
             HP_DELTA : 0.0,
             MASS : 1,
             ACCEL : 0.02,
-            SPEED_MAX : 4,
+            SPEED_MAX : 5,
             SHOT_SPEED : 1,
             SHOT_POWER : 1
         },
@@ -117,6 +117,12 @@ export const GLOBALS = {
             SPEED_MAX : new BABYLON.Color3(1, 0.7, 1),
             SHOT_SPEED : new BABYLON.Color3(0.8, 1, 0.8),
             SHOT_POWER : new BABYLON.Color3(0, 0.8, 1)
+        }
+    },
+
+    GIMMICK : {
+        Y : {
+            BASE : 0.8
         }
     }
 }

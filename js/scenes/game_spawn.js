@@ -23,6 +23,8 @@ import { Enemy_7 } from "../objects/enemy_7.js";
 import { Prop_Cube } from "../objects/prop_cube.js";
 import { Prop_Display } from "../objects/prop_display.js";
 import { Prop_Rain } from "../objects/prop_rain.js";
+import { Gimmick_Diamond} from "../objects/gimmick_diamond.js";
+import { Gimmick_Virus} from "../objects/gimmick_virus.js";
 
 const EnemyClassList = {
     'Enemy_1' : Enemy_1,
@@ -53,17 +55,28 @@ const PropClassList = {
     'Prop_Rain'     : Prop_Rain
 }
 
+const GimmickClassList = {
+    'Gimmick_Diamond'   : Gimmick_Diamond,
+    'Gimmick_Virus'     : Gimmick_Virus
+}
+
 
 export class Spawn {
     constructor(scene) {
         this.scene = scene;
 
-        this.player_position = null;
-        this.goal_position = null;
-        this.all_positions = [];
-        this.used_positions = [];
-        this.available_for_enemy_positions = [];
-        this.available_for_item_positions = [];
+        // [room]
+        // this.player_position = null;
+        // this.goal_position = null;
+        // this.all_positions = [];
+        // this.used_positions = [];
+        // this.available_for_enemy_positions = [];
+        // this.available_for_item_positions = [];
+
+        // [corridor]
+        // this.all_corridor_positions = [];
+        // this.available_corridor_positions = [];
+        // this.used_corridor_positions = [];
     }
 
     center_of_room(room) {
@@ -104,6 +117,17 @@ export class Spawn {
         return prop;
     }
 
+
+    spawn_gimmick(gimmick_name, pos){
+        GameState.num_gimmicks++;
+        const GimmickClass = GimmickClassList[gimmick_name];
+        const gimmick = new GimmickClass(this.scene);
+        gimmick.create(pos, GameState.num_gimmicks);
+        GameState.gimmicks.push(gimmick);
+        return gimmick;
+
+    }
+
     spawn_enemies_from_array(enemy_name, num, array, used){
         for (let i = 0; i < num; i++){
             if (array.length === 0) break;
@@ -137,6 +161,16 @@ export class Spawn {
         }
     }
 
+    spawn_gimmicks_from_array(gimmick_name, num, array){
+        for (let i = 0; i < num; i++) {
+            if (array.length === 0) break;
+            const gimmick_position = array.pop();
+            const pos = MyMath.cell_to_world(gimmick_position.x, gimmick_position.y);
+            pos.y = GLOBALS.GIMMICK.Y.BASE;
+            this.spawn_gimmick(gimmick_name, pos);
+        }
+    }
+
 
     // ◆初期配置
     initial_placement(){
@@ -147,12 +181,14 @@ export class Spawn {
 
         GameState.num_enemies = 0;
         GameState.num_items = 0;
+        GameState.num_gimmicks = 0;
 
-        // 初期配置制御用の配列の準備
+        // 初期配置制用の配列の準備
         let all_positions = [];
         let available_for_enemy_positions = [];
         let used_positions = new Set();
         let available_positions = [];
+        let available_corridor_positions = [];
 
         GameState.rooms.forEach((room, idx) => {
             for (let y = room.y + 1; y < room.y + room.h - 1; y++) {
@@ -163,6 +199,15 @@ export class Spawn {
                 }
             }
         });
+
+        for (let y = 0; y < GameState.map.length; y++) {
+            for (let x = 0; x < GameState.map[y].length; x++) {
+                if (GameState.map[y][x] === GLOBALS.MAP.ELEMENT.CORRIDOR){
+                    available_corridor_positions.push({ x, y});
+            }
+          }
+        }
+        MyMath.shuffle(available_corridor_positions);
 
         // [Player] 自機の設定 (必須：rooms[0])
         const player_position = this.center_of_room(GameState.rooms[0]);
@@ -224,6 +269,14 @@ export class Spawn {
             }
         }
 
+        // ギミック
+        if (GameState.stageInfo.gimmicks){
+            for (const gimmick of GameState.stageInfo.gimmicks){
+                const {className, num} = gimmick;
+                this.spawn_gimmicks_from_array(className, num, available_corridor_positions);
+            }
+        }
+
     } // End of initial_placement
 
     dispose(){
@@ -260,6 +313,13 @@ export class Spawn {
             GameState.effects.splice(i, 1);
         }
         GameState.effects = [];
+
+        // ギミック
+        for (let i = GameState.gimmicks.length - 1; i >= 0; i--) {
+            GameState.gimmicks[i].dispose();
+            GameState.gimmicks.splice(i, 1);
+        }
+        GameState.gimmicks = [];
 
     } // End of dispose
 }

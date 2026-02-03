@@ -209,6 +209,9 @@ export class GameAsset extends Asset {
         this.se.powerup = await MyAudio.load( "./assets/audio/se/se_powerup.mp3" );
         this.se.powerup.setVolume(0.4);
 
+        this.se.powerdown = await MyAudio.load( "./assets/audio/se/se_powerdown.mp3" );
+        this.se.powerdown.setVolume(0.8);
+
         this.se.explosion = await MyAudio.load( "./assets/audio/se/se_explosion.mp3" );
         this.se.explosion.setVolume(0.4);
 

@@ -99,6 +99,20 @@ export class Exec {
                     } 
                 }
             }
+
+            // 自弾とギミックとの当たり判定
+            for (let j = 0; j < GameState.gimmicks.length; j++){
+                const gimmick = GameState.gimmicks[j];
+                if (this.check_hit(bullet.sprite.position, bullet.radius, gimmick.mesh.position, gimmick.radius)){
+                    bullet.alive = false;
+
+                    const eff_ext = new Eff_Extinction(this.scene);
+                    eff_ext.create(gimmick.mesh.position);
+                    GameState.effects.push(eff_ext);
+
+                    gimmick.shot();
+                }
+            }
         }
         
         // アイテムの管理
@@ -146,7 +160,29 @@ export class Exec {
             }
         }
 
+        // ギミックの管理
+        for (let i = GameState.gimmicks.length - 1; i >= 0; i--) {
+            const gimmick = GameState.gimmicks[i];
+            gimmick.update(time, delta);
+            if (!gimmick.isAlive()) {
+                gimmick.dispose();
+                GameState.gimmicks.splice(i, 1);
+                continue;
+            }
+
+            // ギミックと自機の当たり判定
+            if (this.check_hit(GameState.player.mesh.position, GameState.player.radius, gimmick.mesh.position, gimmick.radius)){
+                gimmick.activate();
+            }
+        }
+
     } // End of update
+
+    // 汎用の当たり判定
+    check_hit(pos1, rad1, pos2, rad2){
+        const distance = BABYLON.Vector3.Distance(pos1, pos2);
+        return (distance < rad1 + rad2);
+    }
 
     // 自弾と敵の当たり判定
     check_bullet_hit(bullet, enemy){

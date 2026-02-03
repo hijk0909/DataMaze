@@ -24,6 +24,10 @@
       "props":[
         { "className":"Prop_Display", "num":15},
         { "className":"Prop_Rain", "num":15}
+      ],
+      "gimmicks":[
+        { "className":"Gimmick_Diamond", "num":30},
+        { "className":"Gimmick_Virus", "num":5}
       ]
     },
     {
@@ -47,6 +51,10 @@
       ],
       "props":[
         { "className":"Prop_Display", "num":15}
+      ],
+      "gimmicks":[
+        { "className":"Gimmick_Diamond", "num":30},
+        { "className":"Gimmick_Virus", "num":10}
       ]
     },
     {
@@ -71,6 +79,10 @@
       ],
       "props":[
         { "className":"Prop_Cube", "num":15}
+      ],
+      "gimmicks":[
+        { "className":"Gimmick_Diamond", "num":30},
+        { "className":"Gimmick_Virus", "num":15}
       ]
     },
     {
@@ -94,6 +106,10 @@
       ],
       "props":[
         { "className":"Prop_Cube", "num":15}
+      ],
+      "gimmicks":[
+        { "className":"Gimmick_Diamond", "num":30},
+        { "className":"Gimmick_Virus", "num":20}
       ]
     },
     {
@@ -113,6 +129,10 @@
       "items":[
         { "className":"Item_Box", "num":1},
         { "className":"Item_Key", "num":1}
+      ],
+      "gimmicks":[
+        { "className":"Gimmick_Diamond", "num":20},
+        { "className":"Gimmick_Virus", "num":25}
       ]
     },
     {
@@ -136,7 +156,11 @@
         { "className":"Item_Fluxcore", "num":10}
       ],
       "props":[
-        { "className":"Prop_Display", "num":15}
+        { "className":"Prop_Rain", "num":15}
+      ],
+      "gimmicks":[
+        { "className":"Gimmick_Diamond", "num":15},
+        { "className":"Gimmick_Virus", "num":25}
       ]
     },
     {
@@ -156,6 +180,10 @@
       ],
       "props":[
         { "className":"Prop_Display", "num":15}
+      ],
+      "gimmicks":[
+        { "className":"Gimmick_Diamond", "num":10},
+        { "className":"Gimmick_Virus", "num":30}
       ]
     }
   ]

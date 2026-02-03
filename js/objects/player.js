@@ -31,6 +31,7 @@ export class Player extends Movable {
         this.roll_max = 0.1;
 
         this.dust_counter = 0;
+        this.shake = new Shake();
 
         // TBNフレーム
         this.forward = new BABYLON.Vector3(0, 0, 1);
@@ -123,6 +124,10 @@ export class Player extends Movable {
         GameState.effects.push(eff);
     }
 
+    shake(){
+        this.shake.start();
+    }
+
     update(time, delta){
 
         if (this.alive){
@@ -182,6 +187,9 @@ export class Player extends Movable {
                 this.create_dust(this.forward);
         }
 
+        // カメラを揺らす
+        this.shake.update(time, delta);
+
         // カメラを追随
         const distance = 0.2; // 自機の背後にカメラを置く距離
         // 注視点が近いと、カメラ自体が移動した瞬間に生じる視線方向の不連続な変化を
@@ -194,7 +202,8 @@ export class Player extends Movable {
         camera.setTarget(cameraTarget);
 
         const backward = this.forward.scale(-distance);
-        const cameraPosition = this.mesh.position.add(backward);
+        const deviation = this.shake.get_deviation();
+        const cameraPosition = this.mesh.position.add(backward).add(deviation);
         camera.position = cameraPosition;
         camera.upVector = this.compute_rolled_up(this.forward, this.up, roll);
 
@@ -346,5 +355,57 @@ export class Player extends Movable {
             this.hpFill = null;
         }
         super.dispose();
+    }
+} // End of Player
+
+const SHAKE_INTERVAL = 0.05;
+const SHAKE_TIMES = 5;
+const SHAKE_RADIUS = 0.3;
+
+class Shake {
+    constructor(){
+        this.is_shaking = false;
+        this.counter = 0;
+        this.interval = 0;
+        this.deviation = BABYLON.Vector3.Zero();
+    }
+
+    start(){
+        if (this.is_shaking === false){
+            this.is_shaking = true;
+            this.counter = SHAKE_TIMES;
+            this.interval = SHAKE_INTERVAL;
+            this.set_deviation();
+        }
+    }
+    
+    stop(){
+        this.is_shaking = false;
+        this.deviation = BABYLON.Vector3.Zero();
+    }
+
+    set_deviation(){
+        const x = Math.random() * SHAKE_RADIUS;
+        const y = Math.random() * SHAKE_RADIUS;
+        const z = Math.random() * SHAKE_RADIUS;
+        this.deviation = new BABYLON.Vector3(x,y,z);
+    }
+
+    get_deviation(){
+        return this.deviation;
+    }
+
+    update(time,delta){
+        if (this.is_shaking){
+            this.interval -= delta / 1000;
+            if (this.interval < 0){
+                this.set_deviation();
+                this.interval = SHAKE_INTERVAL;
+                this.counter--;
+                if (this.counter < 0){
+                    this.stop()
+                }
+            }
+        }
     }
 }
