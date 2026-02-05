@@ -205,12 +205,9 @@ export class Exec {
             } else {
                 normal = diff.normalize();
             }
-            const overlap = (obj1.radius + obj2.radius) - distance;
-            // [1] 重なり解決（座標直接更新バージョン）(禁忌)
-            // obj1.mesh.position.addInPlace(normal.scale(overlap * 0.5));
-            // obj2.mesh.position.addInPlace(normal.scale(- overlap * 0.5));
 
-            // [2] 重なり解決（速度ベクトル更新バージョン）（正しい）
+            // 重なり解決（速度ベクトル更新）
+            const overlap = (obj1.radius + obj2.radius) - distance;
             const push = normal.scale(overlap * OVERLAP_REPULSION_COEFFICIENT); // overlap比例の反発係数
             obj1.add_impulse(push);
             obj2.add_impulse(push.scale(-1));
@@ -218,7 +215,7 @@ export class Exec {
             // 運動量を交換 (relative は obj1 から見た obj2 の相対速度)
             relative = obj1.velocity.subtract(obj2.velocity);
             const dot = BABYLON.Vector3.Dot(relative, normal);
-            impulse = (2 * dot) / (obj1.mass + obj2.mass);
+            impulse = dot / (obj1.mass + obj2.mass);
             obj1.add_impulse(normal.scale(impulse * obj2.mass * (-1)));
             obj2.add_impulse(normal.scale(impulse * obj1.mass));
         }

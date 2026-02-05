@@ -46,7 +46,7 @@ export class Item_Key extends Item {
         eff.create(this.mesh.position, disp);
         GameState.effects.push(eff);
 
-        GameState.asset.se.powerup.play();
+       GameState.asset.se.powerup.play_3D(this, this.scene);
     }
 
     update(time, delta){

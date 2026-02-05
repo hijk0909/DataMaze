@@ -17,7 +17,7 @@
         { "className":"Item_Key", "num":5},
         { "className":"Item_Feed", "num":5},
         { "className":"Item_Mass", "num":5},
-        { "className":"Item_SpeedMax", "num":3},
+        { "className":"Item_SpeedMax", "num":2},
         { "className":"Item_ShotPower", "num":3},
         { "className":"Item_ShotSpeed", "num":3}
       ],

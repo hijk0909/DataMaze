@@ -87,6 +87,13 @@ export class GameAsset extends Asset {
         this.mesh.fluxcore = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "item_fluxcore.glb", this.scene);
 
+        // ギミックモデル
+        this.mesh.gimmick_diamond = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "gimmick_diamond.glb", this.scene);
+
+        this.mesh.gimmick_virus = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "gimmick_virus.glb", this.scene);
+
         // await this.delay(1000); // [TEST]
         // console.log("アイテム読み込み完了");
         GameState.game.sceneManager.add_progress(0.1);
@@ -217,6 +224,12 @@ export class GameAsset extends Asset {
 
         this.se.collision = await MyAudio.load( "./assets/audio/se/se_collision.mp3" );
         this.se.collision.setVolume(0.2);
+
+        this.se.thunder = await MyAudio.load( "./assets/audio/se/se_thunder.mp3" );
+        this.se.thunder.setVolume(0.4);
+
+        this.se.dash = await MyAudio.load( "./assets/audio/se/se_dash.mp3" );
+        this.se.dash.setVolume(0.4);
 
         this.jingle.stagestart = await MyAudio.load( "./assets/audio/jingle/jingle_stage_start.mp3" );
         this.jingle.stagestart.setVolume(0.6);

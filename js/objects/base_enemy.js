@@ -419,6 +419,8 @@ class ThunderState extends EnemyState {
         this.timer = enemy.params.anger.thunder_period;
         enemy.set_emissive_color(EnemyStateColor.THUNDER);
         enemy.state_effects.attach(new ThunderStateEffect(enemy));
+
+        GameState.asset.se.thunder.play_3D(enemy, enemy.scene);
         // console.log("ThunderState.enter()");
     }
     update(enemy, time, delta) {

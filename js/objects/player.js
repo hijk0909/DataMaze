@@ -14,6 +14,9 @@ const HP_BAR_PADDING = 5;
 
 const DUST_INTERVAL = 5;
 
+const DASH_PRESS_THRESHOLD = 0.1 * 1000;
+const DASH_RELEASE_THRESHOLD = 0.2 * 1000;
+
 export class Player extends Movable {
 
     constructor(scene){
@@ -45,6 +48,15 @@ export class Player extends Movable {
 
         // 自弾
         this.cooldown = 0;
+
+        // ダッシュモード
+        this.is_last_up = false;
+        this.last_press_time = null;
+        this.last_release_time = null;
+        this.was_last_press_short = false;
+        this.is_dash_mode = false;
+        this.dash_accel_ratio = 1.5;
+        this.dash_speed_max_ratio = 2.0;
     }
 
     create(pos){
@@ -130,28 +142,50 @@ export class Player extends Movable {
 
     update(time, delta){
 
+        const isLeft = GameState.inputKey["arrowleft"] || GameState.inputPad.left || GameState.inputMouse.left;
+        const isRight = GameState.inputKey["arrowright"] || GameState.inputPad.right || GameState.inputMouse.right;
+        const isUp = GameState.inputKey["arrowup"] || GameState.inputPad.up || GameState.inputMouse.up;
+        const isDown = GameState.inputKey["arrowdown"] || GameState.inputPad.down || GameState.inputMouse.down;
+        const isShot = GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel);
+
         if (this.alive){
-            // キー操作による回転処理
-            if (GameState.inputKey["arrowleft"] || GameState.inputPad.left || GameState.inputMouse.left){
+            // 移動
+            if (isLeft){
                 this.yaw_speed = Math.max(this.yaw_speed - this.yaw_accel, - this.yaw_speed_max);
                 this.create_dust(this.right.scale(-1));
             }
-            if (GameState.inputKey["arrowright"] || GameState.inputPad.right || GameState.inputMouse.right){
+            if (isRight){
                 this.yaw_speed = Math.min(this.yaw_speed + this.yaw_accel, this.yaw_speed_max);
                 this.create_dust(this.right);
             }
-            if (GameState.inputKey["arrowup"] || GameState.inputPad.up || GameState.inputMouse.up){
-                this.control_velocity.addInPlace(this.forward.normalize().scale(this.accel));
-                // this.change_pitch(-0.04);
-                this.create_dust(this.forward.scale(2));
-            }
-            if (GameState.inputKey["arrowdown"] || GameState.inputPad.down || GameState.inputMouse.down){
+            if (isDown){
                 this.control_velocity.addInPlace(this.forward.normalize().scale(this.accel * -1));
-                // this.change_pitch(0.04);
                 this.create_dust(this.zero);
             }
-            // アクションキー
-            if (GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel)){
+            // ダッシュモード判定
+            if ( isUp && !this.is_last_up){
+                this.last_press_time = time;
+                if (this.was_last_press_short && (this.last_press_time - this.last_release_time) < DASH_RELEASE_THRESHOLD) {
+                    this.is_dash_mode = true;
+                    GameState.asset.se.dash.play();
+                }
+                // console.log("dash mode press:", this.last_press_time - this.last_release_time, DASH_RELEASE_THRESHOLD, this.was_last_press_short, this.is_dash_mode);
+            }
+            if ( !isUp && this.is_last_up){
+                this.last_release_time = time;
+                this.was_last_press_short = (this.last_release_time - this.last_press_time) < DASH_PRESS_THRESHOLD;
+                this.is_dash_mode = false;
+                // console.log("dash mode release:", this.last_release_time - this.last_press_time, DASH_PRESS_THRESHOLD, this.was_last_press_short);
+            }
+            if (isUp){
+                // 前方向の加速
+                this.control_velocity.addInPlace(this.forward.normalize().scale(this.accel * (this.is_dash_mode ? this.dash_accel_ratio : 1.0)));
+                // データダストの生成
+                this.create_dust(this.forward.scale(2));
+            }
+            this.is_last_up = isUp;
+            // ショット
+            if (isShot){
                 if (this.cooldown <= 0){
                     this.cooldown = 1 / this.shot_speed;
 
@@ -167,7 +201,7 @@ export class Player extends Movable {
 
         // 速度制限・減速
         if (this.control_velocity.length() > this.speed_max / 100) {
-            this.control_velocity.normalize().scaleInPlace(this.speed_max / 100);
+            this.control_velocity.normalize().scaleInPlace((this.speed_max / 100)*(this.is_dash_mode ? this.dash_speed_max_ratio : 1.0));
         }
         this.control_velocity.scaleInPlace(this.decel);
         // 外部からの速度の減衰

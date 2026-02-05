@@ -34,7 +34,8 @@ export class Item_Mass extends Item {
         const eff = new Eff_Text(this.scene);
         eff.create(this.mesh.position, `MASS +${mass.toFixed(1)}`);
         GameState.effects.push(eff);
-        GameState.asset.se.powerup.play();
+
+        GameState.asset.se.powerup.play_3D(this, this.scene);
     }
 
     update(time, delta){

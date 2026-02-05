@@ -27,7 +27,7 @@ export class Movable extends Drawable {
     }
 
     add_impulse(impulse){
-        this.external_velocity.addInPlace(impulse.scale(1/this.mass));
+        this.external_velocity.addInPlace(impulse.scale(1/this.mass * GLOBALS.MOVABLE.IMPULSE_VELOCITY_RATIO));
         if (this.external_velocity.length() > GLOBALS.MOVABLE.MAX_EXTERNAL_VELOCITY){
             this.external_velocity.normalize().scale(GLOBALS.MOVABLE.MAX_EXTERNAL_VELOCITY);
         }
