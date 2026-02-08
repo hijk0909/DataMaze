@@ -241,7 +241,7 @@ export class Exec {
             GameState.effects.push(eff);
         }
         // ◆自機のダメージ処理
-        const {damage : player_damage, backstub : player_backstub} = player.add_damage(Math.abs(impulse * enemy.mass), normal);
+        const {damage : player_damage, backstub : player_backstub} = player.add_damage(Math.abs(impulse * enemy.mass), normal.scale(-1));
         if  ( player_backstub > 0){
             // console.log("DAMAGE +",player_additional_damage, "/",Math.abs(impulse * obj1.mass));
             const eff = new Eff_Text(this.scene);

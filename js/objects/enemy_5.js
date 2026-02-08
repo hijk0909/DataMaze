@@ -19,11 +19,13 @@ export class Enemy_5 extends EnemyAero {
         this.mass = 2.0;
         this.hp_max = this.hp = 280;
 
+        this.damage_back_weakness = 8.0;
+
         this.params.territory = 7.0;
         this.params.speed.accel = 0.001;
         this.params.speed.decel = 0.99;
         this.params.speed.chase = 0.025;
-        this.params.speed.rotation = 0.8;
+        this.params.speed.rotation = 0.4;
         this.params.damage.shot_knockback = 0.01;
 
         this.params.anger.is_valid = false;

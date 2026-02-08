@@ -11,11 +11,14 @@ export class Enemy_1 extends EnemyAero {
         this.radius = 0.3;
         this.mass = 0.9;
 
+        this.params.territory = 5.0;
         this.params.speed.chase = 0.065;
         this.params.speed.accel = 0.001;
         this.params.speed.decel = 0.95;
         this.params.speed.rotation = 1.5;
-        this.params.territory = 5.0;
+        this.params.confused_weakness = 8.0,
+        this.params.anger.thunder_period = 1.5;
+        this.params.anger.thunder_area = 3.0;
     }
 
     create(position, id){

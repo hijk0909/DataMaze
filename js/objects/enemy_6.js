@@ -2,8 +2,11 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { EnemyAero } from "./base_enemy_aero.js";
+import { ENEMY_STATE } from "./base_enemy.js";
 
 const DISP_SCALE = 0.2;
+const CHASE_PERIOD = 1.0;
+const IDLE_PERIOD = 10.0;
 
 // 小目玉
 export class Enemy_6 extends EnemyAero {
@@ -14,8 +17,8 @@ export class Enemy_6 extends EnemyAero {
         this.mass = 0.5;
         this.hp_max = this.hp = 60;
 
-        this.params.speed.chase = 0.15;
-        this.params.speed.accel = 0.008;
+        this.params.speed.chase = 0.09;
+        this.params.speed.accel = 0.004;
         this.params.speed.rotation = 1.0;
 
         this.params.anger.is_valid = false;
@@ -34,6 +37,22 @@ export class Enemy_6 extends EnemyAero {
         this.mesh.checkCollisions = false; //障害物との衝突判定
 
         super.create();
+    }
+
+    on_chase_enter(state){
+        state.hasTimeout = true;
+        state.timer = CHASE_PERIOD;
+    }
+    on_chase_timeout(state){
+        this.change_state(ENEMY_STATE.IDLE);
+    }
+
+    on_idle_enter(state){
+        state.hasTimeout = true;
+        state.timer = IDLE_PERIOD;
+    }
+    on_idle_timeout(state){
+        this.change_state(ENEMY_STATE.CHASE);
     }
 
     update(time, delta){

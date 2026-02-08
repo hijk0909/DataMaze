@@ -81,8 +81,10 @@ export class GameScene extends Scene {
         torchLight.intensity = 1.0;
         torchLight.range = 20;
         scene.registerBeforeRender(() => {
-            torchLight.position = GameState.player.mesh.position.clone();
-            torchLight.direction = GameState.player.forward.clone().normalize();
+            if (GameState.player){
+                torchLight.position = GameState.player.mesh.position.clone();
+                torchLight.direction = GameState.player.forward.clone().normalize();
+            }
         });
 
         // scene.ambientColor = new BABYLON.Color3(0.25, 0.25, 0.25);

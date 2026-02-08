@@ -35,11 +35,13 @@ export class Enemy extends Movable {
         // パラメータ
         this.params = {
             territory: 4.0,
+            target_pos : GameState.player.mesh.position,
             speed: {
                 chase : 0.10,
                 escape : 0.03,
                 rush : 0.3,
                 turn : 0.8,
+                turn_magnification : 1.0,
                 rotation : 1.5,
                 accel : 0.003,
                 decel: 0.95
@@ -48,7 +50,7 @@ export class Enemy extends Movable {
                 is_last_collision : true,
                 shot_weakness: 1.0,
                 shot_knockback: 1.0,
-                confused_weakness: 3.0,
+                confused_weakness: 10.0,
                 rush_defence: 5.0
             },
             anger: {
@@ -57,6 +59,7 @@ export class Enemy extends Movable {
                 threshold: 3,
                 charge_period: 2.0,
                 rush_period: 1.5,
+                rush_accel: 0.06,
                 thunder_period: 1.0,
                 thunder_area: 3.0,
                 thunder_damage: 2.5
@@ -66,6 +69,9 @@ export class Enemy extends Movable {
                 count : 0,
                 threshold: 4,
                 confuse_period: 5.0
+            },
+            idle : {
+                period: 1.0
             }
         };
     }
@@ -167,9 +173,6 @@ export class Enemy extends Movable {
         });
     }
 
-    get_up_vector(){}
-    get_forward_vector(){}
-
     // コールバック関数
     on_wait_enter(state){}
     on_chase_enter(state){}
@@ -177,6 +180,8 @@ export class Enemy extends Movable {
     on_escape_enter(state){}
     on_confused_enter(state){}
     on_rush_enter(state){}
+    on_free_enter(state){}
+
     on_chase_timeout(state){}
     on_idle_timeout(state){}
     on_escape_timeout(state){}
@@ -221,7 +226,8 @@ export const ENEMY_STATE = {
     CHARGE : 4,
     RUSH :5,
     THUNDER : 6,
-    CONFUSED : 7
+    CONFUSED : 7,
+    FREE : 8
 };
 
 class EnemyState {
@@ -245,6 +251,7 @@ class WaitState extends EnemyState {
     }
     update(enemy, time, delta) {
         // 自機がテリトリー内に来たら行動開始
+        enemy.params.target_pos = GameState.player.mesh.position;
         const toPlayer = GameState.player.mesh.position
             .subtract(enemy.mesh.position);
         if (toPlayer.length()  <  enemy.params.territory && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
@@ -261,7 +268,9 @@ class ChaseState extends EnemyState {
         this.id = ENEMY_STATE.CHASE;
     }
     enter(enemy){
+        enemy.params.target_pos = GameState.player.mesh.position;
         enemy.turn_reverse = false;
+        enemy.params.speed.turn_magnification = 1.0;
         enemy.on_chase_enter(this);
         enemy.set_emissive_color(EnemyStateColor.NONE);
         // console.log("ChaseState.enter()");
@@ -299,6 +308,7 @@ class EscapeState extends EnemyState {
         // console.log("EscapeState.enter()");
     }
     update(enemy, time, delta) {
+        enemy.params.target_pos = GameState.player.mesh.position;
         // 逃避行動
         const toPlayer = GameState.player.mesh.position
             .subtract(enemy.mesh.position);
@@ -327,6 +337,9 @@ class IdleState extends EnemyState {
     enter(enemy){
         enemy.on_idle_enter(this);
         enemy.set_emissive_color(EnemyStateColor.NONE);
+        this.hasTimeout = true;
+        this.timer = enemy.params.idle.period;
+        enemy.params.speed.turn_magnification = 1.0;
         // console.log("IdleState.enter()");
     }
     update(enemy, time, delta) {
@@ -336,6 +349,7 @@ class IdleState extends EnemyState {
         if (this.hasTimeout){
             this.timer -= delta / 1000;
             if (this.timer <= 0){
+                enemy.change_state(ENEMY_STATE.CHASE);
                 enemy.on_idle_timeout(this);
             }
         }
@@ -354,6 +368,8 @@ class ChargeState extends EnemyState {
         this.timer = enemy.params.anger.charge_period;
         enemy.set_emissive_color(EnemyStateColor.CHARGE);
         enemy.state_effects.attach(new ChargeStateEffect(enemy));
+        enemy.params.speed.turn_magnification = 5.0;
+        enemy.params.target_pos = GameState.player.mesh.position.clone();
         // console.log("ChargeState.enter()");
     }
     update(enemy, time, delta) {
@@ -383,23 +399,27 @@ class RushState extends EnemyState {
         this.timer = enemy.params.anger.rush_period;
         enemy.set_emissive_color(EnemyStateColor.RUSH);
         enemy.damage_magnification = 1 / enemy.params.damage.rush_defence;
+        enemy.params.speed.turn_magnification = 3.0;
         enemy.state_effects.attach(new RushStateEffect(enemy));
         // console.log("RushState.enter()");
     }
     update(enemy, time, delta) {
-        // 追跡行動
-        const toPlayer = GameState.player.mesh.position
-            .subtract(enemy.mesh.position);
-        const dir = toPlayer.clone().normalize();
-        enemy.control_velocity.addInPlace(dir.scale(enemy.params.speed.accel));
+        // 突進行動
+        const toTarget = enemy.params.target_pos.subtract(enemy.mesh.position);
+        const dir = toTarget.clone().normalize();
+        enemy.control_velocity.addInPlace(dir.scale(enemy.params.anger.rush_accel));
         if (enemy.control_velocity.length() > enemy.params.speed.rush) {
             enemy.control_velocity.normalize().scaleInPlace(enemy.params.speed.rush);
+        }
+        // 到着確認
+        if (toTarget.length() < 1.0){
+            enemy.change_state(ENEMY_STATE.IDLE);
         }
         // 時間制限
         if (this.hasTimeout){
             this.timer -= delta / 1000;
             if (this.timer <= 0){
-                enemy.change_state(ENEMY_STATE.CHASE);
+                enemy.change_state(ENEMY_STATE.IDLE);
             }
         }
     }
@@ -439,7 +459,7 @@ class ThunderState extends EnemyState {
         if (this.hasTimeout){
             this.timer -= delta / 1000;
             if (this.timer <= 0){
-                enemy.change_state(ENEMY_STATE.CHASE);
+                enemy.change_state(ENEMY_STATE.IDLE);
             }
         }
     }
@@ -460,6 +480,7 @@ class ConfusedState extends EnemyState {
         enemy.set_emissive_color(EnemyStateColor.CONFUSED);
         enemy.state_effects.attach(new ConfusedStateEffect(enemy));
         enemy.damage_magnification = enemy.params.damage.confused_weakness;
+        enemy.params.speed.turn_magnification = 0.1;
         // console.log("ConfueState.enter()");
     }
     update(enemy, time, delta) {
@@ -479,6 +500,22 @@ class ConfusedState extends EnemyState {
     }
 }
 
+class FreeState extends EnemyState {
+    constructor(){
+        super();
+        this.id = ENEMY_STATE.FREE;
+    }
+    enter(enemy){
+        enemy.on_free_enter(this);
+    }
+    update(enemy, time, delta) {
+    }
+
+    exit(enemy){
+    }
+}
+
+
 const EnemyStateList = {
     [ENEMY_STATE.WAIT]:       WaitState,
     [ENEMY_STATE.CHASE]:      ChaseState,
@@ -487,7 +524,8 @@ const EnemyStateList = {
     [ENEMY_STATE.CHARGE]:     ChargeState,
     [ENEMY_STATE.RUSH]:       RushState,
     [ENEMY_STATE.THUNDER]:    ThunderState,
-    [ENEMY_STATE.CONFUSED]:   ConfusedState    
+    [ENEMY_STATE.CONFUSED]:   ConfusedState,
+    [ENEMY_STATE.FREE]:       FreeState    
 }
 
 const EnemyStateColor = {
@@ -670,7 +708,7 @@ class ChargeStateEffect extends StateEffect {
     dispose(){
         // [注] 複数の ParticleSystem が同じ Texture を共有していると
         // -> 急に dispose() すると Texture や内部バッファが破棄
-        // -> 他の ParticleSystem が参照不能になる
+        // -> 他の ParticleSystem から参照不能になる
         // 共有Textureは clone() して使うこと
 
         // if (this.particleSystem) {
@@ -763,7 +801,7 @@ class ThunderStateEffect extends StateEffect {
     }
 
     start(){
-        const disp_ratio = 0.75;
+        const disp_ratio = 1.00;
         this.sprite = new BABYLON.Sprite("thunder", GameState.asset.sprite.thunder);
         this.sprite.cellIndex = 0;
         this.sprite.width = this.enemy.params.anger.thunder_area * disp_ratio; //大きさ

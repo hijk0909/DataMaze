@@ -15,12 +15,15 @@ export class Enemy_2 extends EnemyAero{
         this.radius = 0.15;
         this.mass = 0.7;
 
+        this.params.territory = 6.0;
         this.params.speed.rotation = 3.0;
         this.params.speed.accel = 0.005;
         this.params.speed.chase = 0.10;
-        this.params.territory = 6.0;
         this.params.damage.shot_weakness = 6.0;
         this.params.damage.shot_knockback = 1.5;
+        this.params.anger.thunder_period = 0.5;
+        this.params.anger.thunder_area = 1.0;
+        this.params.confused_weakness = 10.0;
     }
 
     create(position, id){

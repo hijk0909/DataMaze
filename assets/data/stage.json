@@ -78,7 +78,8 @@
         { "className":"Item_Fluxcore", "num":3}
       ],
       "props":[
-        { "className":"Prop_Cube", "num":15}
+        { "className":"Prop_Cube", "num":15},
+        { "className":"Prop_Lantern", "num":15}
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":30},
@@ -105,7 +106,8 @@
         { "className":"Item_Fluxcore", "num":2}
       ],
       "props":[
-        { "className":"Prop_Cube", "num":15}
+        { "className":"Prop_Cube", "num":15},
+        { "className":"Prop_Lantern", "num":15}
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":30},
@@ -124,11 +126,16 @@
         { "className":"Enemy_1", "num":3},
         { "className":"Enemy_3", "num":5},
         { "className":"Enemy_7", "num":5},        
-        { "className":"Enemy_2", "num":8}
+        { "className":"Enemy_2", "num":6},
+        { "className":"Enemy_8", "num":8}
       ],
       "items":[
         { "className":"Item_Box", "num":1},
         { "className":"Item_Key", "num":1}
+      ],
+      "props":[
+        { "className":"Prop_Cube", "num":15},
+        { "className":"Prop_Lantern", "num":15}
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":20},

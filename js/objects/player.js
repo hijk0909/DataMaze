@@ -140,6 +140,13 @@ export class Player extends Movable {
         this.shake.start();
     }
 
+    get_up_vector(){
+        return this.up;
+    }
+    get_forward_vector(){
+        return this.forward;
+    }
+
     update(time, delta){
 
         const isLeft = GameState.inputKey["arrowleft"] || GameState.inputPad.left || GameState.inputMouse.left;

@@ -42,7 +42,7 @@ export class EnemyAero extends Enemy {
 
     rotate_towards_player(delta){
         // ターゲット方向ベクトルを取得
-        const targetPosition = GameState.player.mesh.position;
+        const targetPosition = this.params.target_pos;
         const currentPosition = this.mesh.position;
         const targetDir = targetPosition.subtract(currentPosition).normalize();
         // メッシュのローカルZ軸 (this.forward) を targetDir に向ける回転を計算

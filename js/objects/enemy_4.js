@@ -4,9 +4,9 @@ import { GameState } from "../GameState.js";
 import { EnemyGeo } from "./base_enemy_geo.js";
 import { ENEMY_STATE } from "./base_enemy.js";
 
-const STATE_CHASE_PERIOD   = 5;
-const STATE_ESCAPE_PERIOD  = 3;
-const STATE_IDLE_PERIOD    = 5;
+const STATE_CHASE_PERIOD   = 3;
+const STATE_ESCAPE_PERIOD  = 2;
+const STATE_IDLE_PERIOD    = 4;
 
 // ケルビム
 export class Enemy_4 extends EnemyGeo {
@@ -26,6 +26,7 @@ export class Enemy_4 extends EnemyGeo {
         this.params.speed.turn = 2.5;
         this.params.damage.shot_knockback = 8.0;
         this.params.anger.is_valid = false;
+        this.params.confused_weakness = 12.0;
     }
 
     create(position, id){

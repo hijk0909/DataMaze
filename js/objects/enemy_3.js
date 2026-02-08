@@ -22,6 +22,7 @@ export class Enemy_3 extends EnemyGeo {
         this.params.speed.decel = 0.95;
         this.params.territory = 4.0;
         this.params.anger.rush_period = 3.0;
+        this.params.confused_weakness = 10.0;
     }
 
     create(position, id){
@@ -57,6 +58,10 @@ export class Enemy_3 extends EnemyGeo {
 
     on_rush_enter(state){
         this.params.speed.turn = 2.0;
+    }
+
+    on_idle_enter(state){
+        this.params.speed.turn = 0.8;
     }
 
     update(time, delta){

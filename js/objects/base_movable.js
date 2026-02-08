@@ -26,6 +26,9 @@ export class Movable extends Drawable {
         super.create();
     }
 
+    get_up_vector(){}
+    get_forward_vector(){}
+
     add_impulse(impulse){
         this.external_velocity.addInPlace(impulse.scale(1/this.mass * GLOBALS.MOVABLE.IMPULSE_VELOCITY_RATIO));
         if (this.external_velocity.length() > GLOBALS.MOVABLE.MAX_EXTERNAL_VELOCITY){
@@ -50,13 +53,14 @@ export class Movable extends Drawable {
         this.damage += damage_delta;
 
         // バックスタブ（追加ダメージ）
-        let forwardLocal = new BABYLON.Vector3(0, 0, -1); // ローカル前面（-z軸）
-        let forwardWorld = this.mesh.getDirection(forwardLocal.normalize());
+        // let forwardLocal = new BABYLON.Vector3(0, 0, -1); // ローカル前面（-z軸）
+        // let forwardWorld = this.mesh.getDirection(forwardLocal.normalize());
+        const forwardWorld = this.get_forward_vector();
         let dot = BABYLON.Vector3.Dot(normal, forwardWorld);
         // console.log("add_damage dot:", dot, "damage:", damage);
 
-        if (dot < 0) {
-            backstub_delta = Math.floor(Math.abs(dot) * damage_delta * this.damage_back_weakness);
+        if (dot > 0) {
+            backstub_delta = Math.floor(Math.abs(dot) * damage_delta * this.damage_back_weakness + 1.0);
             this.damage += backstub_delta;
         }
         return {damage : damage_delta, backstub : backstub_delta};
