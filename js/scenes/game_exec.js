@@ -32,9 +32,9 @@ export class Exec {
 
             // 敵と自機との当たり判定
             if (GameState.player.alive){
-                const {impulse, relative, normal} = this.check_collision(enemy, GameState.player);
-                if (Math.abs(impulse) > 0){
-                    this.process_damage(enemy, GameState.player, impulse, relative, normal);
+                const impulse = this.check_collision(enemy, GameState.player);
+                if (impulse){
+                    this.process_damage(enemy, GameState.player, impulse);
                 }
                 if (enemy.hp <= 0){
                     enemy.alive = false;
@@ -194,56 +194,53 @@ export class Exec {
     // Movableクラス間の当たり判定
     check_collision(obj1, obj2){
         const distance = BABYLON.Vector3.Distance(obj1.mesh.position, obj2.mesh.position);
-        let impulse = 0;
-        let relative = null;
         let normal = null;
+        let impulse = null;
         if (distance < obj1.radius + obj2.radius){
             // 衝突方向（normal は、obj1 から見た obj2 の相対位置）
-            const diff = obj1.mesh.position.subtract(obj2.mesh.position);
+            const diff = obj2.mesh.position.subtract(obj1.mesh.position);
             if (diff.length() === 0) {
-                normal = new BABYLON.Vector3(0,0,1);
+                normal = new BABYLON.Vector3(0,0,-1);
             } else {
                 normal = diff.normalize();
             }
 
             // 重なり解決（速度ベクトル更新）
             const overlap = (obj1.radius + obj2.radius) - distance;
-            const push = normal.scale(overlap * OVERLAP_REPULSION_COEFFICIENT); // overlap比例の反発係数
-            obj1.add_impulse(push);
-            obj2.add_impulse(push.scale(-1));
+            const overlap_repulsion = normal.scale(overlap * OVERLAP_REPULSION_COEFFICIENT); // overlap比例の反発係数
+            obj1.add_impulse(overlap_repulsion.scale(-1));
+            obj2.add_impulse(overlap_repulsion);
 
-            // 運動量を交換 (relative は obj1 から見た obj2 の相対速度)
-            relative = obj1.velocity.subtract(obj2.velocity);
-            const dot = BABYLON.Vector3.Dot(relative, normal);
-            impulse = dot / (obj1.mass + obj2.mass);
-            obj1.add_impulse(normal.scale(impulse * obj2.mass * (-1)));
-            obj2.add_impulse(normal.scale(impulse * obj1.mass));
+            // 運動量を交換 (velocity_relative は obj1 から見た obj2 の相対速度)
+            const velocity_relative = obj2.velocity.subtract(obj1.velocity);
+            const dot = BABYLON.Vector3.Dot(velocity_relative, normal);
+            const e = 1.0; //e=1.0:完全弾性、e=0.0:完全非弾性
+            impulse = normal.scale(-(1+e) * dot / (1/obj1.mass + 1/obj2.mass));
+            obj1.add_impulse( impulse.scale(-1));
+            obj2.add_impulse( impulse );
         }
-        return {impulse, relative, normal};
+        return impulse;
     }
 
     // 敵機と自機のダメージ処理
-    process_damage(enemy, player, impulse, relative, normal){
-        // console.log("process_damage:", impulse, relative);
+    process_damage(enemy, player, impulse){
 
         // ◆敵機のダメージ処理
-        const {damage : enemy_damage, backstub : enemy_backstub} = enemy.add_damage(Math.abs(impulse * player.mass), normal);
+        const {damage : enemy_damage, backstub : enemy_backstub} = enemy.add_damage(impulse);
         if ( enemy_damage > 0){
             GameState.asset.se.collision.play_3D(enemy, this.scene); // 3D音声
             enemy.flash() //点滅
             enemy.count_attack(true); //衝突によるダメージ付与
         }
         if ( enemy_backstub > 0){
-            // console.log("ATTACK +",enemy_additional_damage, "/", Math.abs(impulse * obj2.mass));
             const size = enemy_backstub / 10;
             const eff = new Eff_Text(this.scene);
             eff.create(enemy.mesh.position, `BACKSTUB! +${enemy_backstub}`, "#ffffff", size);
             GameState.effects.push(eff);
         }
         // ◆自機のダメージ処理
-        const {damage : player_damage, backstub : player_backstub} = player.add_damage(Math.abs(impulse * enemy.mass), normal.scale(-1));
+        const {damage : player_damage, backstub : player_backstub} = player.add_damage(impulse.scale(-1));
         if  ( player_backstub > 0){
-            // console.log("DAMAGE +",player_additional_damage, "/",Math.abs(impulse * obj1.mass));
             const eff = new Eff_Text(this.scene);
             eff.create(player.mesh.position, `BACKSTUBBED -${player_backstub}`, "#ff0000");
             GameState.effects.push(eff);

@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.7d",
-    DATE : "2026.2.8",
+    VERSION : "0.7e",
+    DATE : "2026.2.9",
 
     MASK_UI : 0x10000000,
     UI : {

@@ -207,6 +207,7 @@ export class Map {
       tmpMeshes = makeBoxesForRectangles(rectangles, 0.0, GLOBALS.MAP.CORRIDOR.HEIGHT, scene, this.material.corridor, true);
       this.mesh.soil = mergeMeshGroup(tmpMeshes, "meshCorridorWall", scene);
       this.mesh.soil.checkCollisions = true;
+      this.mesh.soil.isTerrain = true;
 
       // 通路：天井・床
       mapSelected = map_selecter(result.map, [GLOBALS.MAP.ELEMENT.EMPTY,GLOBALS.MAP.ELEMENT.CORRIDOR]);

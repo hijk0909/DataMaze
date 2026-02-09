@@ -16,8 +16,8 @@ export class Enemy_3 extends EnemyGeo {
 
         this.damage_back_weakness = 8.0;
         this.params.damage.shot_knockback = 1.0;
-        this.params.speed.turn = 0.2;
-        this.params.speed.chase = 0.04;
+        this.params.speed.turn = 0.4;
+        this.params.speed.chase = 0.03;
         this.params.speed.accel = 0.003;
         this.params.speed.decel = 0.95;
         this.params.territory = 4.0;

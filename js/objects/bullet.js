@@ -38,9 +38,7 @@ export class Bullet extends Drawable {
         super.update();
 
         const moveDist = this.speed;
-        const ray = new BABYLON.Ray(
-            this.sprite.position, this.direction, moveDist
-        );
+        const ray = new BABYLON.Ray( this.sprite.position, this.direction, moveDist );
         const hit = this.scene.pickWithRay(ray, mesh => mesh.isTerrain === true);
         if (hit && hit.hit) {
             this.alive = false;

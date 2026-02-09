@@ -26,8 +26,7 @@
         { "className":"Prop_Rain", "num":15}
       ],
       "gimmicks":[
-        { "className":"Gimmick_Diamond", "num":30},
-        { "className":"Gimmick_Virus", "num":5}
+        { "className":"Gimmick_Diamond", "num":35}
       ]
     },
     {
@@ -54,7 +53,7 @@
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":30},
-        { "className":"Gimmick_Virus", "num":10}
+        { "className":"Gimmick_Virus", "num":1}
       ]
     },
     {
@@ -83,7 +82,7 @@
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":30},
-        { "className":"Gimmick_Virus", "num":15}
+        { "className":"Gimmick_Virus", "num":5}
       ]
     },
     {
@@ -111,7 +110,7 @@
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":30},
-        { "className":"Gimmick_Virus", "num":20}
+        { "className":"Gimmick_Virus", "num":10}
       ]
     },
     {
@@ -139,7 +138,7 @@
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":20},
-        { "className":"Gimmick_Virus", "num":25}
+        { "className":"Gimmick_Virus", "num":15}
       ]
     },
     {
@@ -167,7 +166,7 @@
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":15},
-        { "className":"Gimmick_Virus", "num":25}
+        { "className":"Gimmick_Virus", "num":20}
       ]
     },
     {
@@ -190,7 +189,7 @@
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":10},
-        { "className":"Gimmick_Virus", "num":30}
+        { "className":"Gimmick_Virus", "num":20}
       ]
     }
   ]

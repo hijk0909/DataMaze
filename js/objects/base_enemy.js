@@ -117,6 +117,7 @@ export class Enemy extends Movable {
         });
     }
 
+    // 状態遷移
     change_state(nextState){
         if (this.current_state) {
             this.current_state.exit(this);
@@ -371,6 +372,7 @@ class ChargeState extends EnemyState {
         enemy.params.speed.turn_magnification = 5.0;
         enemy.params.target_pos = GameState.player.mesh.position.clone();
         // console.log("ChargeState.enter()");
+
     }
     update(enemy, time, delta) {
         // 減速・停止
@@ -392,6 +394,7 @@ class RushState extends EnemyState {
     constructor(){
         super();
         this.id = ENEMY_STATE.RUSH;
+        this.dir = null;
     }
     enter(enemy){
         enemy.on_rush_enter(this);
@@ -399,20 +402,21 @@ class RushState extends EnemyState {
         this.timer = enemy.params.anger.rush_period;
         enemy.set_emissive_color(EnemyStateColor.RUSH);
         enemy.damage_magnification = 1 / enemy.params.damage.rush_defence;
-        enemy.params.speed.turn_magnification = 3.0;
+        enemy.params.speed.turn_magnification = 0.0;  //向きを変えない
         enemy.state_effects.attach(new RushStateEffect(enemy));
+        enemy.is_wall_detecting = true;
+        const toTarget = enemy.params.target_pos.subtract(enemy.mesh.position);
+        this.dir = toTarget.clone().normalize();
         // console.log("RushState.enter()");
     }
     update(enemy, time, delta) {
         // 突進行動
-        const toTarget = enemy.params.target_pos.subtract(enemy.mesh.position);
-        const dir = toTarget.clone().normalize();
-        enemy.control_velocity.addInPlace(dir.scale(enemy.params.anger.rush_accel));
+        enemy.control_velocity.addInPlace(this.dir.scale(enemy.params.anger.rush_accel));
         if (enemy.control_velocity.length() > enemy.params.speed.rush) {
             enemy.control_velocity.normalize().scaleInPlace(enemy.params.speed.rush);
         }
-        // 到着確認
-        if (toTarget.length() < 1.0){
+        // 壁との衝突判定
+        if (enemy.hit_wall){
             enemy.change_state(ENEMY_STATE.IDLE);
         }
         // 時間制限
@@ -425,7 +429,9 @@ class RushState extends EnemyState {
     }
     exit(enemy){
         enemy.damage_magnification = 1.0;
+        enemy.params.speed.turn_magnification = 1.0;
         enemy.state_effects.detach(RushStateEffect);
+        enemy.is_wall_detecting = false;
     }
 }
 

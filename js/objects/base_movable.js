@@ -20,6 +20,10 @@ export class Movable extends Drawable {
         this.damage_cooldown = 0;
         this.damage_back_weakness = 1.0;
         this.damage_magnification = 1.0;
+
+        this.wall_detector = new WallDetector(this);
+        this.is_wall_detecting = false;
+        this.hit_wall = false;
     }
 
     create(){
@@ -36,12 +40,11 @@ export class Movable extends Drawable {
         }
     }
 
-    add_damage(momentum, normal){
+    add_damage(impulse){
 
         let damage_delta = 0;
         let backstub_delta = 0;
 
-        // console.log("add_damage damage_cooldown:", this.damage_cooldown);
         // ダメージ無反応期間はダメージ処理無し
         if (this.damage_cooldown > 0){
             return {damage :damage_delta, backstub : backstub_delta};
@@ -49,17 +52,14 @@ export class Movable extends Drawable {
         this.damage_cooldown = GLOBALS.DAMAGE.COOLDOWN;
 
         // 最低でも 1 のダメージを発生
-        damage_delta = Math.max(1, momentum * GLOBALS.DAMAGE.RATE * this.damage_magnification);
+        damage_delta = Math.max(1, impulse.length() * GLOBALS.DAMAGE.RATE * this.damage_magnification);
         this.damage += damage_delta;
 
         // バックスタブ（追加ダメージ）
-        // let forwardLocal = new BABYLON.Vector3(0, 0, -1); // ローカル前面（-z軸）
-        // let forwardWorld = this.mesh.getDirection(forwardLocal.normalize());
         const forwardWorld = this.get_forward_vector();
-        let dot = BABYLON.Vector3.Dot(normal, forwardWorld);
-        // console.log("add_damage dot:", dot, "damage:", damage);
+        let dot = BABYLON.Vector3.Dot(impulse.clone().normalize(), forwardWorld);
 
-        if (dot > 0) {
+        if (dot < 0) {
             backstub_delta = Math.floor(Math.abs(dot) * damage_delta * this.damage_back_weakness + 1.0);
             this.damage += backstub_delta;
         }
@@ -125,12 +125,54 @@ export class Movable extends Drawable {
         // 移動の実行
         const control_ratio = BABYLON.Scalar.Clamp(1 - this.external_velocity.length() / GLOBALS.MOVABLE.CONTROL_LOSS_THRESHOLD, 0, 1);
         this.velocity = this.control_velocity.clone().scale(control_ratio).add(this.external_velocity);
+
+        if (this.is_wall_detecting){ this.wall_detector.set_prev();}
         this.mesh.moveWithCollisions(this.velocity);
+        if (this.is_wall_detecting){ this.hit_wall = this.wall_detector.check_hit();}
 
         super.update(time, delta);
     }
 
     dispose(){
         super.dispose();
+    }
+}
+
+
+// 壁との衝突判定用のクラス
+class WallDetector {
+    constructor(obj){
+        this.obj = obj;
+        this.scene = obj.scene;
+        this.prev_position = null;
+        this.prev_velocity = null;
+    }
+
+    set_prev(){
+        this.prev_position = this.obj.mesh.position.clone();
+        this.prev_velocity = this.obj.velocity.clone();
+    }
+
+    check_hit(){
+        const WALL_CHECK_DISTANCE = 2.0;
+        const WALL_IMPACT_THRESHOLD = 0.05;
+        let result = false;
+
+        // 実際に進めた距離
+        const actual_move = this.obj.mesh.position.subtract(this.prev_position);
+        // 進めたかった距離と、実際に進めた距離の差
+        const speed_loss = this.prev_velocity.length() - actual_move.length();
+
+        const dir = this.prev_velocity.normalize();
+        const ray = new BABYLON.Ray(this.obj.mesh.position, dir, WALL_CHECK_DISTANCE );
+        const hit = this.scene.pickWithRay(ray, m => m.isTerrain === true);
+
+        // console.log("speed_loss:", speed_loss, " hit.hit:",hit.hit);
+
+        if (hit?.hit && speed_loss > WALL_IMPACT_THRESHOLD){
+            // console.log("hit wall:", speed_loss);
+            result = true;
+        } 
+        return result;
     }
 }
