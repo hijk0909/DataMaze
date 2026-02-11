@@ -13,9 +13,11 @@ export class Enemy_6 extends EnemyAero {
 
     constructor(scene){
         super(scene);
+
         this.radius = 0.1;
         this.mass = 0.5;
-        this.hp_max = this.hp = 60;
+        this.hp_max = this.hp = 30;
+        this.recovery_point = 30;
 
         this.params.speed.chase = 0.09;
         this.params.speed.accel = 0.004;
@@ -25,7 +27,7 @@ export class Enemy_6 extends EnemyAero {
         this.params.confuse.is_valid = false;
     }
 
-    create(position, id){
+    create(position, id, type=null){
 
         const container = GameState.asset.mesh.enemy_6;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_5_${id}` );

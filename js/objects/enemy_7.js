@@ -11,6 +11,7 @@ export class Enemy_7 extends EnemyGeo {
         this.radius = 0.2;
         this.mass = 0.3;
         this.hp_max = this.hp = 60;
+        this.recovery_point = 60;
 
         this.params.speed.chase = 0.03;
         this.params.speed.accel = 0.003;
@@ -19,7 +20,7 @@ export class Enemy_7 extends EnemyGeo {
         this.params.territory = 4.0;
     }
 
-    create(position, id){
+    create(position, id, type=null){
 
         // メッシュ
         const container = GameState.asset.mesh.enemy_7;
@@ -38,6 +39,11 @@ export class Enemy_7 extends EnemyGeo {
         if (this.anim_strech) {
             this.anim_strech.start(true); // ループ再生
             this.anim_strech.speedRatio = 0.5;
+        }
+
+        // [TYPE] ドロップアイテムの変更
+        if (type && type ==="key"){
+            this.params.drops[0]={ id: "Item_Key", weight: 100 };
         }
 
         super.create();

@@ -6,7 +6,7 @@ import { MyMath } from "../utils/MathUtils.js";
 import { Eff_Dust } from "./eff_dust.js";
 import { Bullet } from "./bullet.js";
 
-const EXTERNAL_VELOCITY_DAMPING = 0.80;
+const EXTERNAL_VELOCITY_DAMPING = 0.88;
 
 const HP_BAR_WIDTH = 720;
 const HP_BAR_HEIGHT = 80;

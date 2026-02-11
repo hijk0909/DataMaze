@@ -178,6 +178,18 @@ export class GameAsset extends Asset {
         prop_rain.hasAlpha = true;
         this.texture.prop_rain = prop_rain;
 
+        const prop_magic_circle_1 = new BABYLON.Texture("./assets/textures/prop_magic_circle_1.png", this.scene);
+        prop_magic_circle_1.hasAlpha = true;
+        this.texture.prop_magic_circle_1 = prop_magic_circle_1;
+
+        const prop_magic_circle_2 = new BABYLON.Texture("./assets/textures/prop_magic_circle_2.png", this.scene);
+        prop_magic_circle_2.hasAlpha = true;
+        this.texture.prop_magic_circle_2 = prop_magic_circle_2;
+
+        const prop_magic_circle_3 = new BABYLON.Texture("./assets/textures/prop_magic_circle_3.png", this.scene);
+        prop_magic_circle_3.hasAlpha = true;
+        this.texture.prop_magic_circle_3 = prop_magic_circle_3;
+
         const gl = new BABYLON.Texture("./assets/textures/goal_light.png", this.scene);
         gl.hasAlpha = true;
         this.texture.goal_light = gl;

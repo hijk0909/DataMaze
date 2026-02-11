@@ -8,11 +8,11 @@ export class Enemy_3 extends EnemyGeo {
 
     constructor(scene){
         super(scene);
-        this.radius = 0.8;
 
-        this.accel = 0.001;
+        this.radius = 0.8;
         this.mass = 1.1;
         this.hp_max = this.hp = 250;
+        this.recovery_point = 200;
 
         this.damage_back_weakness = 8.0;
         this.params.damage.shot_knockback = 1.0;
@@ -25,7 +25,7 @@ export class Enemy_3 extends EnemyGeo {
         this.params.confused_weakness = 10.0;
     }
 
-    create(position, id){
+    create(position, id, type=null){
 
         const container = GameState.asset.mesh.enemy_3;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_3_${id}` );
@@ -44,6 +44,11 @@ export class Enemy_3 extends EnemyGeo {
         this.anim_walk = inst.animationGroups.find(group => group.name === `walk_enemy_3_${id}`);
         this.anim_walk.speedRatio = 1.1;
         super.create();
+
+        // [TYPE] ドロップアイテムの変更
+        if (type && type ==="battery"){
+            this.params.drops[0]={ id: "Item_Battery", weight: 100 };
+        }
     }
 
     on_chase_enter(state){

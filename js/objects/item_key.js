@@ -31,6 +31,18 @@ export class Item_Key extends Item {
             this.anim_rotate.start(true); // ループ再生
             this.anim_rotate.speedRatio = 0.3;
         }
+
+        // マーク
+        this.mark = inst.rootNodes[0].getChildMeshes().find(mesh => mesh.name.includes("mark"));
+        if (this.mark && this.mark.material) {
+            const mat = this.mark.material;
+            if (mat instanceof BABYLON.PBRMaterial) {
+                mat.emissiveColor = new BABYLON.Color3(1.0, 1.0, 0);
+                mat.metallic = 0.5;
+                mat.roughness = 0.2;
+            }
+        }
+
         super.create();
     }
 

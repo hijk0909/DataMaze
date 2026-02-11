@@ -15,9 +15,11 @@ export class Enemy_8 extends EnemyGeo {
 
     constructor(scene){
         super(scene);
+
         this.radius = 0.2;
         this.mass = 0.3;
         this.hp_max = this.hp = 60;
+        this.recovery_point = 120;
 
         this.params.speed.chase = 0.1;
         this.params.speed.accel = 0.03;
@@ -28,7 +30,9 @@ export class Enemy_8 extends EnemyGeo {
         this.direction = DIR_UP;
     }
 
-    create(position, id){
+    create(position, id, type=null){
+
+        this.id = id;
 
         // メッシュ
         const container = GameState.asset.mesh.enemy_8;
@@ -66,26 +70,36 @@ export class Enemy_8 extends EnemyGeo {
 
         super.create();
 
-        // 状態を（WAITではなく）FREE に上書き
-        this.id = id;
+        // 初期状態を（WAITではなく）FREE に上書き
         this.change_state(ENEMY_STATE.FREE);
     }
 
     on_free_enter(){
-        const cellPos = MyMath.world_to_cell(this.mesh.position);
-        let cx = Math.floor(cellPos.x);
-        let cy = Math.floor(cellPos.y);
-        // console.log("on_free_enter:",this.id, cx, cy);
-        while (GameState.map[cy - 1][cx] !== GLOBALS.MAP.ELEMENT.WALL && GameState.map[cy - 1][cx] !== GLOBALS.MAP.ELEMENT.EMPTY){
-            cy--;
-        }
-        this.target_pos = MyMath.cell_to_world(cx, cy);
-        this.target_cell.x = cx;
-        this.target_cell.y = cy;
-        this.direction = DIR_RIGHT;
+        this.initial_move = true;
+        this.change_target_up();
     }
-    
-    change_target(){
+
+    change_target_up(){
+        const cellPos = MyMath.world_to_cell(this.mesh.position);
+        const cx = Math.floor(cellPos.x);
+        let cy = Math.floor(cellPos.y);
+        const cell_up = GameState.map[cy - 1][cx];
+        if ( cell_up !== GLOBALS.MAP.ELEMENT.WALL && cell_up !== GLOBALS.MAP.ELEMENT.EMPTY){
+            cy--;
+            this.target_pos = MyMath.cell_to_world(cx, cy);
+            this.target_cell.x = cx;
+            this.target_cell.y = cy;
+        } else {
+            this.initial_move = false;
+            this.direction = DIR_RIGHT;
+            this.target_pos = MyMath.cell_to_world(cx, cy);
+            this.target_cell.x = cx;
+            this.target_cell.y = cy;
+            this.change_target_left();
+        }
+    }
+
+    change_target_left(){
         const DIR_VECTORS = [
             { dx:  0, dy: -1 }, // UP
             { dx:  1, dy:  0 }, // RIGHT
@@ -102,7 +116,8 @@ export class Enemy_8 extends EnemyGeo {
             const { dx, dy } = DIR_VECTORS[nextDir];
             const nx = cx + dx;
             const ny = cy + dy;
-            if (GameState.map[ny][nx] !== GLOBALS.MAP.ELEMENT.WALL && GameState.map[ny][nx] !== GLOBALS.MAP.ELEMENT.EMPTY) {
+            const cell_next = GameState.map[ny][nx];
+            if (cell_next !== GLOBALS.MAP.ELEMENT.WALL && cell_next !== GLOBALS.MAP.ELEMENT.EMPTY) {
                 this.target_cell.x = nx;
                 this.target_cell.y = ny;
                 this.target_pos = MyMath.cell_to_world(nx, ny);
@@ -122,8 +137,13 @@ export class Enemy_8 extends EnemyGeo {
         }
         // console.log("Enemy_8:", this.id, toTarget.length());
         if ( toTarget.length() < 1.0){
-            this.change_target();
+            if (this.initial_move){
+                this.change_target_up()         
+            } else {
+                this.change_target_left();
+            }
         }
+
         super.update(time, delta);
     }
 

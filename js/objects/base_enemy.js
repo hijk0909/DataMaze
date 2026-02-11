@@ -21,6 +21,8 @@ export class Enemy extends Movable {
 
         this.hp_max = 100;
         this.hp = 100;
+        this.recovery_point = 100;
+
         this.hp_bar = new HpBar(scene);
 
         this.base_emissive_color = EnemyStateColor.NONE;
@@ -51,7 +53,8 @@ export class Enemy extends Movable {
                 shot_weakness: 1.0,
                 shot_knockback: 1.0,
                 confused_weakness: 10.0,
-                rush_defence: 5.0
+                rush_defence: 5.0,
+                rush_attack: 3.0
             },
             anger: {
                 is_valid : true,
@@ -72,7 +75,12 @@ export class Enemy extends Movable {
             },
             idle : {
                 period: 1.0
-            }
+            },
+            drops : [
+                { id: "Item_Feed", weight: 85 },
+                { id: "Item_Mass", weight: 10 },
+                { id: "Item_ShotPower", weight: 5 }
+            ]
         };
     }
 
@@ -129,10 +137,10 @@ export class Enemy extends Movable {
     }
 
     shot_from_player(power, velocity, mass){
-        this.subtract_hp(power * this.params.damage.shot_weakness);
+        this.subtract_hp(power * this.params.damage.shot_weakness * this.damage_magnification);
         this.add_impulse(velocity.scale(this.params.damage.shot_knockback * mass));
         if (this.current_state.id === ENEMY_STATE.WAIT){
-            this.change_state(ENEMY_STATE.CHASE);
+            this.change_state(ENEMY_STATE.CHASE); //寝た子を起こす
         }
         this.count_attack(false);
     }
@@ -402,6 +410,7 @@ class RushState extends EnemyState {
         this.timer = enemy.params.anger.rush_period;
         enemy.set_emissive_color(EnemyStateColor.RUSH);
         enemy.damage_magnification = 1 / enemy.params.damage.rush_defence;
+        enemy.attack_magnification = enemy.params.damage.rush_attack;
         enemy.params.speed.turn_magnification = 0.0;  //向きを変えない
         enemy.state_effects.attach(new RushStateEffect(enemy));
         enemy.is_wall_detecting = true;
@@ -429,6 +438,7 @@ class RushState extends EnemyState {
     }
     exit(enemy){
         enemy.damage_magnification = 1.0;
+        enemy.attack_magnification = 1.0;
         enemy.params.speed.turn_magnification = 1.0;
         enemy.state_effects.detach(RushStateEffect);
         enemy.is_wall_detecting = false;

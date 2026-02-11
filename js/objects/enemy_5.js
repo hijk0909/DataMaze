@@ -18,6 +18,7 @@ export class Enemy_5 extends EnemyAero {
 
         this.mass = 2.0;
         this.hp_max = this.hp = 280;
+        this.recovery_point = 200;
 
         this.damage_back_weakness = 8.0;
 
@@ -34,7 +35,7 @@ export class Enemy_5 extends EnemyAero {
         this.shot_cooldown = 0;
     }
 
-    create(position, id){
+    create(position, id, type=null){
 
         const container = GameState.asset.mesh.enemy_5;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_5_${id}` );
@@ -44,6 +45,11 @@ export class Enemy_5 extends EnemyAero {
         this.mesh.scaling = new BABYLON.Vector3(DISP_SCALE, DISP_SCALE, DISP_SCALE);
         this.mesh.position = position.clone();
         this.mesh.checkCollisions = true; //障害物との衝突判定
+
+        // [TYPE] ドロップアイテムの変更
+        if (type && type ==="battery"){
+            this.params.drops[0]={ id: "Item_Battery", weight: 100 };
+        }
 
         super.create();
     }

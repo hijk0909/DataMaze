@@ -8,6 +8,7 @@ export class Item_Feed extends Item {
 
     constructor(scene){
         super(scene);
+        this.recovery_point = 0;
     }
 
     create(pos, id){
@@ -24,16 +25,22 @@ export class Item_Feed extends Item {
         this.set_color(material, GLOBALS.ITEM.COLOR.FEED);
         this.mesh.material = material;
 
+        // recovery_point
+        this.recovery_point = Math.floor(Math.random()*2)*10 + 10;
+
         super.create();
+    }
+
+    set_recovery_point(recov){
+        this.recovery_point = recov;
     }
 
     activate(){
         this.alive = false;
         GameState.add_score(100);
-        const recov = Math.floor(Math.random()*2)*10 + 10;
-        GameState.player.add_hp(recov);
+        GameState.player.add_hp(this.recovery_point);
         const eff = new Eff_Text(this.scene);
-        eff.create(this.mesh.position, `HP +${recov}`);
+        eff.create(this.mesh.position, `HP +${this.recovery_point}`);
         GameState.effects.push(eff);
         GameState.asset.se.powerup.play_3D(this, this.scene);
     }

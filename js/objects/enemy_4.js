@@ -16,6 +16,7 @@ export class Enemy_4 extends EnemyGeo {
         this.radius = 0.5;
         this.mass = 1.1;
         this.hp_max = this.hp = 300;
+        this.recovery_point = 200;
 
         this.damage_back_weakness = 5.0;
         this.params.territory = 6.0;
@@ -29,7 +30,7 @@ export class Enemy_4 extends EnemyGeo {
         this.params.confused_weakness = 12.0;
     }
 
-    create(position, id){
+    create(position, id, type=null){
 
         const container = GameState.asset.mesh.enemy_4;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_4_${id}` );

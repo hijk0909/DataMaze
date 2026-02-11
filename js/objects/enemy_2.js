@@ -4,16 +4,17 @@ import { GameState } from "../GameState.js";
 import { EnemyAero } from "./base_enemy_aero.js";
 
 const DISP_SCALE = 0.3;
-const TERRITORY = 6;
-const DECEL = 0.90;
 
 // 蜂
 export class Enemy_2 extends EnemyAero{
 
     constructor(scene){
         super(scene);
+
         this.radius = 0.15;
-        this.mass = 0.7;
+        this.mass = 0.4;
+        this.hp_max = this.hp = 90;
+        this.recovery_point = 75;
 
         this.params.territory = 6.0;
         this.params.speed.rotation = 3.0;
@@ -26,7 +27,7 @@ export class Enemy_2 extends EnemyAero{
         this.params.confused_weakness = 10.0;
     }
 
-    create(position, id){
+    create(position, id, type=null){
 
         const container = GameState.asset.mesh.enemy_2;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_2_${id}` );

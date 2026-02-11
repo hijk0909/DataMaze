@@ -45,8 +45,7 @@ export class Exec {
                     GameState.asset.se.explosion.play_3D(enemy, this.scene);
 
                     // アイテムドロップ
-                    const itm = GameState.spawn.spawn_item("Item_Feed", enemy.mesh.position);
-                    itm.drop();
+                    this.drop_item(enemy);
                 }
             }
         }
@@ -93,9 +92,8 @@ export class Exec {
                         GameState.effects.push(eff);
                         GameState.asset.se.explosion.play_3D(enemy, this.scene);
 
-                        // [TEST] アイテムドロップ
-                        const itm = GameState.spawn.spawn_item("Item_Feed", enemy.mesh.position);
-                        itm.drop();
+                        // アイテムドロップ
+                        this.drop_item(enemy);
                     } 
                 }
             }
@@ -178,6 +176,35 @@ export class Exec {
 
     } // End of update
 
+    // アイテムのドロップ
+    drop_item(enemy) {
+
+        let drop_item_id = null;
+
+        const dropList = enemy.params.drops;
+        if (!dropList || dropList.length === 0) return;
+
+        // 重み付け抽選（ルーレット法）
+        const totalWeight = dropList.reduce((sum, item) => sum + item.weight, 0);
+        let random = Math.random() * totalWeight;
+        for (const item of dropList) {
+            if (random < item.weight) {
+                drop_item_id = item.id;
+                break;
+            }
+            random -= item.weight;
+        }
+
+        // アイテムの生成とドロップ設定
+        if (drop_item_id){
+            const itm = GameState.spawn.spawn_item(drop_item_id, enemy.mesh.position);
+            itm.drop();
+            if (drop_item_id === "Item_Feed"){
+                itm.set_recovery_point(enemy.recovery_point);
+            }
+        }
+    }
+
     // 汎用の当たり判定
     check_hit(pos1, rad1, pos2, rad2){
         const distance = BABYLON.Vector3.Distance(pos1, pos2);
@@ -230,7 +257,7 @@ export class Exec {
         if ( enemy_damage > 0){
             GameState.asset.se.collision.play_3D(enemy, this.scene); // 3D音声
             enemy.flash() //点滅
-            enemy.count_attack(true); //衝突によるダメージ付与
+            enemy.count_attack(true); //「衝突」によるダメージ付与
         }
         if ( enemy_backstub > 0){
             const size = enemy_backstub / 10;
@@ -239,7 +266,7 @@ export class Exec {
             GameState.effects.push(eff);
         }
         // ◆自機のダメージ処理
-        const {damage : player_damage, backstub : player_backstub} = player.add_damage(impulse.scale(-1));
+        const {damage : player_damage, backstub : player_backstub} = player.add_damage(impulse.scale(-1), enemy.attack_magnification);
         if  ( player_backstub > 0){
             const eff = new Eff_Text(this.scene);
             eff.create(player.mesh.position, `BACKSTUBBED -${player_backstub}`, "#ff0000");

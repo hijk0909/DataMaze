@@ -25,6 +25,7 @@ import { Prop_Cube } from "../objects/prop_cube.js";
 import { Prop_Display } from "../objects/prop_display.js";
 import { Prop_Rain } from "../objects/prop_rain.js";
 import { Prop_Lantern } from "../objects/prop_lantern.js";
+import { Prop_MagicCircle } from "../objects/prop_magic_circle.js";
 import { Gimmick_Diamond} from "../objects/gimmick_diamond.js";
 import { Gimmick_Virus} from "../objects/gimmick_virus.js";
 
@@ -53,10 +54,11 @@ const ItemClassList = {
 }
 
 const PropClassList = {
-    'Prop_Cube'     : Prop_Cube,
-    'Prop_Display'  : Prop_Display,
-    'Prop_Rain'     : Prop_Rain,
-    'Prop_Lantern'  : Prop_Lantern
+    'Prop_Cube'         : Prop_Cube,
+    'Prop_Display'      : Prop_Display,
+    'Prop_Rain'         : Prop_Rain,
+    'Prop_Lantern'      : Prop_Lantern,
+    'Prop_MagicCircle'  : Prop_MagicCircle
 }
 
 const GimmickClassList = {
@@ -68,19 +70,6 @@ const GimmickClassList = {
 export class Spawn {
     constructor(scene) {
         this.scene = scene;
-
-        // [room]
-        // this.player_position = null;
-        // this.goal_position = null;
-        // this.all_positions = [];
-        // this.used_positions = [];
-        // this.available_for_enemy_positions = [];
-        // this.available_for_item_positions = [];
-
-        // [corridor]
-        // this.all_corridor_positions = [];
-        // this.available_corridor_positions = [];
-        // this.used_corridor_positions = [];
     }
 
     center_of_room(room) {
@@ -94,11 +83,11 @@ export class Spawn {
     //     MyMath.shuffle(this.available_for_enemy_positions);
     // }
 
-    spawn_enemy(enemy_name, pos){
+    spawn_enemy(enemy_name, pos, type=""){
         GameState.num_enemies++;
         const EnemyClass = EnemyClassList[enemy_name];
         const enemy = new EnemyClass(this.scene);
-        enemy.create(pos, GameState.num_enemies);
+        enemy.create(pos, GameState.num_enemies, type);
         GameState.enemies.push(enemy);
         return enemy;
     }
@@ -132,14 +121,14 @@ export class Spawn {
 
     }
 
-    spawn_enemies_from_array(enemy_name, num, array, used){
+    spawn_enemies_from_array(enemy_name, num, type, array, used){
         for (let i = 0; i < num; i++){
             if (array.length === 0) break;
             const enemy_position = array.pop();
             used.add(`${enemy_position.x},${enemy_position.y}`);
             const pos = MyMath.cell_to_world(enemy_position.x, enemy_position.y);
             pos.y = GLOBALS.MOVABLE.Y.INIT;
-            this.spawn_enemy(enemy_name, pos);
+            this.spawn_enemy(enemy_name, pos, type);
         }
     }
 
@@ -232,15 +221,17 @@ export class Spawn {
         itm_goal.create(g_pos);
         GameState.items.push(itm_goal);
 
-        // [Goal] バッテリーの設定 (必須：rooms[2])
-        const battery_position = this.center_of_room(GameState.rooms[2]);
-        used_positions.add(`${battery_position.x},${battery_position.y}`);
-        const b_pos = MyMath.cell_to_world(battery_position.x, battery_position.y);
-        b_pos.y = GLOBALS.ITEM.Y.BASE;
-        GameState.num_items++;
-        const itm_battery = new Item_Battery(scene);
-        itm_battery.create(b_pos, GameState.num_items);
-        GameState.items.push(itm_battery);
+        // [Goal] バッテリーの設定 (選択：rooms[2])
+        if (GameState.stageInfo.battery){
+            const battery_position = this.center_of_room(GameState.rooms[2]);
+            used_positions.add(`${battery_position.x},${battery_position.y}`);
+            const b_pos = MyMath.cell_to_world(battery_position.x, battery_position.y);
+            b_pos.y = GLOBALS.ITEM.Y.BASE;
+            GameState.num_items++;
+            const itm_battery = new Item_Battery(scene);
+            itm_battery.create(b_pos, GameState.num_items);
+            GameState.items.push(itm_battery);
+        }
 
         available_for_enemy_positions = available_for_enemy_positions.filter(p => !used_positions.has(`${p.x},${p.y}`));
         MyMath.shuffle(available_for_enemy_positions);
@@ -248,8 +239,8 @@ export class Spawn {
         // [EMEMY] 敵
         if (GameState.stageInfo.enemies){
             for (const enemy of GameState.stageInfo.enemies){
-                const {className, num} = enemy;
-                this.spawn_enemies_from_array(className, num, available_for_enemy_positions, used_positions);
+                const {className, num, type} = enemy;
+                this.spawn_enemies_from_array(className, num, type, available_for_enemy_positions, used_positions);
             }
         }
 

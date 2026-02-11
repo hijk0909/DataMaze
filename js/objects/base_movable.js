@@ -7,7 +7,7 @@ export class Movable extends Drawable {
     constructor(scene){
         super(scene);
         this.radius = 0.5; //衝突判定用の半径
-        this.mass = 1;
+        this.mass = 1.0;
 
         this.control_velocity = new BABYLON.Vector3(0, 0, 0);
         this.external_velocity = new BABYLON.Vector3(0, 0, 0);
@@ -19,7 +19,8 @@ export class Movable extends Drawable {
         this.damage = 0;
         this.damage_cooldown = 0;
         this.damage_back_weakness = 1.0;
-        this.damage_magnification = 1.0;
+        this.damage_magnification = 1.0; // 自分が受けるダメージの倍率
+        this.attack_magnification = 1.0; // 相手に与えるダメージの倍率
 
         this.wall_detector = new WallDetector(this);
         this.is_wall_detecting = false;
@@ -40,7 +41,7 @@ export class Movable extends Drawable {
         }
     }
 
-    add_damage(impulse){
+    add_damage(impulse, attack_magnification = 1.0){
 
         let damage_delta = 0;
         let backstub_delta = 0;
@@ -52,7 +53,7 @@ export class Movable extends Drawable {
         this.damage_cooldown = GLOBALS.DAMAGE.COOLDOWN;
 
         // 最低でも 1 のダメージを発生
-        damage_delta = Math.max(1, impulse.length() * GLOBALS.DAMAGE.RATE * this.damage_magnification);
+        damage_delta = Math.max(1, impulse.length() * GLOBALS.DAMAGE.RATE * this.damage_magnification * attack_magnification);
         this.damage += damage_delta;
 
         // バックスタブ（追加ダメージ）
