@@ -26,6 +26,7 @@ import { Prop_Display } from "../objects/prop_display.js";
 import { Prop_Rain } from "../objects/prop_rain.js";
 import { Prop_Lantern } from "../objects/prop_lantern.js";
 import { Prop_MagicCircle } from "../objects/prop_magic_circle.js";
+import { Prop_Mask } from "../objects/prop_mask.js";
 import { Gimmick_Diamond} from "../objects/gimmick_diamond.js";
 import { Gimmick_Virus} from "../objects/gimmick_virus.js";
 
@@ -58,7 +59,8 @@ const PropClassList = {
     'Prop_Display'      : Prop_Display,
     'Prop_Rain'         : Prop_Rain,
     'Prop_Lantern'      : Prop_Lantern,
-    'Prop_MagicCircle'  : Prop_MagicCircle
+    'Prop_MagicCircle'  : Prop_MagicCircle,
+    'Prop_Mask'         : Prop_Mask
 }
 
 const GimmickClassList = {

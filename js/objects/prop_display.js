@@ -69,6 +69,9 @@ export class Prop_Display extends Prop {
     }
 
     dispose(){
+        if (this.mesh_outer){
+            this.mesh_outer.dispose();
+        }
         super.dispose();
     }
 }

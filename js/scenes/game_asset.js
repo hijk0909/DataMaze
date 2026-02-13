@@ -97,6 +97,10 @@ export class GameAsset extends Asset {
         this.mesh.gimmick_virus = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "gimmick_virus.glb", this.scene);
 
+        // 小道具モデル
+        this.mesh.prop_mask = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "prop_mask.glb", this.scene);
+
         // await this.delay(1000); // [TEST]
         // console.log("アイテム読み込み完了");
         GameState.game.sceneManager.add_progress(0.1);

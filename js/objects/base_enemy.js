@@ -28,6 +28,8 @@ export class Enemy extends Movable {
         this.base_emissive_color = EnemyStateColor.NONE;
         this.flash_time = 0;
 
+        this.delta_y = 0;
+
         // 状態視覚効果
         this.state_effects = new StateEffectController(this);
 
@@ -424,6 +426,8 @@ class RushState extends EnemyState {
         if (enemy.control_velocity.length() > enemy.params.speed.rush) {
             enemy.control_velocity.normalize().scaleInPlace(enemy.params.speed.rush);
         }
+        enemy.delta_y = 0.2 * Math.abs(Math.sin(time/50));
+
         // 壁との衝突判定
         if (enemy.hit_wall){
             enemy.change_state(ENEMY_STATE.IDLE);
@@ -442,6 +446,7 @@ class RushState extends EnemyState {
         enemy.params.speed.turn_magnification = 1.0;
         enemy.state_effects.detach(RushStateEffect);
         enemy.is_wall_detecting = false;
+        enemy.delta_y = 0;
     }
 }
 

@@ -38,7 +38,7 @@ export class EnemyGeo extends Enemy {
         // 移動等の実行
         super.update(time, delta);
         // 上下の移動範囲を制限
-        this.mesh.position.y = GLOBALS.MOVABLE.Y.MIN;
+        this.mesh.position.y = GLOBALS.MOVABLE.Y.MIN + this.delta_y;
         // プレイヤーに向かって回転
         this.rotate_towards_player(delta);
     }

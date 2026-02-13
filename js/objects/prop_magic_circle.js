@@ -28,7 +28,7 @@ export class Prop_MagicCircle extends Prop {
         const material_1 = new BABYLON.PBRMaterial("magicCircleMat1", this.scene);
         material_1.albedoColor = new BABYLON.Color3(0, 0, 0);
         material_1.albedoTexture = GameState.asset.texture.prop_magic_circle_1.clone();
-        material_1.emissiveColor = new BABYLON.Color3(0.2, 0.2, 1.0);
+        material_1.emissiveColor = new BABYLON.Color3(0.1, 0.1, 1.2);
         material_1.emissiveIntensity = 3.0;
         material_1.alphaMode = BABYLON.Engine.ALPHA_ADD;
         material_1.backFaceCulling = false;
