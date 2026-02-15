@@ -86,7 +86,7 @@ export class Enemy extends Movable {
         };
     }
 
-    create(){
+    create(type){
         // 体力ゲージの生成
         this.hp_bar.create();
 
@@ -103,9 +103,17 @@ export class Enemy extends Movable {
         // 待機状態に設定
         this.change_state(ENEMY_STATE.WAIT);
 
+        // [TYPE] タイプ指定
+        if (type){
+            if (type ==="drop_battery"){
+                this.params.drops=[{ id: "Item_Battery", weight: 100 }];
+            } else if (type && type ==="drop_key"){
+                this.params.drops=[{ id: "Item_Key", weight: 100 }];
+            }
+        }
+
         super.create();
     }
-
 
     // デバッグ用のellipsoid可視化
     create_debug_ellipsoid(ellipsoid){

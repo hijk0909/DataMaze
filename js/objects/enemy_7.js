@@ -41,12 +41,7 @@ export class Enemy_7 extends EnemyGeo {
             this.anim_strech.speedRatio = 0.5;
         }
 
-        // [TYPE] ドロップアイテムの変更
-        if (type && type ==="key"){
-            this.params.drops[0]={ id: "Item_Key", weight: 100 };
-        }
-
-        super.create();
+        super.create(type);
     }
 
     on_chase_enter(){

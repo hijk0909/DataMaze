@@ -39,7 +39,7 @@
       "battery": true,
       "enemies": [
         { "className":"Enemy_7", "num":8},
-        { "className":"Enemy_7", "num":1, "type":"key"},
+        { "className":"Enemy_7", "num":1, "type":"drop_key"},
         { "className":"Enemy_2", "num":5},
         { "className":"Enemy_1", "num":3},
         { "className":"Enemy_3", "num":2}
@@ -71,7 +71,7 @@
         { "className":"Enemy_2", "num":8},
         { "className":"Enemy_1", "num":3},
         { "className":"Enemy_3", "num":4},
-        { "className":"Enemy_3", "num":1,  "type":"battery"},
+        { "className":"Enemy_3", "num":1,  "type":"drop_battery"},
         { "className":"Enemy_4", "num":2}
       ],
       "items":[
@@ -183,15 +183,15 @@
       "bgm": "bgm_zero",
       "battery": false,
       "enemies": [
-        { "className":"Enemy_3", "num":20},
-        { "className":"Enemy_5", "num":2},
-        { "className":"Enemy_5", "num":1, "type":"battery"}
+        { "className":"Enemy_3", "num":1},
+        { "className":"Enemy_5", "num":1},
+        { "className":"Enemy_9", "num":1, "type":"drop_battery"}
       ],
       "items":[
-        { "className":"Item_Box", "num":3},
-        { "className":"Item_Key", "num":3},
-        { "className":"Item_Feed", "num":5},
-        { "className":"Item_Fluxcore", "num":10}
+        { "className":"Item_Box", "num":1},
+        { "className":"Item_Key", "num":1},
+        { "className":"Item_Feed", "num":1},
+        { "className":"Item_Fluxcore", "num":1}
       ],
       "props":[
         { "className":"Prop_MagicCircle", "num":18}

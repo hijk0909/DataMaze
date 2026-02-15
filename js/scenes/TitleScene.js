@@ -5,6 +5,7 @@ import { Game } from "../main.js";
 import { Scene } from "./base_scene.js";
 import { GameScene } from "./GameScene.js";
 import { ConfigScene } from "./ConfigScene.js";
+import { AttractScene } from "./AttractScene.js";
 import { MyAudio } from "../utils/AudioUtils.js"
 import { MyInput } from "../utils/InputUtils.js"
 import { MyDraw } from "../utils/DrawUtils.js"
@@ -108,9 +109,17 @@ export class TitleScene extends Scene {
         Game.sceneManager.changeScene(new ConfigScene(this.game));
     }
 
+    goto_attract(){
+        Game.sceneManager.changeScene(new AttractScene(this.game));        
+    }
+
     update(time, delta){
         if (this.my_input){
             this.my_input.update(time, delta);
+        }
+        // 隠しキー
+        if (GameState.inputKey && GameState.inputKey["a"]){
+            this.goto_attract();
         }
         super.update();
     }

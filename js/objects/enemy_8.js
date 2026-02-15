@@ -23,6 +23,8 @@ export class Enemy_8 extends EnemyGeo {
 
         this.params.speed.chase = 0.1;
         this.params.speed.accel = 0.03;
+        this.params.anger.is_valid = false;
+        this.params.confuse.is_valid = false;
 
         this.id = null;
         this.target_cell = {x:0, y:0};
@@ -68,7 +70,7 @@ export class Enemy_8 extends EnemyGeo {
             }
         }
 
-        super.create();
+        super.create(type);
 
         // 初期状態を（WAITではなく）FREE に上書き
         this.change_state(ENEMY_STATE.FREE);

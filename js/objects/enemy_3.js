@@ -43,12 +43,8 @@ export class Enemy_3 extends EnemyGeo {
         // console.log("enemy 3 anim:", inst.animationGroups);
         this.anim_walk = inst.animationGroups.find(group => group.name === `walk_enemy_3_${id}`);
         this.anim_walk.speedRatio = 1.1;
-        super.create();
 
-        // [TYPE] ドロップアイテムの変更
-        if (type && type ==="battery"){
-            this.params.drops[0]={ id: "Item_Battery", weight: 100 };
-        }
+        super.create(type);
     }
 
     on_chase_enter(state){

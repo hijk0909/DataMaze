@@ -37,7 +37,7 @@ export class Enemy_1 extends EnemyAero {
         // this.create_debug_ellipsoid(this.mesh.ellipsoid); // [DEBUG]
         this.mesh.checkCollisions = true; //障害物との衝突判定
 
-        super.create();
+        super.create(type);
     }
 
     update(time, delta){

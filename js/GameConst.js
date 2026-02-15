@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.8",
-    DATE : "2026.2.13",
+    VERSION : "0.8a",
+    DATE : "2026.2.15",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -125,5 +125,9 @@ export const GLOBALS = {
         Y : {
             BASE : 0.8
         }
+    },
+
+    EFFECT : {
+        SPARK_IMPULSE_THRESHOLD : 0.05
     }
 }

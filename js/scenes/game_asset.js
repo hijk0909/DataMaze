@@ -73,6 +73,9 @@ export class GameAsset extends Asset {
         this.mesh.enemy_8 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
             "./assets/models/", "enemy_8.glb", this.scene);
 
+        this.mesh.enemy_9 = await BABYLON.SceneLoader.LoadAssetContainerAsync(
+            "./assets/models/", "enemy_9.glb", this.scene);
+
         // await this.delay(1000); // [TEST]
         // console.log("敵機読み込み完了");
         GameState.game.sceneManager.add_progress(0.35);

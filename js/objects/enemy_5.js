@@ -46,12 +46,7 @@ export class Enemy_5 extends EnemyAero {
         this.mesh.position = position.clone();
         this.mesh.checkCollisions = true; //障害物との衝突判定
 
-        // [TYPE] ドロップアイテムの変更
-        if (type && type ==="battery"){
-            this.params.drops[0]={ id: "Item_Battery", weight: 100 };
-        }
-
-        super.create();
+        super.create(type);
     }
 
     shot(direction){

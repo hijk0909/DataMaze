@@ -16,8 +16,8 @@ export class EnemyGeo extends Enemy {
         this.turn_reverse = false;
     }
 
-    create(){
-        super.create();
+    create(type){
+        super.create(type);
         this.mesh.rotationQuaternion = null; //クオータニオンは使わない（オイラー角で回転制御)
     }
 

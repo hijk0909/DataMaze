@@ -44,7 +44,7 @@ export class Enemy_2 extends EnemyAero{
         this.anim_fly = inst.animationGroups.find(group => group.name === `fly_enemy_2_${id}`);
         this.anim_fly.speedRatio = 3.0;
 
-        super.create();
+        super.create(type);
     }
 
     on_chase_enter(state){

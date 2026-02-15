@@ -64,6 +64,80 @@ export class Wipe {
     }
 }
 
+const SCROLL_SPEED = 0.3;
+const TYPE_INTERVAL = 40; // ms / 1文字
+const LINE_INTERVAL = 600;
+
+export class ScrollText {
+    constructor(ui, scene){
+        this.ui = ui;
+        this.scene = scene;
+        this.panel = null;
+        this.active_text_blocks = [];
+        this._stopped = false;
+
+        this.create();
+    }
+
+    create(){
+        const panel = new BABYLON.GUI.StackPanel();
+        panel.width = "80%";
+        panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+        panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        panel.top = "0px";
+        this.ui.addControl(panel);
+        this.panel = panel;
+
+        // this.scene.onBeforeRenderObservable.add(() => {
+            // this.active_text_blocks.forEach(tb => {
+            //     const top = (parseFloat(tb.top) || 0) - SCROLL_SPEED;
+            //     tb.top = top + "px";
+            //     if (top < -200) { tb.alpha = Math.max(0, tb.alpha - 0.01); }
+            // });
+        // });
+    }
+
+    wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async play(lines, callback = null, delayAfter = 5000) {
+        if (!this.panel) return;
+        this._stopped = false;
+        this.callback = callback;
+
+        for (const line of lines) {
+            if (this._stopped) break;
+            const tb = new BABYLON.GUI.TextBlock();
+            tb.text = "";
+            tb.color = "white";
+            tb.fontSize = 24;
+            tb.textWrapping = true;
+            tb.height = "30px";
+            tb.paddingBottom = "6px";
+            tb.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+            this.panel.addControl(tb);
+            this.active_text_blocks.push(tb);
+
+            for (let i = 0; i <= line.length; i++) {
+                if (this._stopped) break;
+                tb.text = line.slice(0, i);
+                await this.wait(TYPE_INTERVAL);
+            }
+
+            await this.wait(LINE_INTERVAL);
+        }
+        await this.wait(delayAfter);
+        if (this.callback) this.callback();
+    }
+
+    stop() {
+        this._stopped = true;
+        this.callback = null;
+    }
+} // End of class ScrollText
+
 const PADDING = 30;
 
 export class MyDraw {

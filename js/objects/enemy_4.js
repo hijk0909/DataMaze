@@ -62,7 +62,7 @@ export class Enemy_4 extends EnemyGeo {
             }
         }
 
-        super.create();
+        super.create(type);
     }
 
     on_chase_enter(state){

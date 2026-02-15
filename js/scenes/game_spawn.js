@@ -21,6 +21,7 @@ import { Enemy_5 } from "../objects/enemy_5.js";
 import { Enemy_6 } from "../objects/enemy_6.js";
 import { Enemy_7 } from "../objects/enemy_7.js";
 import { Enemy_8 } from "../objects/enemy_8.js";
+import { Enemy_9 } from "../objects/enemy_9.js";
 import { Prop_Cube } from "../objects/prop_cube.js";
 import { Prop_Display } from "../objects/prop_display.js";
 import { Prop_Rain } from "../objects/prop_rain.js";
@@ -38,7 +39,8 @@ const EnemyClassList = {
     'Enemy_5' : Enemy_5,
     'Enemy_6' : Enemy_6,
     'Enemy_7' : Enemy_7,
-    'Enemy_8' : Enemy_8
+    'Enemy_8' : Enemy_8,
+    'Enemy_9' : Enemy_9
 }
 
 const ItemClassList = {

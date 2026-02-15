@@ -13,8 +13,8 @@ export class EnemyAero extends Enemy {
         super(scene);
     }
 
-    create(){
-        super.create();
+    create(type){
+        super.create(type);
     }
 
     get_up_vector(){

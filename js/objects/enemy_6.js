@@ -38,7 +38,7 @@ export class Enemy_6 extends EnemyAero {
 
         this.mesh.checkCollisions = false; //障害物との衝突判定
 
-        super.create();
+        super.create(type);
     }
 
     on_chase_enter(state){

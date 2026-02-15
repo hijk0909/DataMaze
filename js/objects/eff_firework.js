@@ -6,78 +6,113 @@ export class Eff_Firework extends Effect {
 
     constructor(scene){
         super(scene);
+        this.core_mesh = null;
+        this.core_time = 0.0;
+        this.core_life = 1.0;
+        this.core_emissiveColor = new BABYLON.Color3(1.0, 0.7, 0.4);
     }
 
     create(position){
         this.particleTexture = GameState.asset.texture.particle;
 
-        // パーティクルシステムの生成
-        const particleSystem = new BABYLON.ParticleSystem("firework", 2000, this.scene);
-        
-        // パーティクル用のテクスチャを設定
-        particleSystem.particleTexture = this.particleTexture.clone();
-        // particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_STANDARD;
-        particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+        // 爆心
+        this.core_mesh = BABYLON.MeshBuilder.CreateSphere("explosionCore", { diameter: 1.2, }, this.scene);
 
-        // パーティクルの大きさ
-        particleSystem.minSize = 0.2;
-        particleSystem.maxSize = 0.3;
+        const mat = new BABYLON.PBRMaterial("coreMat", this.scene);
+        mat.emissiveColor = this.core_emissiveColor;
+        mat.alpha = 0.7;
+        mat.disableLighting = true;
+        this.core_mesh.material = mat;
+        this.core_mesh.position = position.clone();
+
+        // パーティクルシステムの生成
+        const ps = new BABYLON.ParticleSystem("firework", 2000, this.scene);
+        ps.particleTexture = this.particleTexture.clone();
+        ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+        ps.minSize = 0.1;
+        ps.maxSize = 0.5;
+        ps.addSizeGradient(0, 0.1);   // 最初は小さく
+        ps.addSizeGradient(0.2, 1.0); // 一瞬で大きく
+        ps.addSizeGradient(1.0, 0.0); // 最後は消える
+        ps.minLifeTime = 0.4;
+        ps.maxLifeTime = 0.6;
 
         // エミッターの位置を設定 (花火が始まる位置)
-        particleSystem.emitter = position.clone();
-        
-        // パーティクルの生存期間 (秒)
-        particleSystem.minLifeTime = 0.4;
-        particleSystem.maxLifeTime = 0.6;
-        
-        // 速度 (拡散の速さ)
-        particleSystem.minEmitPower = 3.2;
-        particleSystem.maxEmitPower = 3.3;
-        
-        // ランダムな初期色 (色とりどり)
-        // ここではランダムな色を一つ設定し、時間の経過でフェードアウト
-        const color = BABYLON.Color3.Random();
-        particleSystem.color1 = new BABYLON.Color4(color.r, color.g, color.b, 1.0); // 初期の色
-        particleSystem.color2 = new BABYLON.Color4(color.r * 0.5, color.g * 0.5, color.b * 0.5, 0.8); // 中間の色
-        particleSystem.colorDead = new BABYLON.Color4(color.r * 0.1, color.g * 0.1, color.b * 0.1, 0.0); // 消滅時の色 (透明な黒)
-
-        // 重力を無効または軽く設定 (花火の飛び散り方)
-        // Y軸方向の重力 (下向き)
-        particleSystem.gravity = new BABYLON.Vector3(0, -9.81 * 0.1, 0); 
-        
-        // 発生率 (1秒あたりに発生させるパーティクルの数)
-        particleSystem.emitRate = 300; 
-
-        // 拡散の形状を球状に設定 (花火のように全方向に広がる)
+        ps.emitter = position.clone();
+        ps.minEmitPower = 5.0;
+        ps.maxEmitPower = 5.2;
+        ps.addVelocityGradient(0, 1.0); // 最初は速い
+        ps.addVelocityGradient(1.0, 0.05); // 最後はほぼ止まる
+        ps.emitRate = 300; 
+        ps.manualEmitCount = 40; // 1回で放出するパーティクルの総数
         const radius = 0.01; 
         const sphereEmitter = new BABYLON.SphereParticleEmitter(radius);
-        particleSystem.particleEmitterType = sphereEmitter;
-        
-        // 1回で放出するパーティクルの総数
-        particleSystem.manualEmitCount = 40; 
-        // 花火は短時間で消えるため、オートクリアを設定
-        // オートクリアを設定しているため、花火の寿命が尽きると自動で消滅します。
-        particleSystem.disposeOnStop = true;        
+        ps.particleEmitterType = sphereEmitter;
 
+        ps.gravity = new BABYLON.Vector3(0, -9.81 * 0.1, 0); 
+        
+        // 色
+        ps.color1 = new BABYLON.Color4(1.0, 0.9, 0.6, 1.0);
+        ps.color2 = new BABYLON.Color4(1.0, 0.4, 0.1, 0.8);
+        ps.colorDead = new BABYLON.Color4(0.1, 0.1, 0.1, 0.0);
+
+        // オートクリアを設定→花火の寿命が尽きると自動で消滅
+        ps.disposeOnStop = true;   
 
         // 終了時のイベントを追加
         this._particleObserver = this.scene.onBeforeRenderObservable.add(() => {
-            if (!particleSystem.isStarted() && particleSystem.getActiveCount() === 0) {
+            if (!ps.isStarted() && ps.getActiveCount() === 0) {
                 this.alive = false;
-                particleSystem.dispose();
+                ps.dispose();
                 this.scene.onBeforeRenderObservable.remove(this._particleObserver);
             }
         });
 
         // 再生を開始 (手動で停止させるか、パーティクルの寿命が尽きるまで)
-        particleSystem.start(); 
+        ps.start(); 
+    }
+
+    ease_out(t) {
+        return 1 - (1 - t) * (1 - t);
+    }
+
+    update_core(delta){
+        if (!this.core_mesh) return;
+        this.core_time += delta / 1000;
+        const t = this.core_time / this.core_life;
+        if (t >= 1.0) {
+            this.core_mesh.dispose();
+            this.core_mesh = null;
+            return;
+        }
+        const e = this.ease_out(t);
+
+        let scale;
+        if (t < 0.4) {
+            // 前半：急膨張
+            const tt = t / 0.4;
+            scale = BABYLON.Scalar.Lerp(0.1, 1.3, this.ease_out(tt));
+        } else {
+            // 後半：急収縮
+            const tt = (t - 0.4) / 0.6;
+            scale = BABYLON.Scalar.Lerp(1.3, 0.0, this.ease_out(tt));
+        }
+        this.core_mesh.scaling.set(scale, scale, scale);
+        this.core_mesh.material.alpha = BABYLON.Scalar.Lerp(0.8, 0.0, e);
+
+        const intensity = BABYLON.Scalar.Lerp(3.5, 1.0, e);
+        this.core_mesh.material.emissiveColor = this.core_emissiveColor.scale(intensity);
     }
 
     update(time, delta){
-
+        this.update_core(delta);
     }
 
     dispose(){
+        if (this.core_mesh){
+            this.core_mesh.dispose();
+            this.core_mesh = null;
+        }
         super.dispose();
     }
 }

@@ -3,6 +3,7 @@ import { GLOBALS } from '../GameConst.js';
 import { GameState } from '../GameState.js';
 import { Eff_Firework } from '../objects/eff_firework.js';
 import { Eff_Extinction } from '../objects/eff_extinction.js';
+import { Eff_Spark } from '../objects/eff_spark.js';
 import { Eff_Text } from '../objects/eff_text.js';
 
 const OVERLAP_REPULSION_COEFFICIENT = 1.2;
@@ -245,6 +246,15 @@ export class Exec {
             impulse = normal.scale(-(1+e) * dot / (1/obj1.mass + 1/obj2.mass));
             obj1.add_impulse( impulse.scale(-1));
             obj2.add_impulse( impulse );
+
+            // 火花エフェクトの発生
+            if (impulse.length() > GLOBALS.EFFECT.SPARK_IMPULSE_THRESHOLD){
+                const ratio = obj2.radius / (obj1.radius + obj2.radius);
+                const point = BABYLON.Vector3.Lerp(obj1.mesh.position, obj2.mesh.position, ratio);
+                const eff_spark = new Eff_Spark(this.scene);
+                eff_spark.create(point, impulse);
+                GameState.effects.push(eff_spark);
+            }
         }
         return impulse;
     }
