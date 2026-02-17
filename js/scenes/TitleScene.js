@@ -6,18 +6,18 @@ import { Scene } from "./base_scene.js";
 import { GameScene } from "./GameScene.js";
 import { ConfigScene } from "./ConfigScene.js";
 import { AttractScene } from "./AttractScene.js";
+import { GameClearScene } from "./GameClearScene.js";
 import { MyAudio } from "../utils/AudioUtils.js"
 import { MyInput } from "../utils/InputUtils.js"
 import { MyDraw } from "../utils/DrawUtils.js"
 
-const FONT_SIZE = 48;
-const FONT_HEIGHT = "52px";
-const FONT_SPACING = 4;
+const ATTRACT_TIMER = 8;
 
 export class TitleScene extends Scene {
     constructor(game) {
         super(game);
         this.my_input = null;
+        this._disposed = false;
     }
 
     setup(){
@@ -50,6 +50,7 @@ export class TitleScene extends Scene {
         this.my_input.registerConfirmAction(() => this.goto_config());
 
         // ◆ タイトル画面（コンテナパネル）
+        const FONT_SPACING = 4;
         this.panel_title = new BABYLON.GUI.StackPanel();
         const panel = this.panel_title;
         panel.isVertical = true;
@@ -91,8 +92,31 @@ export class TitleScene extends Scene {
         MyDraw.set_text_center(this.text2, 0, 240);
         this.panel_title.addControl(this.text2);
 
+        // ◆アトラクト画面への自動遷移
+        this.attractTimerId = null;
+        this.start_attract_timer(ATTRACT_TIMER);
+        this.scene.onDisposeObservable.add(() => {
+            this._disposed = true;
+            this.cancel_attract_timer();
+        });
+
         // AudioEngine の強制初期化
         this.audio = new MyAudio();
+    }
+
+    start_attract_timer(seconds) {
+        this.cancel_attract_timer();
+        this.attractTimerId = setTimeout(() => {
+            if (this._disposed) return;
+            this.goto_attract();
+        }, seconds * 1000);
+    }
+
+    cancel_attract_timer() {
+        if (this.attractTimerId !== null) {
+            clearTimeout(this.attractTimerId);
+            this.attractTimerId = null;
+        }
     }
 
     start_game(){
@@ -100,17 +124,34 @@ export class TitleScene extends Scene {
         MyAudio.initialize();
         // ゲームパラメータの初期化
         GameState.reset();
+        // アトラクト画面への自動遷移タイマーのキャンセル
+        this.cancel_attract_timer();
         // ゲーム画面に遷移
         Game.sceneManager.changeScene(new GameScene(Game), true);
         // console.log("TitleScene: scene changed");
     }
 
     goto_config(){
+        // アトラクト画面への自動遷移タイマーのキャンセル
+        this.cancel_attract_timer();
+        // コンフィグ画面に遷移
         Game.sceneManager.changeScene(new ConfigScene(this.game));
     }
 
     goto_attract(){
+        // アトラクト画面への自動遷移タイマーのキャンセル
+        this.cancel_attract_timer();
+        // アトラクト画面に遷移
         Game.sceneManager.changeScene(new AttractScene(this.game));        
+    }
+
+    goto_gameclear(){
+        // ユーザ操作後にオーディオ初期化
+        MyAudio.initialize();
+        // アトラクト画面への自動遷移タイマーのキャンセル
+        this.cancel_attract_timer();
+        // アトラクト画面に遷移
+        Game.sceneManager.changeScene(new GameClearScene(this.game));        
     }
 
     update(time, delta){
@@ -120,6 +161,9 @@ export class TitleScene extends Scene {
         // 隠しキー
         if (GameState.inputKey && GameState.inputKey["a"]){
             this.goto_attract();
+        }
+        if (GameState.inputKey && GameState.inputKey["c"]){
+            this.goto_gameclear();
         }
         super.update();
     }

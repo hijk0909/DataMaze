@@ -80,6 +80,10 @@ export class AttractScene extends Scene {
             this.camera.dispose();
             this.camera = null;
         }
+        if (this.scroll_text){
+            this.scroll_text.dispose();
+            this.scroll_text = null;
+        }
         super.dispose();
         // console.log("ConfigScene Diposed");
     }

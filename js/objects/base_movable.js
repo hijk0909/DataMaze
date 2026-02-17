@@ -41,6 +41,10 @@ export class Movable extends Drawable {
         }
     }
 
+    add_overlap_impulse(impulse){
+        this.external_velocity.addInPlace(impulse);
+    }
+
     add_damage(impulse, attack_magnification = 1.0){
 
         let damage_delta = 0;

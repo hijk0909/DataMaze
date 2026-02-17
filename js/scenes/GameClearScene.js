@@ -4,13 +4,16 @@ import { GameState } from "../GameState.js";
 import { Game } from "../main.js";
 import { Scene } from "./base_scene.js";
 import { TitleScene } from "./TitleScene.js";
+import { GameClearAsset } from "./GameClearAsset.js";
 import { MyInput } from "../utils/InputUtils.js"
+import { ScrollText } from "../utils/DrawUtils.js"
 
 export class GameClearScene extends Scene {
     constructor(game) {
         super(game);
         this.my_input = null;
-        this.jingle = {};
+        this.asset = null;
+        this.scroll_text = null;
     }
 
     setup(){
@@ -24,7 +27,8 @@ export class GameClearScene extends Scene {
     }
 
     async preload(){
-
+        this.asset = new GameClearAsset(this.scene);
+        await this.asset.preload();
     }
 
     create(){
@@ -45,16 +49,28 @@ export class GameClearScene extends Scene {
              this.image.height = this.image.domImage.height + "px"; });
         this.ui.addControl(this.image);
 
-        // Text
-        this.text = new BABYLON.GUI.TextBlock();
-        this.text.text = "ALL CLEAR\nPUSH SPACE KEY";
-        this.text.color = "white";
-        this.text.fontSize = 80;
-        this.text.fontFamily = "MyGameFont";
-        this.ui.addControl(this.text);
+        const lines = [
+            "Epilogue",
+            "",
+            "Once upon a time, the world was filled with information.",
+            "Humans thought they understood and controlled it.",
+            "",
+            "--But the labyrinth continued to be quietly generated.",
+            "",
+            ""
+        ];
+
+        // ◆スクロールテキスト
+        this.scroll_text = new ScrollText(this.ui, this.scene);
+        // this.scroll_text.play(lines, () => {this.goto_title();}, 3000);
+        this.scroll_text.play(lines);
+        // Sound
+        this.asset.bgm.epilogue.play(true);
     }
 
     goto_title(){
+        // スクロールテキストの自動更新を停止（必須）
+        this.scroll_text.stop();
         // タイトル画面に遷移
         Game.sceneManager.changeScene(new TitleScene(Game));
     }
@@ -79,17 +95,17 @@ export class GameClearScene extends Scene {
             this.ui.dispose();
             this.ui = null;
         }
-        if (this.text){
-            this.text.dispose();
-            this.text = null;
-        }
         if (this.image){
             this.image.dispose();
             this.image = null;
         }
-        if (this.jingle.gameclear){
-            this.jingle.gameclear.dispose();
-            this.jingle.gameclear = null;
+        if (this.scroll_text){
+            this.scroll_text.dispose();
+            this.scroll_text = null;
+        }
+        if (this.asset){
+            this.asset.dispose();
+            this.asset = null;
         }
         super.dispose();
     }

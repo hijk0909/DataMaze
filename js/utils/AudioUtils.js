@@ -290,6 +290,11 @@ class SoundInstance {
             const clampedX = Math.max(-1, Math.min(1, normalizedX));
             // console.log("play_3D screen_pos.x:", screen_pos.x, " normalizedX:", normalizedX, " clampedX:",clampedX);
             this.setPan(clampedX);
+
+            const dist = BABYLON.Vector3.Distance(GameState.camera.position, obj.mesh.position);
+            const far = 15.0;
+            const volume = Math.max(0, 1 - dist / far);
+            this.setVolume(volume);
         }
         this.play(false);
     }

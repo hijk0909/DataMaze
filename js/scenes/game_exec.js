@@ -6,7 +6,7 @@ import { Eff_Extinction } from '../objects/eff_extinction.js';
 import { Eff_Spark } from '../objects/eff_spark.js';
 import { Eff_Text } from '../objects/eff_text.js';
 
-const OVERLAP_REPULSION_COEFFICIENT = 1.2;
+const OVERLAP_REPULSION_COEFFICIENT = 2.4;
 
 export class Exec {
     constructor(scene) {
@@ -236,8 +236,8 @@ export class Exec {
             // 重なり解決（速度ベクトル更新）
             const overlap = (obj1.radius + obj2.radius) - distance;
             const overlap_repulsion = normal.scale(overlap * OVERLAP_REPULSION_COEFFICIENT); // overlap比例の反発係数
-            obj1.add_impulse(overlap_repulsion.scale(-1));
-            obj2.add_impulse(overlap_repulsion);
+            obj1.add_overlap_impulse(overlap_repulsion.scale(-1));
+            obj2.add_overlap_impulse(overlap_repulsion);
 
             // 運動量を交換 (velocity_relative は obj1 から見た obj2 の相対速度)
             const velocity_relative = obj2.velocity.subtract(obj1.velocity);

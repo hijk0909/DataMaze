@@ -1,5 +1,4 @@
 // game_asset.js
-import { GLOBALS } from '../GameConst.js';
 import { GameState } from '../GameState.js';
 import { Asset } from './base_asset.js';
 import { MyAudio } from "../utils/AudioUtils.js"

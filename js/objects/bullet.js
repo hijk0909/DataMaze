@@ -3,7 +3,7 @@ import { GameState } from "../GameState.js";
 import { Drawable } from "./base_drawable.js";
 import { Eff_Extinction } from "./eff_extinction.js";
 
-const BULLET_SPEED = 0.13;
+const BULLET_SPEED = 0.21;
 const BULLET_SIZE = 0.50;
 const BULLET_ALPHA = 0.5;
 const BULLET_MASS = 0.1;

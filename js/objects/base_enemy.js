@@ -192,14 +192,20 @@ export class Enemy extends Movable {
         });
     }
 
-    // コールバック関数
+    // コールバック関数（必要に応じてサブクラスでオーバーライド）
     on_wait_enter(state){}
     on_chase_enter(state){}
+    on_charge_enter(state){}
     on_idle_enter(state){}
     on_escape_enter(state){}
     on_confused_enter(state){}
     on_rush_enter(state){}
     on_free_enter(state){}
+
+    on_wait_update(state, time, delta){}
+    on_chase_update(state, time, delta){}
+    on_charge_update(state, time, delta){}
+    on_idle_update(state, time, delta){}
 
     on_chase_timeout(state){}
     on_idle_timeout(state){}
@@ -269,6 +275,7 @@ class WaitState extends EnemyState {
         enemy.set_emissive_color(EnemyStateColor.NONE);
     }
     update(enemy, time, delta) {
+        enemy.on_wait_update(this, time, delta);
         // 自機がテリトリー内に来たら行動開始
         enemy.params.target_pos = GameState.player.mesh.position;
         const toPlayer = GameState.player.mesh.position
@@ -287,14 +294,15 @@ class ChaseState extends EnemyState {
         this.id = ENEMY_STATE.CHASE;
     }
     enter(enemy){
+        enemy.on_chase_enter(this);
         enemy.params.target_pos = GameState.player.mesh.position;
         enemy.turn_reverse = false;
         enemy.params.speed.turn_magnification = 1.0;
-        enemy.on_chase_enter(this);
         enemy.set_emissive_color(EnemyStateColor.NONE);
         // console.log("ChaseState.enter()");
     }
     update(enemy, time, delta) {
+        enemy.on_chase_update(this, time, delta);
         // 追跡行動
         const toPlayer = GameState.player.mesh.position
             .subtract(enemy.mesh.position);
@@ -321,8 +329,8 @@ class EscapeState extends EnemyState {
         this.id = ENEMY_STATE.ESCAPE;
     }
     enter(enemy){
-        enemy.turn_reverse = true;
         enemy.on_escape_enter(this);
+        enemy.turn_reverse = true;
         enemy.set_emissive_color(EnemyStateColor.NONE);
         // console.log("EscapeState.enter()");
     }
@@ -362,6 +370,7 @@ class IdleState extends EnemyState {
         // console.log("IdleState.enter()");
     }
     update(enemy, time, delta) {
+        enemy.on_idle_update(this, time, delta);
         // 減速・停止
         enemy.control_velocity.scaleInPlace(enemy.params.speed.decel);
         // 時間制限
@@ -383,6 +392,7 @@ class ChargeState extends EnemyState {
         this.id = ENEMY_STATE.CHARGE;
     }
     enter(enemy){
+        enemy.on_charge_enter(this);
         this.hasTimeout = true;
         this.timer = enemy.params.anger.charge_period;
         enemy.set_emissive_color(EnemyStateColor.CHARGE);
@@ -393,6 +403,7 @@ class ChargeState extends EnemyState {
 
     }
     update(enemy, time, delta) {
+        enemy.on_charge_update(this, time, delta);
         // 減速・停止
         enemy.control_velocity.scaleInPlace(enemy.params.speed.decel);
         // 時間制限

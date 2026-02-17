@@ -4,14 +4,13 @@ import { GameState } from "../GameState.js";
 import { Game } from "../main.js";
 import { Scene } from "./base_scene.js";
 import { TitleScene } from "./TitleScene.js";
+import { GameOverAsset } from "./GameOverAsset.js";
 import { MyInput } from "../utils/InputUtils.js";
-import { MyAudio } from "../utils/AudioUtils.js";
 
 export class GameOverScene extends Scene {
     constructor(game) {
         super(game);
         this.my_input = null;
-        this.jingle = {};
     }
 
     setup(){
@@ -25,8 +24,8 @@ export class GameOverScene extends Scene {
     }
 
     async preload(){
-        this.jingle.gameover = await MyAudio.load( "./assets/audio/jingle/jingle_game_over.mp3" );
-        this.jingle.gameover.setVolume(0.8);
+        this.asset = new GameOverAsset(this.scene);
+        await this.asset.preload();
     }
 
     create(){
@@ -56,7 +55,7 @@ export class GameOverScene extends Scene {
         this.ui.addControl(this.text);
 
         // Sound
-        this.jingle.gameover.play(false);
+        this.asset.jingle.gameover.play(false);
     }
 
     goto_title(){
@@ -92,9 +91,9 @@ export class GameOverScene extends Scene {
             this.image.dispose();
             this.image = null;
         }
-        if (this.jingle.gameover){
-            this.jingle.gameover.dispose();
-            this.jingle.gameover = null;
+        if (this.asset){
+            this.asset.dispose();
+            this.asset = null;
         }
         super.dispose();
     }

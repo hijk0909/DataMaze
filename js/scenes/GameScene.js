@@ -176,6 +176,7 @@ export class GameScene extends Scene {
             // ◆プレイ中
             if (GameState.player && GameState.player.hp <= 0){
                 GameState.player.alive = false;
+                GameState.player.mesh.checkCollisions = false;
                 GameState.player.hp = 0;
                 GameState.player.update_hp_bar();
                 GameState.stage_state = GLOBALS.STAGE_STATE.FAIL;

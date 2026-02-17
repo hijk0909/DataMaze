@@ -49,10 +49,6 @@ export class MyMath {
             GameState.camera.viewport.toGlobal(rw, rh)
         );
 
-        // let x = (screen_Pos.x - rw / 2) * (iw / rw) + iw / 2;
-        // let y = (screen_pos.y - rh / 2 + (ih -rh)/2) * (ih / rh) * (ih / rh) + ih / 2;
-        // let x = (screen_pos.x - rw/2) * (iw/rw) + iw / 2;
-        // let y = (screen_pos.y - rh/2 + (ih -rh)/2)*(ih/rh) + ih / 2;
         screen_pos.x = screen_pos.x * (iw / rw);
         screen_pos.y = screen_pos.y * (iw / rw);
         // screen_pos.y = screen_pos.y * (ih / rh);

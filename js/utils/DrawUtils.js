@@ -64,7 +64,6 @@ export class Wipe {
     }
 }
 
-const SCROLL_SPEED = 0.3;
 const TYPE_INTERVAL = 40; // ms / 1文字
 const LINE_INTERVAL = 600;
 
@@ -87,14 +86,6 @@ export class ScrollText {
         panel.top = "0px";
         this.ui.addControl(panel);
         this.panel = panel;
-
-        // this.scene.onBeforeRenderObservable.add(() => {
-            // this.active_text_blocks.forEach(tb => {
-            //     const top = (parseFloat(tb.top) || 0) - SCROLL_SPEED;
-            //     tb.top = top + "px";
-            //     if (top < -200) { tb.alpha = Math.max(0, tb.alpha - 0.01); }
-            // });
-        // });
     }
 
     wait(ms) {
@@ -111,9 +102,9 @@ export class ScrollText {
             const tb = new BABYLON.GUI.TextBlock();
             tb.text = "";
             tb.color = "white";
-            tb.fontSize = 24;
+            tb.fontSize = 32;
             tb.textWrapping = true;
-            tb.height = "30px";
+            tb.height = "40px";
             tb.paddingBottom = "6px";
             tb.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
 
@@ -135,6 +126,13 @@ export class ScrollText {
     stop() {
         this._stopped = true;
         this.callback = null;
+    }
+
+    dispose() {
+        this.panel.dispose();
+        for (const tb of this.active_text_blocks){
+            tb.dispose();
+        }
     }
 } // End of class ScrollText
 
