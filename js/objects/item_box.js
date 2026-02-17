@@ -63,7 +63,7 @@ export class Item_Box extends Item {
         if (r === 0){
             item = "HP Tank";
             GameState.ui_manager.add_item(item);
-            GameState.player.add_hp_max(30);
+            GameState.player.add_hp_max(50);
             disp = `GET ${item}`;
         } else if (r === 1){
             item = "Auto Recover";

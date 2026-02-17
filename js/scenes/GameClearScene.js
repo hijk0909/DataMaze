@@ -52,18 +52,58 @@ export class GameClearScene extends Scene {
         const lines = [
             "Epilogue",
             "",
-            "Once upon a time, the world was filled with information.",
-            "Humans thought they understood and controlled it.",
+            "Elio lost his family by endorsing the AI’s correct judgment.",
+            "After that, he abandoned judgment itself",
+            "and drifted through his days in a state of numb apathy.",
             "",
-            "--But the labyrinth continued to be quietly generated.",
+            "Then, as a global malfunction in the AI systems",
+            "began to surface and drive humanity toward annihilation,",
+            "he volunteered for a dangerous mission to resolve it.",
             "",
-            ""
+            "Through a neural interface, he committed",
+            "his entire consciousness to an abstract data space,",
+            "diving ever deeper in search of",
+            "the true cause of the anomaly.",
+            "",
+            "Passing beyond the shared layer of collective unconsciousness",
+            "common to both living humans and artificial intelligence,",
+            "he finally arrived at the place",
+            "where mathematics itself is born",
+            "and uncovered a fatal inconsistency.",
+            "",
+            "By eliminating that bug, Elio was ultimately",
+            "absorbed into that very layer.",
+            "",
+            "As Elio himself became part of",
+            "a new mathematical framework",
+            "in which humans and artificial intelligence could coexist,",
+            "the world regained its stability.",
+            "",
+            "Elio’s consciousness never returned to his body.",
+            "Whether this was the finest ending he could have achieved,",
+            "or merely utter annihilation, no one can say.",
+            "But this was the result of a choice he made of his own will.",
+            "",
+            "He decided the meaning of his own life.",
+            "",
+            "As a consequence, his time came to a halt there.",
+            "Yet humanity’s time was permitted to flow onward,",
+            "far into the future.",
+            "",
+            "The meaning of what he accomplished",
+            "will continue to be woven by each of the survivors,",
+            "as they live their lives,",
+            "making choices and passing judgments of their own.",
+            "",
+            "...Today, what will you choose to judge?",
+            "",
+            "","","","","","","","","","","","","","","",""
         ];
 
         // ◆スクロールテキスト
         this.scroll_text = new ScrollText(this.ui, this.scene);
-        // this.scroll_text.play(lines, () => {this.goto_title();}, 3000);
-        this.scroll_text.play(lines);
+        this.scroll_text.play(lines, () => {this.goto_title();}, 10000);
+        // this.scroll_text.play(lines);
         // Sound
         this.asset.bgm.epilogue.play(true);
     }

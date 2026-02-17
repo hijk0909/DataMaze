@@ -37,7 +37,7 @@ export class Gimmick_Diamond extends Gimmick {
     }
 
     activate(){
-        const hp_tank = 1;
+        const hp_tank = 5;
         GameState.player.add_hp_max(hp_tank);
 
         const eff = new Eff_Text(this.scene);

@@ -102,10 +102,10 @@ export class ScrollText {
             const tb = new BABYLON.GUI.TextBlock();
             tb.text = "";
             tb.color = "white";
-            tb.fontSize = 32;
+            tb.fontSize = 48;
             tb.textWrapping = true;
-            tb.height = "40px";
-            tb.paddingBottom = "6px";
+            tb.height = "70px";
+            tb.paddingBottom = "12px";
             tb.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
 
             this.panel.addControl(tb);
