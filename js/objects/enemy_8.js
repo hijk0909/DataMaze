@@ -70,6 +70,8 @@ export class Enemy_8 extends EnemyGeo {
             }
         }
 
+        this.delta_y = 0.3;
+
         super.create(type);
 
         // 初期状態を（WAITではなく）FREE に上書き
@@ -89,12 +91,14 @@ export class Enemy_8 extends EnemyGeo {
         if ( cell_up !== GLOBALS.MAP.ELEMENT.WALL && cell_up !== GLOBALS.MAP.ELEMENT.EMPTY){
             cy--;
             this.target_pos = MyMath.cell_to_world(cx, cy);
+            this.target_pos.y = GLOBALS.MOVABLE.Y.MIN + this.delta_y;
             this.target_cell.x = cx;
             this.target_cell.y = cy;
         } else {
             this.initial_move = false;
             this.direction = DIR_RIGHT;
             this.target_pos = MyMath.cell_to_world(cx, cy);
+            this.target_pos.y = GLOBALS.MOVABLE.Y.MIN + this.delta_y;
             this.target_cell.x = cx;
             this.target_cell.y = cy;
             this.change_target_left();
@@ -123,6 +127,7 @@ export class Enemy_8 extends EnemyGeo {
                 this.target_cell.x = nx;
                 this.target_cell.y = ny;
                 this.target_pos = MyMath.cell_to_world(nx, ny);
+                this.target_pos.y = GLOBALS.MOVABLE.Y.MIN + this.delta_y;
                 this.direction = nextDir;
                 return;
             }

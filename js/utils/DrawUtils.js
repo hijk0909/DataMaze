@@ -92,10 +92,11 @@ export class ScrollText {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async play(lines, callback = null, delayAfter = 5000) {
+    async play(lines, callback1 = null, callback2 = null, delayAfter = 5000) {
         if (!this.panel) return;
         this._stopped = false;
-        this.callback = callback;
+        this.callback1 = callback1;
+        this.callback2 = callback2;
 
         for (const line of lines) {
             if (this._stopped) break;
@@ -119,13 +120,15 @@ export class ScrollText {
 
             await this.wait(LINE_INTERVAL);
         }
+        if (this.callback1) this.callback1();
         await this.wait(delayAfter);
-        if (this.callback) this.callback();
+        if (this.callback2) this.callback2();
     }
 
     stop() {
         this._stopped = true;
-        this.callback = null;
+        this.callback1 = null;
+        this.callback2 = null;
     }
 
     dispose() {

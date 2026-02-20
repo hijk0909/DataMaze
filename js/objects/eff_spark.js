@@ -10,6 +10,7 @@ export class Eff_Spark extends Effect {
         super(scene);
     }
 
+    // 接触時の火花
     create(pos, impulse){
         super.create(null); // meshは存在しない 
 

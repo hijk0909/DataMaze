@@ -102,7 +102,7 @@ export class GameClearScene extends Scene {
 
         // ◆スクロールテキスト
         this.scroll_text = new ScrollText(this.ui, this.scene);
-        this.scroll_text.play(lines, () => {this.goto_title();}, 10000);
+        this.scroll_text.play(lines, () => {this.asset.bgm.epilogue.fadeOut();}, () => {this.goto_title();}, 3000);
         // this.scroll_text.play(lines);
         // Sound
         this.asset.bgm.epilogue.play(true);

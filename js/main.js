@@ -122,6 +122,67 @@ function set_shader(){
     }
     `;
 
+    BABYLON.Effect.ShadersStore["egoSwirlVertexShader"] = `
+        precision highp float;
+
+        attribute vec3 position;
+        attribute vec3 phase;
+
+        uniform mat4 worldViewProjection;
+        uniform float time;
+        uniform float radius;
+        uniform vec3 cameraPosition;
+
+        void main() {
+            float a = 1.0;
+            float b = 1.31;
+            float c = 1.73;
+
+            float theta = a * time + phase.x;      // 0..2π
+            float phi   = b * time + phase.y;      // 0..π
+            float u = 0.5 + 0.5 * sin(c * time + phase.z); // 0..1
+            float r = pow(u, 1.0 / 3.0);
+
+            vec3 offset;
+            offset.x = r * sin(phi) * cos(theta);
+            offset.y = r * sin(phi) * sin(theta);
+            offset.z = r * cos(phi);
+
+            // 極座標リサジューにしたので、クリッピングは不要
+            //            float len = length(offset);
+            //            if (len > 1.0) {
+            //                offset = offset / len;
+            //            }
+
+            vec3 p = position + offset * radius;
+            gl_Position = worldViewProjection * vec4(p, 1.0);
+
+            float dist = length(cameraPosition - p);
+            float size = 80.0 / dist;
+            size = clamp(size, 1.0, 80.0);
+            gl_PointSize = size;
+        }
+    `;
+
+    BABYLON.Effect.ShadersStore["egoSwirlFragmentShader"] = `
+        precision highp float;
+
+        void main() {
+
+            // 点スプライトを円形に
+            vec2 uv = gl_PointCoord * 2.0 - 1.0;
+            float d = dot(uv, uv);
+            if (d > 1.0) discard;
+
+            // float alpha = exp(-d * 3.0);
+            float alpha = smoothstep(1.0, 0.2, d);
+
+            vec3 color = vec3(0.1, 0.3, 1.0); // 青白い知性
+
+            gl_FragColor = vec4(color, alpha);
+        }
+    `;
+
     BABYLON.Effect.ShadersStore["wipeFragmentShader"] = `
         precision highp float;
 
@@ -146,7 +207,7 @@ function set_shader(){
             vec4 wipeColor = vec4(0.0, 0.0, 0.0, 1.0);
 
             // maskが1なら黒(wipeColor)、0なら元の色(baseColor)を混ぜる
-            // alphaを使ってワイプ全体の透明度を制御（wipe_out の チラツキ対策）
+            // alphaを使ってワイプ全体の透明度を制御 (wipe_out の チラツキ対策）
             gl_FragColor = mix(baseColor, wipeColor, mask * alpha);
         }
     `;

@@ -111,7 +111,7 @@ export class Item_Fluxcore extends Item {
         let disp = "flux";
 
         if (this.flux_state === FLUX_STATE_FEED){
-            const hp = 30;
+            const hp = 100;
             GameState.player.add_hp(hp);
             disp = `HP +${hp}`;
         } else if (this.flux_state === FLUX_STATE_MASS){

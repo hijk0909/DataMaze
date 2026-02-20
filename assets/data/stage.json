@@ -138,7 +138,8 @@
         { "className":"Item_Key", "num":1}
       ],
       "props":[
-        { "className":"Prop_Mask", "num":15}
+        { "className":"Prop_Mask", "num":15},
+        { "className":"Prop_Ego", "num":15}
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":20},
@@ -168,7 +169,8 @@
         { "className":"Item_Fluxcore", "num":10}
       ],
       "props":[
-        { "className":"Prop_Mask", "num":15}
+        { "className":"Prop_Mask", "num":15},
+        { "className":"Prop_Ego", "num":15}
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":15},

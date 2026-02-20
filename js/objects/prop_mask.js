@@ -2,7 +2,7 @@
 import { GameState } from "../GameState.js";
 import { Prop } from "./base_prop.js";
 
-const ROTATION_SPEED = 0.1;
+const ROTATION_SPEED = 0.005;
 
 export class Prop_Mask extends Prop {
 
@@ -18,7 +18,7 @@ export class Prop_Mask extends Prop {
 
         const wireMat = new BABYLON.StandardMaterial("wireMat", this.scene);
         wireMat.wireframe = true;
-        wireMat.emissiveColor = new BABYLON.Color3(1, 0, 0);
+        wireMat.emissiveColor = new BABYLON.Color3(1.0, 0.8, 0.6);
         wireMat.disableLighting = true;
 
         const allMeshes = this.mesh.getDescendants(false, (node) => node instanceof BABYLON.Mesh);
