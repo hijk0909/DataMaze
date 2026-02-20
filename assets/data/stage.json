@@ -152,7 +152,7 @@
       "corridor_texture": 3,
       "room_texture": 3,
       "bgm": "bgm_deep",
-      "battery": true,
+      "battery": false,
       "enemies": [
         { "className":"Enemy_7", "num":10},
         { "className":"Enemy_2", "num":8},
@@ -160,7 +160,8 @@
         { "className":"Enemy_1", "num":5},
         { "className":"Enemy_3", "num":5},
         { "className":"Enemy_5", "num":1},
-        { "className":"Enemy_8", "num":8}
+        { "className":"Enemy_8", "num":7},
+        { "className":"Enemy_8", "num":1, "type":"drop_battery"}
       ],
       "items":[
         { "className":"Item_Box", "num":3},
