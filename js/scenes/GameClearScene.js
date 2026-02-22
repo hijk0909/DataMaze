@@ -14,16 +14,31 @@ export class GameClearScene extends Scene {
         this.my_input = null;
         this.asset = null;
         this.scroll_text = null;
+        this.image_alpha_count = 0;
+        this.information_rain = null;
     }
 
     setup(){
         // [Camera]
-        this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0,2,-5), this.scene);
+        this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 1.5, 6), this.scene);
+        this.camera.setTarget(BABYLON.Vector3.Zero());
+        this.camera.fov = 0.7; // やや狭めて奥行き強調
         // [UI]
         this.ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
         this.ui.idealWidth = GLOBALS.UI.WIDTH;
         this.ui.idealHeight = GLOBALS.UI.HEIGHT;
         this.ui.renderAtIdealSize = true;
+
+        // [Bloom]
+        const imgproc= this.scene.imageProcessingConfiguration;
+        imgproc.toneMappingEnabled = true;
+        imgproc.exposure = 1.1;
+        imgproc.contrast = 1.0;
+        const pipeline = new BABYLON.DefaultRenderingPipeline("default", true, this.scene, [this.camera]);
+        pipeline.bloomEnabled = true;
+        pipeline.bloomThreshold = 0.01; // どの明るさから発光させるか
+        pipeline.bloomIntensity = 3.0; // 発光の強さ
+        pipeline.bloomKernel = 64;    // ブラーの広がり具合
     }
 
     async preload(){
@@ -49,7 +64,16 @@ export class GameClearScene extends Scene {
              this.image.height = this.image.domImage.height + "px"; });
         this.ui.addControl(this.image);
 
+        const elapsed_sec = Math.floor(GameState.elapsed_time / 1000);
+        this.elapsed_time_text = `${Math.floor(elapsed_sec / 60).toString().padStart(2,'0')}:${(elapsed_sec % 60).toString().padStart(2,'0')}`
+
         const lines = [
+            "RESULT",
+            "",
+            `Final Score: ${GameState.score}`,
+            `Clear Time: ${this.elapsed_time_text}`,
+            "",
+            "",
             "Epilogue",
             "",
             "Elio lost his family by endorsing the AI’s correct judgment.",
@@ -104,6 +128,10 @@ export class GameClearScene extends Scene {
         this.scroll_text = new ScrollText(this.ui, this.scene);
         this.scroll_text.play(lines, () => {this.asset.bgm.epilogue.fadeOut();}, () => {this.goto_title();}, 3000);
         // this.scroll_text.play(lines);
+
+        // ◆情報雨
+        this.information_rain = new InformationRain(this.scene);
+        this.information_rain.create();
         // Sound
         this.asset.bgm.epilogue.play(true);
     }
@@ -119,6 +147,14 @@ export class GameClearScene extends Scene {
         if (this.my_input){
             this.my_input.update(time, delta);
         }
+
+        // 画像透明度の周期的変化
+        const speed = 0.5; // 揺れの速さ（Hz）
+        this.image_alpha_count += delta;
+        this.image.alpha = 0.3 - 0.3 * Math.cos(this.image_alpha_count / 1000 * speed);
+
+        this.information_rain.update(time, delta);
+
         super.update();
     }
 
@@ -148,5 +184,111 @@ export class GameClearScene extends Scene {
             this.asset = null;
         }
         super.dispose();
+    }
+}
+
+class InformationRain {
+    constructor(scene) {
+        this.scene = scene;
+        this.matrices = null;
+    }
+
+    create() {
+        const scene = this.scene;
+
+        // 基本パラメータ
+        this.count = 5000;           // 本数
+        this.areaX = 20;
+        this.areaZ = 20;
+        this.yTop = 8;
+        this.yBottom = -12;
+
+        // 極細Box（１本だけ作成）
+        const mesh = BABYLON.MeshBuilder.CreateBox(
+            "infoLine",
+            { width: 0.01, depth: 0.01, height: 1 },
+            scene
+        );
+
+        mesh.visible = true;
+        // mesh.setEnabled(false);
+
+        // マテリアル
+        const mat = new BABYLON.PBRMaterial("infoLineMat", scene);
+        mat.emissiveColor = new BABYLON.Color3(0.2, 0.5, 1.0); // 水色
+        mat.albedoColor = BABYLON.Color3.Black();
+        mat.metallic = 0.0;
+        mat.roughness = 1.0;
+
+        mesh.material = mat;
+
+        // thin instance バッファ
+        this.matrices = new Float32Array(this.count * 16);
+
+        // 各線のパラメータを保持
+        this.lines = [];
+
+        for (let i = 0; i < this.count; i++) {
+            const x = (Math.random() - 0.5) * this.areaX;
+            const y = Math.random() * (this.yTop - this.yBottom) + this.yBottom;
+            const z = - Math.random() * this.areaZ;
+
+            const length = 0.2 + Math.random() * 0.6;
+            const speed = 0.3 + Math.random() * 0.7;
+
+            this.lines.push({ x, y, z, speed, length });
+
+            const m = BABYLON.Matrix.Compose(
+                new BABYLON.Vector3(1, length, 1),
+                BABYLON.Quaternion.Identity(),
+                new BABYLON.Vector3(x, y, z)
+            );
+
+            m.copyToArray(this.matrices, i * 16);
+        }
+
+        mesh.thinInstanceSetBuffer("matrix", this.matrices, 16, false);
+        this.mesh = mesh;
+
+        // Glow
+        this.glow = new BABYLON.GlowLayer("glow", scene);
+        this.glow.intensity = 0.8;
+    }
+
+    update(time, delta) {
+        if (!this.mesh) return;
+
+        const dt = delta / 1000;
+
+        for (let i = 0; i < this.count; i++) {
+            const base = i * 16;
+            const line = this.lines[i];
+
+            line.y -= line.speed * dt;
+            if (line.y < this.yBottom) {
+                line.y = this.yTop;
+            }
+
+            const depthFactor = BABYLON.Scalar.Clamp(
+                1.0 - line.z / this.areaZ,
+                0.2,
+                1.0
+            );
+
+            const m = BABYLON.Matrix.Compose(
+                new BABYLON.Vector3(1, line.length * depthFactor, 1),
+                BABYLON.Quaternion.Identity(),
+                new BABYLON.Vector3(line.x, line.y, line.z)
+            );
+            m.copyToArray(this.matrices, base);
+        }
+
+        this.mesh.thinInstanceBufferUpdated("matrix");
+    }
+
+    dispose(){
+        if (this.mesh){
+            this.mesh.dispose();
+        }
     }
 }

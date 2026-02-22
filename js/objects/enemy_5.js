@@ -5,9 +5,7 @@ import { EnemyAero } from "./base_enemy_aero.js";
 import { ENEMY_STATE } from "./base_enemy.js";
 
 
-const SHOT_COOLDOWN = 5; // 射出間隔
-const SHOT_SPEED = 0.1; // 射出速度
-const SHOT_RADIUS = 1.5; // 射出位置（中心からの距離）
+const SHOT_COOLDOWN = 10; // 射出間隔
 
 // 大目玉
 export class Enemy_5 extends EnemyAero {
@@ -19,6 +17,7 @@ export class Enemy_5 extends EnemyAero {
         this.mass = 2.0;
         this.hp_max = this.hp = 280;
         this.recovery_point = 200;
+        this.params.drops=[{ id: "Item_Feed", weight: 100 }];
 
         this.damage_back_weakness = 8.0;
 
@@ -49,10 +48,9 @@ export class Enemy_5 extends EnemyAero {
         super.create(type);
     }
 
-    shot(direction){
-        const spawnPosition = this.mesh.position.add(direction.scale(SHOT_RADIUS));
-        const enemy = GameState.spawn.spawn_enemy("Enemy_6", spawnPosition);
-        enemy.add_impulse(direction.scale(SHOT_SPEED));
+    spawn_child(){
+        const enemy = GameState.spawn.spawn_enemy("Enemy_6", this.mesh.position);
+        enemy.set_parent(this);
     }
 
     update(time, delta){
@@ -62,7 +60,7 @@ export class Enemy_5 extends EnemyAero {
             if (this.shot_cooldown < 0){
                 this.shot_cooldown = SHOT_COOLDOWN;
                 // 射出
-                this.shot(this.get_forward_vector());
+                this.spawn_child();
             }
         }
         super.update(time, delta);

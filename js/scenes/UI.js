@@ -143,7 +143,7 @@ export class UI {
         this.numOfEnemiesText.text = `Enemies: ${GameState.enemies.length} / ${GameState.num_enemies}`;
         this.numOfItemsText.text = `Items: ${GameState.items.length - 1} / ${GameState.num_items}`;  // Item_goal は除外
         this.numOfGimmicksText.text = `Gimmicks: ${GameState.gimmicks.length} / ${GameState.num_gimmicks}`;
-        const elapsed_sec = Math.floor((time - GameState.start_time) / 1000);
+        const elapsed_sec = Math.floor(GameState.elapsed_time / 1000);
         this.elapsedText.text = `Elapsed: ${Math.floor(elapsed_sec / 60).toString().padStart(2,'0')}:${(elapsed_sec % 60).toString().padStart(2,'0')}`
 
         this.minimap.update(time, delta);

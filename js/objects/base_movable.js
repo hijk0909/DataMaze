@@ -7,6 +7,7 @@ export class Movable extends Drawable {
     constructor(scene){
         super(scene);
         this.radius = 0.5; //衝突判定用の半径
+        this.isCollidable = true;
         this.mass = 1.0;
 
         this.control_velocity = new BABYLON.Vector3(0, 0, 0);

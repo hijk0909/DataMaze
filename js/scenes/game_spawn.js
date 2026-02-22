@@ -255,14 +255,14 @@ export class Spawn {
 
         // [ITEM] アイテム
         if (GameState.stageInfo.items){
-            for (const enemy of GameState.stageInfo.items){
-                const {className, num} = enemy;
+            for (const item of GameState.stageInfo.items){
+                const {className, num} = item;
                 this.spawn_items_from_array(className, num, available_positions, used_positions);
             }
         }
 
         // [PROP] 小道具
-        // console.log("[PROP] available_positions", available_positions);
+        // console.log("[PROP] available_positions", available_positions, available_positions.length);
         if (GameState.stageInfo.props){
             for (const prop of GameState.stageInfo.props){
                 const {className, num} = prop;

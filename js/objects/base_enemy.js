@@ -33,6 +33,8 @@ export class Enemy extends Movable {
         // 状態視覚効果
         this.state_effects = new StateEffectController(this);
 
+        this.parent;
+
         // [DEBUG] 当たり判定の可視化
         this.debugEllipsoid = null;
 
@@ -135,6 +137,10 @@ export class Enemy extends Movable {
         });
     }
 
+    set_parent(parent){
+        this.parent = parent;
+    }
+
     // 状態遷移
     change_state(nextState){
         if (this.current_state) {
@@ -206,6 +212,7 @@ export class Enemy extends Movable {
     on_chase_update(state, time, delta){}
     on_charge_update(state, time, delta){}
     on_idle_update(state, time, delta){}
+    on_free_update(state, time, delta){}
 
     on_chase_timeout(state){}
     on_idle_timeout(state){}
@@ -549,6 +556,7 @@ class FreeState extends EnemyState {
         enemy.on_free_enter(this);
     }
     update(enemy, time, delta) {
+        enemy.on_free_update(this, time, delta);
     }
 
     exit(enemy){

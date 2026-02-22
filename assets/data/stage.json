@@ -38,8 +38,8 @@
       "bgm": "bgm_main",
       "battery": true,
       "enemies": [
-        { "className":"Enemy_7", "num":8},
         { "className":"Enemy_7", "num":1, "type":"drop_key"},
+        { "className":"Enemy_7", "num":8},
         { "className":"Enemy_2", "num":5},
         { "className":"Enemy_1", "num":3},
         { "className":"Enemy_3", "num":2}
@@ -67,11 +67,11 @@
       "bgm": "bgm_middle",
       "battery": false,
       "enemies": [
+        { "className":"Enemy_3", "num":1,  "type":"drop_battery"},
+        { "className":"Enemy_3", "num":4},
         { "className":"Enemy_7", "num":5}, 
         { "className":"Enemy_2", "num":8},
         { "className":"Enemy_1", "num":3},
-        { "className":"Enemy_3", "num":4},
-        { "className":"Enemy_3", "num":1,  "type":"drop_battery"},
         { "className":"Enemy_4", "num":2}
       ],
       "items":[
@@ -148,30 +148,27 @@
     },
     {
       "stage": 6,
-      "num_room": 8,
+      "num_room": 4,
       "corridor_texture": 3,
       "room_texture": 3,
       "bgm": "bgm_deep",
       "battery": false,
       "enemies": [
-        { "className":"Enemy_7", "num":10},
-        { "className":"Enemy_2", "num":8},
-        { "className":"Enemy_4", "num":10},
-        { "className":"Enemy_1", "num":5},
-        { "className":"Enemy_3", "num":5},
-        { "className":"Enemy_5", "num":1},
-        { "className":"Enemy_8", "num":7},
-        { "className":"Enemy_8", "num":1, "type":"drop_battery"}
+        { "className":"Enemy_8", "num":1, "type":"drop_battery"},
+        { "className":"Enemy_5", "num":3},
+        { "className":"Enemy_4", "num":4},
+        { "className":"Enemy_3", "num":4},
+        { "className":"Enemy_1", "num":2},
+        { "className":"Enemy_8", "num":3}
       ],
       "items":[
         { "className":"Item_Box", "num":3},
         { "className":"Item_Key", "num":3},
-        { "className":"Item_Feed", "num":5},
         { "className":"Item_Fluxcore", "num":10}
       ],
       "props":[
-        { "className":"Prop_Mask", "num":15},
-        { "className":"Prop_Ego", "num":15}
+        { "className":"Prop_Ego", "num":5},
+        { "className":"Prop_Mask", "num":5}
       ],
       "gimmicks":[
         { "className":"Gimmick_Diamond", "num":15},
@@ -186,9 +183,9 @@
       "bgm": "bgm_zero",
       "battery": false,
       "enemies": [
+        { "className":"Enemy_9", "num":1, "type":"drop_battery"},
         { "className":"Enemy_3", "num":1},
-        { "className":"Enemy_5", "num":1},
-        { "className":"Enemy_9", "num":1, "type":"drop_battery"}
+        { "className":"Enemy_5", "num":1}
       ],
       "items":[
         { "className":"Item_Box", "num":1},

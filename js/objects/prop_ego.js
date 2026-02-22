@@ -61,6 +61,8 @@ export class Prop_Ego extends Prop {
             shaderMaterial.setFloat("time", t);
             shaderMaterial.setVector3("cameraPosition", GameState.camera.position);
         });
+
+        this.mesh = mesh;
         super.create();
     }
 

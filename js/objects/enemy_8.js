@@ -21,7 +21,7 @@ export class Enemy_8 extends EnemyGeo {
         this.hp_max = this.hp = 60;
         this.recovery_point = 120;
 
-        this.params.speed.chase = 0.1;
+        this.params.speed.chase = 0.03;
         this.params.speed.accel = 0.03;
         this.params.anger.is_valid = false;
         this.params.confuse.is_valid = false;
@@ -135,7 +135,7 @@ export class Enemy_8 extends EnemyGeo {
         // 4方向すべて NG → 何もしない
     }
 
-    update(time, delta){
+    on_free_update(state, time, delta){
         const toTarget = this.target_pos.subtract(this.mesh.position);
         const dir = toTarget.clone().normalize();
         this.control_velocity.addInPlace(dir.scale(this.params.speed.accel));
@@ -150,7 +150,9 @@ export class Enemy_8 extends EnemyGeo {
                 this.change_target_left();
             }
         }
+    }
 
+    update(time, delta){
         super.update(time, delta);
     }
 

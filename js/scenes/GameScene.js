@@ -99,8 +99,8 @@ export class GameScene extends Scene {
         // シーン内の当たり判定の有効化
         scene.collisionsEnabled = true;
 
-        // ゲーム開始時刻の記録
-        GameState.start_time = Date.now();
+        // 経過時間のクリア
+        GameState.elapsed_time = 0;
 
         // UI画面の生成
         GameState.ui_manager = new UI(this.scene);
@@ -174,6 +174,8 @@ export class GameScene extends Scene {
             }
         } else if (GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
             // ◆プレイ中
+            GameState.elapsed_time += delta;
+            // console.log("elapsed:",GameState.elapsed_time);
             if (GameState.player && GameState.player.hp <= 0){
                 GameState.player.alive = false;
                 GameState.player.mesh.checkCollisions = false;
@@ -271,9 +273,9 @@ export class GameScene extends Scene {
         if (GameState.inputKey && GameState.inputKey["o"]){
             this.game.sceneManager.changeScene(new GameOverScene(this.game));
         }
-        if (GameState.inputKey && GameState.inputKey["c"]){
-            this.game.sceneManager.changeScene(new GameClearScene(this.game));
-        }
+        // if (GameState.inputKey && GameState.inputKey["c"]){
+        //     this.game.sceneManager.changeScene(new GameClearScene(this.game));
+        // }
 
         // 空の時間経過（消去予定）
         // this.sky_time += this.sky_speed * delta / 1000;

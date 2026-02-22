@@ -43,7 +43,7 @@ export const GameState = {
     num_items : 0, // 生成されたアイテムの総数
     num_props : 0, // 生成された小道具の総数
     num_gimmicks : 0, //生成されたギミックの総数
-    start_time : 0, //ゲーム開始時の時刻
+    elapsed_time : 0, //経過時間
 
     // キャラクター
     player : null,

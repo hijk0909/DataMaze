@@ -6,7 +6,7 @@ import { Item } from "./base_item.js";
 import { Eff_Text } from './eff_text.js';
 
 const DISP_SCALE = 0.5;
-const FLUX_PERIOD = 3.0;
+const FLUX_PERIOD = 1.66; // 変化の周期
 
 const FLUX_STATE_FEED = 0;
 const FLUX_STATE_MASS = 1;

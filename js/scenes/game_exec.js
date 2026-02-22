@@ -54,8 +54,10 @@ export class Exec {
         // 敵同士の当たり判定
         for (let i = 0; i < GameState.enemies.length - 1; i++){
             const obj1 = GameState.enemies[i];
+            if (!obj1.isCollidable) continue;
             for (let j = i + 1; j < GameState.enemies.length; j++){
                 const obj2 = GameState.enemies[j];
+                if (!obj2.isCollidable) continue;
                 this.check_collision(obj1, obj2);
             }
         }
@@ -108,6 +110,8 @@ export class Exec {
                     const eff_ext = new Eff_Extinction(this.scene);
                     eff_ext.create(gimmick.mesh.position);
                     GameState.effects.push(eff_ext);
+
+                    GameState.asset.se.break.play_3D(gimmick, this.scene); // 3D音声
 
                     gimmick.shot();
                 }

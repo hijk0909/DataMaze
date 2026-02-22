@@ -210,6 +210,10 @@ export class GameAsset extends Asset {
             "extinctionSprites", "./assets/textures/extinction.png", 100, { width: 64, height: 64 }, this.scene);
         this.sprite.extinction.renderingGroupId = 1;
 
+        this.sprite.injection = new BABYLON.SpriteManager(
+            "injectionSprites", "./assets/textures/injection.png", 100, { width: 64, height: 64 }, this.scene);
+        this.sprite.injection.renderingGroupId = 1;
+
         this.sprite.bullet = new BABYLON.SpriteManager(
             "bulletSprites", "./assets/textures/bullet.png", 100, { width: 64, height: 64 }, this.scene);
 
@@ -243,8 +247,14 @@ export class GameAsset extends Asset {
         this.se.explosion = await MyAudio.load( "./assets/audio/se/se_explosion.mp3" );
         this.se.explosion.setVolume(0.4);
 
+        this.se.injection = await MyAudio.load( "./assets/audio/se/se_injection.mp3" );
+        this.se.injection.setVolume(0.5);
+
         this.se.collision = await MyAudio.load( "./assets/audio/se/se_collision.mp3" );
         this.se.collision.setVolume(0.2);
+
+        this.se.break = await MyAudio.load( "./assets/audio/se/se_break.mp3" );
+        this.se.break.setVolume(0.4);
 
         this.se.thunder = await MyAudio.load( "./assets/audio/se/se_thunder.mp3" );
         this.se.thunder.setVolume(0.4);
