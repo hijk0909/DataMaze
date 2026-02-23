@@ -930,18 +930,12 @@ class HpBar {
         this.hpFrame.isVisible = true;
         this.hpFill.isVisible = true;
 
-        let x = screen_pos.x;
-        let y = screen_pos.y;
-
-        const iw = GameState.ui_manager.ui.idealWidth;
-        const ih = GameState.ui_manager.ui.idealHeight;
-        const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-        x = clamp(x, HP_BAR_WIDTH  + HP_BAR_PADDING, iw - HP_BAR_WIDTH - HP_BAR_PADDING);
-        y = clamp(y, HP_BAR_HEIGHT + HP_BAR_PADDING, ih - HP_BAR_HEIGHT- HP_BAR_PADDING);
+        const {left, top} = MyMath.clamp_ui_object(screen_pos.x - HP_BAR_WIDTH / 2, screen_pos.y - HP_BAR_HEIGHT / 2,
+             HP_BAR_PADDING, HP_BAR_PADDING, HP_BAR_WIDTH, HP_BAR_HEIGHT);
 
         // 外枠の位置
-        this.hpFrame.left = x - HP_BAR_WIDTH / 2;
-        this.hpFrame.top = y - HP_BAR_HEIGHT / 2;
+        this.hpFrame.left = left;
+        this.hpFrame.top = top;
 
         // 残り HP 比率
         const ratio = enemy.hp / enemy.hp_max;

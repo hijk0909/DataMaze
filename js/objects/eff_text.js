@@ -42,7 +42,8 @@ export class Eff_Text extends Effect {
         // console.log("eff_text:screen_pos_z", screen_pos.z);
         if (screen_pos.z < 0.3 || screen_pos.z > 1.0){
                 x = GLOBALS.UI.WIDTH / 2;
-                y = GLOBALS.UI.HEIGHT / 2;
+                // 現在のブラウザの縦幅の半分の位置を、UIスケールに変換
+                y = GameState.game.engine.getRenderHeight() / 2 / MyMath.get_ui_scale();
         }
         MyDraw.set_text_position(tobj, x, y);
         GameState.ui_manager.ui.addControl(tobj);

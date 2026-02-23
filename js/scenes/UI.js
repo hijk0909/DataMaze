@@ -2,12 +2,17 @@
 import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { MyMath } from '../utils/MathUtils.js';
-import { MyDraw } from '../utils/DrawUtils.js';
+import { MyDraw, ScrollMessage } from '../utils/DrawUtils.js';
 
 const FONT_SIZE = 48;
 const FONT_HEIGHT = "52px";
 const FONT_SPACING = 4;
-const FONT_MSG_SIZE = 64;
+
+const MSG_FONT_SIZE = 80;
+const MSG_OFFSET_Y = -100;
+
+const STAGE_TITLE_FONT_SIZE = 64;
+const STAGE_TITLE_OFFSET_Y = 100;
 
 const BAG_FONT_SIZE = 48;
 const BAG_FONT_HEIGHT = "52px";
@@ -15,8 +20,6 @@ const BAG_FONT_COLOR = "white";
 const BAG_FONT_SPACING = 4;
 
 const BLINK_PERIOD = 2.0
-
-const MSG_OFFSET_Y = -100;
 
 export class UI {
     constructor(scene) {
@@ -36,6 +39,8 @@ export class UI {
         this.scoreText = null;
         this.hpText = null;
         this.massText = null;
+
+        this.scroll_message = new ScrollMessage(this.ui, scene);
 
         this.create();
     }
@@ -86,21 +91,38 @@ export class UI {
         // ◆ ステータスメッセージ
         let tobj = new BABYLON.GUI.TextBlock();
         tobj.alpha = 0.0;
-        tobj.fontSize = FONT_MSG_SIZE;
+        tobj.fontSize = MSG_FONT_SIZE;
         this.ui.addControl(tobj);
         this.statusMessageText = tobj;
+
+        tobj = new BABYLON.GUI.TextBlock();
+        tobj.alpha = 0.0;
+        tobj.fontSize = STAGE_TITLE_FONT_SIZE;
+        this.ui.addControl(tobj);
+        this.stageTitleText = tobj;
     }
 
     show_status_message(str, color="#ffffff"){
         this.statusMessageText.text = str;
         this.statusMessageText.color = color;
         this.statusMessageText.fontFamily = "MyGameFont";
-        this.statusMessageText.fontSize = 80;
+        this.statusMessageText.fontSize = MSG_FONT_SIZE;
         MyDraw.set_text_center(this.statusMessageText, 0, MSG_OFFSET_Y);
     }
 
     hide_status_message(){
         this.statusMessageText.alpha = 0.0;
+    }
+
+    show_stage_title(str, color="#ffff00"){
+        this.stageTitleText.text = str;
+        this.stageTitleText.color = color;
+        this.stageTitleText.fontsize = STAGE_TITLE_FONT_SIZE;
+        MyDraw.set_text_center(this.stageTitleText, 0, STAGE_TITLE_OFFSET_Y);
+    }
+
+    hide_stage_title(){
+        this.stageTitleText.alpha = 0.0;
     }
 
     add_item(name) {
@@ -129,6 +151,10 @@ export class UI {
         return this.bag.find(name);
     }
 
+    add_messages(texts, color){
+        this.scroll_message.add_texts(texts, color);
+    }
+
     update(time, delta){
         this.scoreText.text = `SCORE: ${GameState.score}`;
         if (GameState.player){
@@ -148,6 +174,7 @@ export class UI {
 
         this.minimap.update(time, delta);
         this.bag_blink.update(time, delta);
+        this.scroll_message.update(time, delta);
     }
 
     dispose(){
@@ -172,6 +199,10 @@ export class UI {
             this.status_message = null;
         }
         this.minimap.dispose();
+        if (this.scroll_message){
+            this.scroll_message.dispose();
+            this.scroll_message = null;
+        }
         this.ui.dispose();
     }
 } // End of UI

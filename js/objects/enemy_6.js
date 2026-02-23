@@ -9,8 +9,8 @@ const DISP_SCALE = 0.2;
 
 const SHOT_SPEED = 0.1; // 射出速度
 const SHOT_RADIUS = 1.5; // 射出位置（中心からの距離）
-const SPAWN_PERIOD = 6.0;
-const WAIT_PERIOD_RATIO = 0.9;
+const SPAWN_PERIOD = 2.0; // 表面に出てくる
+const READY_PERIOD = 2.0; // 表面に付着
 const CHASE_PERIOD = 1.0;
 const IDLE_PERIOD = 10.0;
 
@@ -55,26 +55,37 @@ export class Enemy_6 extends EnemyAero {
 
 
     on_free_enter(state){
+        this.spawn_state = 0;
         this.spawn_count = 0;
     }
     on_free_update(state, time, delta){
         if (this.parent && this.parent.isAlive()){
-            const t = this.spawn_count / SPAWN_PERIOD;
-            const radius = t > WAIT_PERIOD_RATIO ? SHOT_RADIUS : t * SHOT_RADIUS * (1 / WAIT_PERIOD_RATIO); 
-            this.mesh.position = this.parent.mesh.position.add(this.parent.get_forward_vector().scale(radius));
-            this.spawn_count += delta / 1000;
-            if (this.spawn_count > SPAWN_PERIOD){
-                this.mesh.checkCollisions = true;
-                this.isCollidable = true;
-                this.add_impulse(this.parent.get_forward_vector().scale(SHOT_SPEED));
-                this.change_state(ENEMY_STATE.CHASE);
+            let radius = SHOT_RADIUS;
+            if (this.spawn_state === 0){
+                // ニュッと出てくる段階
+                this.spawn_count += delta / 1000;
+                radius = BABYLON.Scalar.Lerp(SHOT_RADIUS * 0.45, SHOT_RADIUS, this.spawn_count / SPAWN_PERIOD);
+                if (this.spawn_count > SPAWN_PERIOD){
+                    this.spawn_state = 1;
+                    this.spawn_count = 0;
+                }
+            } else if (this.spawn_state === 1){
+                // 表面に張りついて射出を待つ段階
+                this.spawn_count += delta / 1000;
+                if (this.spawn_count > READY_PERIOD){
+                    this.mesh.checkCollisions = true;
+                    this.isCollidable = true;
+                    this.add_impulse(this.parent.get_forward_vector().scale(SHOT_SPEED));
+                    this.change_state(ENEMY_STATE.CHASE);
 
-                const eff = new Eff_Injection(this.scene);
-                eff.create(this.mesh.position);
-                GameState.effects.push(eff);
+                    const eff = new Eff_Injection(this.scene);
+                    eff.create(this.mesh.position);
+                    GameState.effects.push(eff);
 
-                GameState.asset.se.injection.play_3D(this, this.scene);
+                    GameState.asset.se.injection.play_3D(this, this.scene);
+                }
             }
+            this.mesh.position = this.parent.mesh.position.add(this.parent.get_forward_vector().scale(radius));
         } else {
             this.change_state(ENEMY_STATE.CHASE);
         }

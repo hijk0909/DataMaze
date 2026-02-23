@@ -147,6 +147,7 @@ export class GameScene extends Scene {
             GameState.ui_manager.minimap.create();
             // [STATUS_MSG]
             GameState.ui_manager.show_status_message(`GET READY\nSTAGE ${GameState.stage}`);
+            GameState.ui_manager.show_stage_title(`${GameState.stageInfo.title}`);
             // [WIPE]
             this.wipe.wipe_in(3000);
             // [SOUND]
@@ -158,6 +159,8 @@ export class GameScene extends Scene {
             }
             GameState.bgm = BgmLists[GameState.stageInfo.bgm];
             GameState.asset.jingle.stagestart.play(false);
+            // メッセージ
+            GameState.ui_manager.add_messages(GameState.stageInfo.messages,"#00ff00");
             // [TRANSIT]
             this.stage_state_count = 2.5;
             GameState.stage_state = GLOBALS.STAGE_STATE.STARTING;
@@ -169,6 +172,7 @@ export class GameScene extends Scene {
                 GameState.stage_state = GLOBALS.STAGE_STATE.PLAYING;
                 // [STATUS_MSG]
                 GameState.ui_manager.hide_status_message();
+                GameState.ui_manager.hide_stage_title();
                 // [SOUND]
                 GameState.bgm.play(true);
             }
