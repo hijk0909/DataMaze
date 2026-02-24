@@ -26,6 +26,7 @@ export class Enemy_1 extends EnemyAero {
 
     create(position, id, type=null){
 
+        this.id = id;
         const container = GameState.asset.mesh.enemy_1;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_1_${id}` );
 

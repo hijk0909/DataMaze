@@ -22,6 +22,7 @@ export class Enemy_7 extends EnemyGeo {
 
     create(position, id, type=null){
 
+        this.id = id;
         // メッシュ
         const container = GameState.asset.mesh.enemy_7;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_7_${id}` );

@@ -2,8 +2,8 @@
 
 export const GLOBALS = {
 
-    VERSION : "0.9a",
-    DATE : "2026.2.23",
+    VERSION : "0.9b",
+    DATE : "2026.2.24",
 
     MASK_UI : 0x10000000,
     UI : {
@@ -96,9 +96,11 @@ export const GLOBALS = {
             MIN : 0.8,
             MAX : 1.2
         },
-        IMPULSE_VELOCITY_RATIO : 1.0,
+        OVERLAP_REPULSION_COEFFICIENT : 1.3,
+        IMPULSE_VELOCITY_RATIO : 1.4,
         CONTROL_LOSS_THRESHOLD : 0.1,
-        MAX_EXTERNAL_VELOCITY : 0.8
+        MAX_EXTERNAL_VELOCITY : 0.5,
+        MAX_REPULSE_VELOCITY : 0.5
     },
 
     ITEM : {

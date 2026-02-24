@@ -272,6 +272,9 @@ export class GameAsset extends Asset {
         // console.log("音声読み込み完了");
         GameState.game.sceneManager.add_progress(0.2);
 
+        // ■ イメージデータ
+        this.image.reticle = new BABYLON.GUI.Image("reticle", "./assets/textures/reticle.png");
+
         // ■　ステージデータ
         await this.load_stage_data();
         GameState.game.sceneManager.add_progress(0.05);

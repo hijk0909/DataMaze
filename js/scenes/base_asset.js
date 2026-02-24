@@ -14,6 +14,7 @@ export class Asset {
         this.se = {};
         this.jingle = {};
         this.data = {};
+        this.image = {};
     }
 
     delay(ms) {
@@ -24,7 +25,7 @@ export class Asset {
     }
 
     dispose(){
-        for (const group of [this.mesh, this.texture, this.sprite, this.container, this.bgm, this.se, this.jingle, this.data]) {
+        for (const group of [this.mesh, this.texture, this.sprite, this.container, this.bgm, this.se, this.jingle, this.data, this.image]) {
             for (const key in group){
                 const object = group[key];
                 if (object){

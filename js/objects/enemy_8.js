@@ -35,7 +35,6 @@ export class Enemy_8 extends EnemyGeo {
     create(position, id, type=null){
 
         this.id = id;
-
         // メッシュ
         const container = GameState.asset.mesh.enemy_8;
         const inst = container.instantiateModelsToScene( (name) => `${name}_enemy_8_${id}` );
@@ -70,7 +69,7 @@ export class Enemy_8 extends EnemyGeo {
             }
         }
 
-        this.delta_y = 0.3;
+        this.delta_y = 0.15;
 
         super.create(type);
 

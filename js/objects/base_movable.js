@@ -2,6 +2,8 @@
 import { GLOBALS } from '../GameConst.js';
 import { Drawable } from "./base_drawable.js";
 
+const TMP_MATRIX = new BABYLON.Matrix();
+
 export class Movable extends Drawable {
 
     constructor(scene){
@@ -12,6 +14,7 @@ export class Movable extends Drawable {
 
         this.control_velocity = new BABYLON.Vector3(0, 0, 0);
         this.external_velocity = new BABYLON.Vector3(0, 0, 0);
+        this.repulse_velocity = new BABYLON.Vector3(0, 0, 0);
         this.velocity = new BABYLON.Vector3(0, 0, 0);
 
         this.hp = 100;
@@ -24,6 +27,7 @@ export class Movable extends Drawable {
         this.attack_magnification = 1.0; // 相手に与えるダメージの倍率
 
         this.wall_detector = new WallDetector(this);
+        this.oscilation_resolver = new OscillationResolver(this);
         this.is_wall_detecting = false;
         this.hit_wall = false;
     }
@@ -38,12 +42,30 @@ export class Movable extends Drawable {
     add_impulse(impulse){
         this.external_velocity.addInPlace(impulse.scale(1/this.mass * GLOBALS.MOVABLE.IMPULSE_VELOCITY_RATIO));
         if (this.external_velocity.length() > GLOBALS.MOVABLE.MAX_EXTERNAL_VELOCITY){
-            this.external_velocity.normalize().scale(GLOBALS.MOVABLE.MAX_EXTERNAL_VELOCITY);
+            this.external_velocity.normalize().scaleInPlace(GLOBALS.MOVABLE.MAX_EXTERNAL_VELOCITY);
         }
     }
 
-    add_overlap_impulse(impulse){
-        this.external_velocity.addInPlace(impulse);
+    add_overlap_impulse(impulse) {
+        // 微小なランダム回転を加える（5度〜10度の範囲）
+        // 物理的なデッドロックを崩すために、Y軸（上方向）を軸に少し回転
+        const randomAngle = (Math.random() * 10 + 5) * (Math.PI / 180);
+        const sign = Math.random() > 0.5 ? 1 : -1;
+        
+        // 回転用クォータニオンの作成
+        const rotation = BABYLON.Quaternion.RotationAxis(BABYLON.Axis.Y, randomAngle * sign);
+        rotation.toRotationMatrix(TMP_MATRIX);
+        // impulseをコピーして回転を適用
+        const jitteredImpulse = new BABYLON.Vector3(); 
+        BABYLON.Vector3.TransformNormalToRef(impulse, TMP_MATRIX, jitteredImpulse);
+
+        // 加工したベクトルを加算
+        this.repulse_velocity.addInPlace(jitteredImpulse);
+
+        // 最大速度のリミッター
+        if (this.repulse_velocity.length() > GLOBALS.MOVABLE.MAX_REPULSE_VELOCITY) {
+            this.repulse_velocity.normalize().scaleInPlace(GLOBALS.MOVABLE.MAX_REPULSE_VELOCITY);
+        }
     }
 
     add_damage(impulse, attack_magnification = 1.0){
@@ -122,6 +144,11 @@ export class Movable extends Drawable {
     }
 
     update(time, delta){
+        // [DEBUG]
+        if (!Number.isFinite(this.external_velocity.length())) {
+            console.error("NaN external_velocity", this.external_velocity.clone());
+        }
+
         // ダメージ処理
         this.update_damage(delta);
         // ダメージ無反応期間        
@@ -131,10 +158,16 @@ export class Movable extends Drawable {
         // 移動の実行
         const control_ratio = BABYLON.Scalar.Clamp(1 - this.external_velocity.length() / GLOBALS.MOVABLE.CONTROL_LOSS_THRESHOLD, 0, 1);
         this.velocity = this.control_velocity.clone().scale(control_ratio).add(this.external_velocity);
+        this.velocity = this.velocity.add(this.repulse_velocity);
 
         if (this.is_wall_detecting){ this.wall_detector.set_prev();}
         this.mesh.moveWithCollisions(this.velocity);
         if (this.is_wall_detecting){ this.hit_wall = this.wall_detector.check_hit();}
+        this.repulse_velocity.set(0,0,0);
+
+        // 振動解決
+        this.oscilation_resolver.detect(this.mesh.position);
+        this.oscilation_resolver.update(time, delta);
 
         super.update(time, delta);
     }
@@ -181,4 +214,50 @@ class WallDetector {
         } 
         return result;
     }
-}
+} // End of WallDetector
+
+// 振動の解決クラス
+class OscillationResolver {
+    constructor(movable){
+        this.movable = movable;
+        this.oscillation_count = 0;
+        this.prev_position = new BABYLON.Vector3(0, 0, 0);
+        this.prev_delta = new BABYLON.Vector3(0, 0, 0);
+        this.prev_isCollidable = true;
+        this.resolve_timer = 0;
+    }
+
+    detect(current_position){
+        const actual_delta = current_position.subtract(this.prev_position);
+        const dot = BABYLON.Vector3.Dot(this.prev_delta.normalize(), actual_delta.normalize());
+        if (dot < -0.7){
+            // console.log("[OSC] Delta Inversion Found");
+            this.oscillation_count++;
+            if (this.oscillation_count > 10){ //振動検出時間
+                this.set_resolver();
+            }
+        } else {
+            this.oscillation_count = Math.max(0, this.oscillation_count -1);
+        }
+        this.prev_position.copyFrom(current_position);
+        this.prev_delta.copyFrom(actual_delta);
+    }
+
+    set_resolver(){
+        this.resolve_timer = 10; //当たり判定無効化期間（フレーム）
+        this.oscillation_count = 0;
+        this.prev_isCollidable = this.isCollidable; //現在状態の退避
+        this.movable.isCollidable = false;
+        // console.log("[OSC] Oscillation Found");
+    }
+
+    update(time, delta){
+        if (this.resolve_timer > 0) {
+            this.resolve_timer--;
+            if (this.resolve_timer <= 0){
+                this.movable.isCollidable = this.movable.isCollidable || this.prev_isCollidable;
+                // console.log("[OSC] Oscilation Resolver Restored");
+            }
+        }
+    }
+} // End of OscilationResolver

@@ -29,9 +29,9 @@ export class Player extends Movable {
         this.decel = 0.94;
         this.yaw_speed = 0.0;
         this.yaw_speed_max = 0.04;
-        this.yaw_accel = 0.003;
-        this.yaw_decel = 0.94;
-        this.roll_max = 0.1;
+        this.yaw_accel = 0.005;
+        this.yaw_decel = 0.88;
+        this.roll_max = 0.07;
 
         this.dust_counter = 0;
         this.shake = new Shake();

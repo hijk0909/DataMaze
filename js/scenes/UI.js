@@ -100,6 +100,16 @@ export class UI {
         tobj.fontSize = STAGE_TITLE_FONT_SIZE;
         this.ui.addControl(tobj);
         this.stageTitleText = tobj;
+
+        // ◆レティクル
+        const reticle = GameState.asset.image.reticle;
+        reticle.width = "64px";
+        reticle.height = "64px";
+        reticle.alpha = 0.5;
+        reticle.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        reticle.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        reticle.isPointerBlocker = false;
+        this.ui.addControl(reticle);
     }
 
     show_status_message(str, color="#ffffff"){

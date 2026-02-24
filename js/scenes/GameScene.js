@@ -28,7 +28,7 @@ export class GameScene extends Scene {
         // Camera(main)
         const camera = new BABYLON.FreeCamera("FreeCam", new BABYLON.Vector3(0, 5, -8), this.scene);
         camera.inputs.clear();
-        camera.fov = 1.1; // 視野角
+        camera.fov = 1.3; // 視野角
         camera.minZ = 0.1;
         camera.attachControl(this.game.canvas, true);
         camera.layerMask &= ~GLOBALS.MASK_UI;
