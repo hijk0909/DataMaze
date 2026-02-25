@@ -3,6 +3,7 @@ import { GLOBALS } from '../GameConst.js';
 import { GameState } from "../GameState.js";
 import { Movable } from "./base_movable.js";
 import { MyMath } from "../utils/MathUtils.js";
+import { MyDraw } from "../utils/DrawUtils.js";
 
 const FLASH_TIME = 0.15; //秒
 
@@ -84,7 +85,12 @@ export class Enemy extends Movable {
                 { id: "Item_Feed", weight: 85 },
                 { id: "Item_Mass", weight: 10 },
                 { id: "Item_ShotPower", weight: 5 }
-            ]
+            ],
+            caption : {
+                id : "ENEMY:CLASS",
+                texts : ["ENEMY:CLASS","CAPTION"],
+                color : "#ffff00"
+            }
         };
     }
 
@@ -157,6 +163,7 @@ export class Enemy extends Movable {
         this.add_impulse(velocity.scale(this.params.damage.shot_knockback * mass));
         if (this.current_state.id === ENEMY_STATE.WAIT){
             this.change_state(ENEMY_STATE.CHASE); //寝た子を起こす
+            MyDraw.show_scroll_message_once(this.params.caption.texts, this.params.caption.color, this.params.caption.id);
         }
         this.count_attack(false);
     }
@@ -283,12 +290,13 @@ class WaitState extends EnemyState {
     }
     update(enemy, time, delta) {
         enemy.on_wait_update(this, time, delta);
-        // 自機がテリトリー内に来たら行動開始
+        // 自機がテリトリー内に来たら行動開始（寝た子を起こす）
         enemy.params.target_pos = GameState.player.mesh.position;
         const toPlayer = GameState.player.mesh.position
             .subtract(enemy.mesh.position);
         if (toPlayer.length()  <  enemy.params.territory && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
             enemy.change_state(ENEMY_STATE.CHASE);
+            MyDraw.show_scroll_message_once(enemy.params.caption.texts, enemy.params.caption.color, enemy.params.caption.id);
         }
     }
     exit(enemy){
@@ -444,6 +452,8 @@ class RushState extends EnemyState {
         enemy.is_wall_detecting = true;
         const toTarget = enemy.params.target_pos.subtract(enemy.mesh.position);
         this.dir = toTarget.clone().normalize();
+
+        GameState.asset.se.rush.play_3D(enemy, enemy.scene);
         // console.log("RushState.enter()");
     }
     update(enemy, time, delta) {

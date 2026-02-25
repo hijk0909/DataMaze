@@ -67,11 +67,23 @@ export class GameClearScene extends Scene {
         const elapsed_sec = Math.floor(GameState.elapsed_time / 1000);
         this.elapsed_time_text = `${Math.floor(elapsed_sec / 60).toString().padStart(2,'0')}:${(elapsed_sec % 60).toString().padStart(2,'0')}`
 
+        const formatPercentage = (a, b) => b ? `${((a / b) * 100).toFixed(1)}%` : '0.0%';
+
+        const result_enemy_defeated = GameState.result.enemy_total - GameState.result.enemy_missed;
+        const result_enemy_ratio = formatPercentage(result_enemy_defeated, GameState.result.enemy_total);
+        const result_item_collected = GameState.result.item_total - GameState.result.item_missed;
+        const result_item_ratio = formatPercentage(result_item_collected, GameState.result.item_total);
+        const result_gimmick_interacted = GameState.result.gimmick_total - GameState.result.gimmick_missed;
+        const result_gimmick_ratio = formatPercentage(result_gimmick_interacted, GameState.result.gimmick_total);
+
         const lines = [
             "RESULT",
             "",
             `Final Score: ${GameState.score}`,
             `Clear Time: ${this.elapsed_time_text}`,
+            `Enemy Defeated: ${result_enemy_defeated} / ${GameState.result.enemy_total} (${result_enemy_ratio})`,
+            `Item Collected: ${result_item_collected} / ${GameState.result.item_total} (${result_item_ratio})`,
+            `Gimmick Interacted: ${result_gimmick_interacted} / ${GameState.result.gimmick_total} (${result_gimmick_ratio})`,
             "",
             "",
             "Epilogue",

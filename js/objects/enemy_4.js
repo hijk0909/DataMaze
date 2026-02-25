@@ -17,6 +17,7 @@ export class Enemy_4 extends EnemyGeo {
         this.mass = 1.1;
         this.hp_max = this.hp = 300;
         this.recovery_point = 200;
+        this.score = 800;
 
         this.damage_back_weakness = 5.0;
         this.params.territory = 6.0;
@@ -28,6 +29,10 @@ export class Enemy_4 extends EnemyGeo {
         this.params.damage.shot_knockback = 8.0;
         this.params.anger.is_valid = false;
         this.params.confused_weakness = 12.0;
+
+        this.params.caption.texts = ["ENEMY : CHERUBIM","Quick movements are troublesome","but sometimes run away,","so try tackling from behind.",""];
+        this.params.caption.color = "#ffff00";
+        this.params.caption.id = "Enemy_4";
     }
 
     create(position, id, type=null){

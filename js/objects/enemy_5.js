@@ -5,7 +5,7 @@ import { EnemyAero } from "./base_enemy_aero.js";
 import { ENEMY_STATE } from "./base_enemy.js";
 
 
-const SHOT_COOLDOWN = 10; // 射出間隔
+const SHOT_COOLDOWN = 8; // 射出間隔
 
 // 大目玉
 export class Enemy_5 extends EnemyAero {
@@ -18,6 +18,7 @@ export class Enemy_5 extends EnemyAero {
         this.hp_max = this.hp = 280;
         this.recovery_point = 200;
         this.params.drops=[{ id: "Item_Feed", weight: 100 }];
+        this.score = 1000;
 
         this.damage_back_weakness = 8.0;
 
@@ -30,6 +31,10 @@ export class Enemy_5 extends EnemyAero {
 
         this.params.anger.is_valid = false;
         this.params.confuse.is_valid = false;
+
+        this.params.caption.texts = ["ENEMY : BIG EYE","High HP","No confusion",""];
+        this.params.caption.color = "#ffff00";
+        this.params.caption.id = "Enemy_5";
 
         this.shot_cooldown = 0;
     }
@@ -50,8 +55,13 @@ export class Enemy_5 extends EnemyAero {
     }
 
     spawn_child(){
-        const enemy = GameState.spawn.spawn_enemy("Enemy_6", this.mesh.position);
-        enemy.set_parent(this);
+        const toPlayerDistance = GameState.player.mesh.position
+            .subtract(this.mesh.position)
+            .length();
+        if (toPlayerDistance <= this.params.territory){
+            const enemy = GameState.spawn.spawn_enemy("Enemy_6", this.mesh.position);
+            enemy.set_parent(this);
+        }
     }
 
     update(time, delta){

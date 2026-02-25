@@ -4,13 +4,13 @@ import { GameState } from "../GameState.js";
 import { EnemyGeo } from "./base_enemy_geo.js";
 import { ENEMY_STATE } from "./base_enemy.js";
 
-const NUM_OUTER_CUBES = 17;
-const NUM_INNER_CUBES = 11;
+const NUM_OUTER_CUBES = 23;
+const NUM_INNER_CUBES = 17;
 
 const STATE_CHASE_PERIOD    = 3;
 const STATE_CHARGE_PERIOD   = 2;
 const STATE_THUNDER_PERIOD   = 2;
-const STATE_IDLE_PERIOD     = 5;
+const STATE_IDLE_PERIOD     = 3;
 
 // ラスボス
 export class Enemy_9 extends EnemyGeo {
@@ -19,8 +19,9 @@ export class Enemy_9 extends EnemyGeo {
         super(scene);
         this.radius = 0.6;
         this.mass = 3.0;
-        this.hp_max = this.hp = 500;
+        this.hp_max = this.hp = 800;
         this.recovery_point = 100;
+        this.score = 10000;
 
         this.params.territory = 2.0;
         this.params.damage.shot_knockback = 0.2;
@@ -34,13 +35,20 @@ export class Enemy_9 extends EnemyGeo {
         this.params.anger.thunder_damage = 5.0;
         this.params.idle.period = STATE_IDLE_PERIOD;
 
+        this.params.caption.texts = ["Ah...","Destroy...","...",""];
+        this.params.caption.color = "#ff0000";
+        this.params.caption.id = "Enemy_9";
+
         this.outer_cubes = [];
         this.inner_cubes = [];
         this.outer_dphi = 0;
         this.inner_dphi = 0;
         this.orbit_accel = 1.0;
+        this.orbit_accel_max = 1.0;
         this.orbit_expansion = 1.0;
+        this.orbit_expansion_max = 1.0;
         this.rotation_accel = 1.0;
+        this.rotation_accel_max = 1.0;
     }
 
     create(position, id, type=null){
@@ -156,11 +164,24 @@ export class Enemy_9 extends EnemyGeo {
     on_chase_enter(state){
         state.hasTimeout = true;
         state.timer = STATE_CHASE_PERIOD;
-        this.params.damage.shot_weakness = 0.1;
-        this.damage_magnification = 0.1;
-        this.orbit_expansion = 1.0;
-        this.orbit_accel = 1.0;
-        this.rotation_accel = 1.0;
+        this.params.damage.shot_weakness = 0.05;
+        this.damage_magnification = 0.05;
+        if (this.hp > this.hp_max * 0.5){
+            this.orbit_expansion_max = 1.0;
+            this.orbit_accel_max = 1.0;
+            this.rotation_accel_max = 1.0;
+            this.params.speed.chase_max = 0.005;
+            this.params.speed.accel_max = 0.001;
+        } else {
+            this.orbit_expansion_max = 1.3;
+            this.orbit_accel_max = 2.0;
+            this.rotation_accel_max = 2.5;
+            this.params.speed.chase = 0.03;
+            this.params.speed.accel = 0.005;
+        }
+        this.orbit_expansion = this.orbit_expansion_max;
+        this.orbit_accel = this.orbit_accel_max;
+        this.rotation_accel = this.rotation_accel_max;
     }
     on_chase_timeout(state){
         this.change_state(ENEMY_STATE.CHARGE);
@@ -175,9 +196,9 @@ export class Enemy_9 extends EnemyGeo {
     on_charge_update(state, time, delta){
         this.state_counter += delta / 1000;
         const r = Math.min(1.0, this.state_counter / STATE_CHARGE_PERIOD);
-        this.orbit_expansion = BABYLON.Scalar.Lerp(1.0, 0.0, r);
-        this.orbit_accel = BABYLON.Scalar.Lerp(1.0, 3.0, r);
-        this.rotation_accel = BABYLON.Scalar.Lerp(1.0, 5.0, r);
+        this.orbit_expansion = BABYLON.Scalar.Lerp(this.orbit_expansion_max, 0.0, r);
+        this.orbit_accel = BABYLON.Scalar.Lerp(this.orbit_accel_max, this.orbit_accel_max * 3.0, r);
+        this.rotation_accel = BABYLON.Scalar.Lerp(this.rotation_accel_max, this.rotation_accel_max * 5.0, r);
     }
     on_charge_timeout(state){
         this.change_state(ENEMY_STATE.THUNDER);        
@@ -191,9 +212,9 @@ export class Enemy_9 extends EnemyGeo {
     on_idle_update(state, time, delta){
         this.state_counter += delta / 1000;
         const r = Math.min(1.0, this.state_counter / STATE_IDLE_PERIOD);
-        this.orbit_expansion = BABYLON.Scalar.Lerp(0.0, 1.0, r);
-        this.orbit_accel = BABYLON.Scalar.Lerp(0.0, 1.0, r);
-        this.rotation_accel = BABYLON.Scalar.Lerp(0.0, 1.0, r);
+        this.orbit_expansion = BABYLON.Scalar.Lerp(0.0, this.orbit_expansion_max, r);
+        this.orbit_accel = BABYLON.Scalar.Lerp(0.0, this.orbit_accel_max, r);
+        this.rotation_accel = BABYLON.Scalar.Lerp(0.0, this.rotation_accel_max, r);
     }
 
     update(time, delta){

@@ -9,6 +9,7 @@ export class Gimmick_Diamond extends Gimmick {
 
     constructor(scene){
         super(scene);
+        this.score = 0;
     }
 
     create(pos, id){

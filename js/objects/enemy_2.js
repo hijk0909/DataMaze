@@ -15,6 +15,7 @@ export class Enemy_2 extends EnemyAero{
         this.mass = 0.4;
         this.hp_max = this.hp = 90;
         this.recovery_point = 75;
+        this.score = 200;
 
         this.params.territory = 6.0;
         this.params.speed.rotation = 3.0;
@@ -25,6 +26,10 @@ export class Enemy_2 extends EnemyAero{
         this.params.anger.thunder_period = 0.5;
         this.params.anger.thunder_area = 1.0;
         this.params.confused_weakness = 10.0;
+
+        this.params.caption.texts = ["ENEMY : BEE","Lightweight","Weak defenses against shot","Beware of THUNDER Attack!",""];
+        this.params.caption.color = "#ffff00";
+        this.params.caption.id = "Enemy_2";
     }
 
     create(position, id, type=null){

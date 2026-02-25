@@ -4,6 +4,7 @@ import { GameState } from "../GameState.js";
 import { EnemyGeo } from "./base_enemy_geo.js";
 import { ENEMY_STATE } from "./base_enemy.js";
 import { MyMath } from "../utils/MathUtils.js";
+import { MyDraw } from "../utils/DrawUtils.js";
 
 const DIR_UP    = 0;
 const DIR_RIGHT = 1;
@@ -20,16 +21,23 @@ export class Enemy_8 extends EnemyGeo {
         this.mass = 0.3;
         this.hp_max = this.hp = 60;
         this.recovery_point = 120;
+        this.score = 400;
 
         this.params.speed.chase = 0.03;
         this.params.speed.accel = 0.03;
         this.params.anger.is_valid = false;
         this.params.confuse.is_valid = false;
 
+        this.params.caption.texts = ["ENEMY : Will-o'-the-Wisp","Wandering along the walls of the maze",""];
+        this.params.caption.color = "#ffff00";
+        this.params.caption.id = "Enemy_8";
+
         this.id = null;
         this.target_cell = {x:0, y:0};
         this.target_pos = null;
         this.direction = DIR_UP;
+
+        this.scroll_message_flag = false;
     }
 
     create(position, id, type=null){
@@ -147,6 +155,16 @@ export class Enemy_8 extends EnemyGeo {
                 this.change_target_up()         
             } else {
                 this.change_target_left();
+            }
+        }
+
+        if (!this.scroll_message_flag){
+            const toPlayerDistance = GameState.player.mesh.position
+                .subtract(this.mesh.position)
+                .length();
+            if ( toPlayerDistance < 1.0){
+                MyDraw.show_scroll_message_once(this.params.caption.texts, this.params.caption.color, this.params.caption.id);
+                this.scroll_message_flag = true;
             }
         }
     }

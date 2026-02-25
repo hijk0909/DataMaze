@@ -13,6 +13,7 @@ export class Enemy_1 extends EnemyAero {
         this.mass = 0.9;
         this.hp_max = this.hp = 120;
         this.recovery_point = 100;
+        this.score = 300;
 
         this.params.territory = 5.0;
         this.params.speed.chase = 0.065;
@@ -22,6 +23,10 @@ export class Enemy_1 extends EnemyAero {
         this.params.confused_weakness = 8.0,
         this.params.anger.thunder_period = 1.5;
         this.params.anger.thunder_area = 3.0;
+
+        this.params.caption.texts = ["ENEMY : FLYING HED","Beware of powerful,","wide-area THUNDER attack",""];
+        this.params.caption.color = "#ffff00";
+        this.params.caption.id = "Enemy_1";
     }
 
     create(position, id, type=null){

@@ -145,9 +145,9 @@ export class Movable extends Drawable {
 
     update(time, delta){
         // [DEBUG]
-        if (!Number.isFinite(this.external_velocity.length())) {
-            console.error("NaN external_velocity", this.external_velocity.clone());
-        }
+        // if (!Number.isFinite(this.external_velocity.length())) {
+        //     console.error("NaN external_velocity", this.external_velocity.clone());
+        // }
 
         // ダメージ処理
         this.update_damage(delta);

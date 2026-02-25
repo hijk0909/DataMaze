@@ -37,7 +37,7 @@ export class Exec {
                 }
                 if (enemy.hp <= 0){
                     enemy.alive = false;
-                    GameState.add_score(1000);
+                    GameState.add_score(enemy.score);
                     const eff = new Eff_Firework(this.scene);
                     eff.create(enemy.mesh.position);
                     GameState.effects.push(eff);
@@ -87,7 +87,7 @@ export class Exec {
 
                     if (enemy.hp <= 0){
                         enemy.alive = false;
-                        GameState.add_score(1000);
+                        GameState.add_score(enemy.score);
                         const eff = new Eff_Firework(this.scene);
                         eff.create(enemy.mesh.position);
                         GameState.effects.push(eff);
@@ -104,6 +104,7 @@ export class Exec {
                 const gimmick = GameState.gimmicks[j];
                 if (this.check_hit(bullet.sprite.position, bullet.radius, gimmick.mesh.position, gimmick.radius)){
                     bullet.alive = false;
+                    GameState.add_score(gimmick.score);
 
                     const eff_ext = new Eff_Extinction(this.scene);
                     eff_ext.create(gimmick.mesh.position);

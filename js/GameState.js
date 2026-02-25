@@ -44,6 +44,7 @@ export const GameState = {
     num_props : 0, // 生成された小道具の総数
     num_gimmicks : 0, //生成されたギミックの総数
     elapsed_time : 0, //経過時間
+    scroll_message_flags : new Set(),
 
     // キャラクター
     player : null,
@@ -65,12 +66,23 @@ export const GameState = {
         shot_speed : 1,
         shot_power : 1
     },
-        
+
+    // 集計
+    result : {
+        enemy_total : 0,
+        enemy_missed : 0,
+        item_total : 0,
+        item_missed : 0,
+        gimmick_total : 0,
+        gimmick_missed : 0
+    },
+
     reset(){
         this.score = 0;
         this.stage = 1;
         this.bag = null; 
         this.spawn = null;
+        this.scroll_message_flags.clear();
         this.stage_state = GLOBALS.STAGE_STATE.START;
         this.player_stats.hp = GLOBALS.PLAYER_STATS.INIT.HP_MAX;
         this.player_stats.hp_max = GLOBALS.PLAYER_STATS.INIT.HP_MAX;
@@ -80,6 +92,12 @@ export const GameState = {
         this.player_stats.speed_max =  GLOBALS.PLAYER_STATS.INIT.SPEED_MAX;
         this.player_stats.shot_speed = GLOBALS.PLAYER_STATS.INIT.SHOT_SPEED;
         this.player_stats.shot_power = GLOBALS.PLAYER_STATS.INIT.SHOT_POWER;
+        this.result.enemy_total = 0;
+        this.result.enemy_missed = 0;
+        this.result.item_total = 0;
+        this.result.item_missed = 0;
+        this.result.gimmick_total = 0;
+        this.result.gimmick_missed = 0;
     },
 
     add_score(score){

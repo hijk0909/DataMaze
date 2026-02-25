@@ -59,7 +59,8 @@ export class Item_Box extends Item {
         GameState.add_score(100);
         let item = "item";
         let disp = `${item}`;
-        const r = Math.floor(Math.random()*3);
+        // const r = Math.floor(Math.random()*3);
+        const r = 2;
         if (r === 0){
             item = "HP Tank";
             GameState.ui_manager.add_item(item);
@@ -71,17 +72,9 @@ export class Item_Box extends Item {
             GameState.player.add_hp_delta(0.1);
             disp = `GET ${item}`;
         } else if (r === 2){
-            item = "Luck";
-            GameState.ui_manager.add_item(item);
+            item = "HP MAX";
+            GameState.player.hp = GameState.player.hp_max;
             disp = `GET ${item}`;
-        } else if (r === 3){
-            item = "Luck";
-            if (GameState.ui_manager.find_item(item)){
-                GameState.ui_manager.remove_item(item);
-                disp = `LOST ${item}`;
-            } else {
-                disp = "EMPTY";
-            }
         } else {
             disp = "ERROR";
         }

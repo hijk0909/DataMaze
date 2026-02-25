@@ -13,6 +13,7 @@ export class Enemy_3 extends EnemyGeo {
         this.mass = 1.1;
         this.hp_max = this.hp = 250;
         this.recovery_point = 200;
+        this.score = 500;
 
         this.damage_back_weakness = 8.0;
         this.params.damage.shot_knockback = 1.0;
@@ -23,6 +24,10 @@ export class Enemy_3 extends EnemyGeo {
         this.params.territory = 4.0;
         this.params.anger.rush_period = 3.0;
         this.params.confused_weakness = 10.0;
+
+        this.params.caption.texts = ["ENEMY : MINOTAUR","Alternate shots and tackles","to confuse, and then", "tackle them from behind",""];
+        this.params.caption.color = "#ffff00";
+        this.params.caption.id = "Enemy_3";
     }
 
     create(position, id, type=null){

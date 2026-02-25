@@ -24,6 +24,7 @@ export class Enemy_6 extends EnemyAero {
         this.mass = 0.5;
         this.hp_max = this.hp = 30;
         this.recovery_point = 30;
+        this.score = 80;
 
         this.params.speed.chase = 0.09;
         this.params.speed.accel = 0.004;
@@ -31,6 +32,10 @@ export class Enemy_6 extends EnemyAero {
 
         this.params.anger.is_valid = false;
         this.params.confuse.is_valid = false;
+
+        this.params.caption.texts = ["ENEMY : SMALL EYE","Born from a big eyeball.","Annoying...",""];
+        this.params.caption.color = "#ffff00";
+        this.params.caption.id = "Enemy_6";
 
         this.spawn_count = 0;
     }

@@ -3,7 +3,7 @@
     {
       "stage": 1,
       "title": "Dive into the DATA MAZE",
-      "messages" : ["This is Operator.","We have confirmed that", "your consciousness has been", "successfully injected into DATA MAZE.", "Best of luck."],
+      "messages" : ["This is Operator.","We have confirmed that", "your consciousness has been", "successfully injected into DATA MAZE.", "Best of luck.",""],
       "num_room": 9,
       "corridor_texture": 2,
       "room_texture": 2,
@@ -35,7 +35,7 @@
     {
       "stage": 2,
       "title": "Crossed lines",
-      "messages" : ["This is Operator.","Deployed a selectable item.", "Strengthen your abilities appropriately.", "Good luck."],
+      "messages" : ["This is Operator.","Deployed a selectable item.", "Strengthen your abilities appropriately.", "Good luck.",""],
       "num_room": 8,
       "corridor_texture": 2,
       "room_texture": 2,
@@ -66,7 +66,7 @@
     {
       "stage": 3,
       "title": "Latest Ancient",
-      "messages" : ["This is Operator.","Confirmation of the existence of", "a powerful enemy that has", "not been seen until now", "Proceed carefully,", "searching for their weaknesses."],
+      "messages" : ["This is Operator.","Confirmation of the existence of", "a powerful enemy that has", "not been seen until now", "Proceed carefully,", "searching for their weaknesses.",""],
       "num_room": 7,
       "corridor_texture": 1,
       "room_texture": 1,
@@ -98,7 +98,7 @@
     {
       "stage": 4,
       "title": "Mysterious hideaway",
-      "messages" : ["This is Operator.","Can you hear me?", "Actions at that abstract level are", "already difficult to translate here","...limited...", "..."],
+      "messages" : ["This is Operator.","Can you hear me?", "Actions at that abstract level are", "already difficult to translate here","...limited...", "...",""],
       "num_room": 7,
       "corridor_texture": 1,
       "room_texture": 1,
@@ -128,7 +128,7 @@
     {
       "stage": 5,
       "title": "Room of the Collective Unconscious",
-      "messages" : ["This is ...","...poor communication conditions", "...", "danger...", "...luck..."],
+      "messages" : ["This is ...","...poor communication conditions", "...", "danger...", "...luck...",""],
       "num_room": 7,
       "corridor_texture": 3,
       "room_texture": 3,
@@ -159,7 +159,7 @@
     {
       "stage": 6,
       "title": "The depths of consciousness",
-      "messages" : ["...","..."],
+      "messages" : ["...","...",""],
       "num_room": 4,
       "corridor_texture": 3,
       "room_texture": 3,
@@ -190,7 +190,7 @@
     {
       "stage": 7,
       "title": "The birthplace of mathematics",
-      "messages" : ["..."],
+      "messages" : ["...",""],
       "num_room": 5,
       "corridor_texture": 4,
       "room_texture": 4,

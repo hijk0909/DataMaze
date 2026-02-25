@@ -9,6 +9,7 @@ export class Gimmick_Virus extends Gimmick {
 
     constructor(scene){
         super(scene);
+        this.score = 80;
     }
 
     create(pos, id){

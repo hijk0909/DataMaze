@@ -155,7 +155,7 @@ export class Player extends Movable {
         const isDown = GameState.inputKey["arrowdown"] || GameState.inputPad.down || GameState.inputMouse.down;
         const isShot = GameState.inputKey["z"] || GameState.inputPad.button || (GameState.inputMouse.button && GameState.inputMouse.accel);
 
-        if (this.alive){
+        if (this.alive && GameState.stage_state === GLOBALS.STAGE_STATE.PLAYING){
             // 移動
             if (isLeft){
                 this.yaw_speed = Math.max(this.yaw_speed - this.yaw_accel, - this.yaw_speed_max);
@@ -207,8 +207,9 @@ export class Player extends Movable {
         }
 
         // 速度制限・減速
-        if (this.control_velocity.length() > this.speed_max / 100) {
-            this.control_velocity.normalize().scaleInPlace((this.speed_max / 100)*(this.is_dash_mode ? this.dash_speed_max_ratio : 1.0));
+        const max_speed = (this.speed_max / 100) * (this.is_dash_mode ? this.dash_speed_max_ratio : 1.0);
+        if (this.control_velocity.length() > max_speed) {
+            this.control_velocity.normalize().scaleInPlace( max_speed ) ;
         }
         this.control_velocity.scaleInPlace(this.decel);
         // 外部からの速度の減衰
@@ -272,6 +273,11 @@ export class Player extends Movable {
 
         // 連射のクールダウン
         this.cooldown = Math.max(this.cooldown - delta / 1000, 0);
+
+        // [DEBUG]
+        // if (GameState.stage_state === GLOBALS.STAGE_STATE.CLEARED){
+        //     console.log("PLAYER Velocity Control:", this.control_velocity.length(), " External:", this.external_velocity.length(), " Vel:", this.velocity.length());
+        // }
 
         super.update(time, delta);
         // console.log("player:damage:", this.damage, " hp:", this.hp);

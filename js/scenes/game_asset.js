@@ -259,6 +259,9 @@ export class GameAsset extends Asset {
         this.se.thunder = await MyAudio.load( "./assets/audio/se/se_thunder.mp3" );
         this.se.thunder.setVolume(0.4);
 
+        this.se.rush = await MyAudio.load( "./assets/audio/se/se_rush.mp3" );
+        this.se.rush.setVolume(0.4);
+
         this.se.dash = await MyAudio.load( "./assets/audio/se/se_dash.mp3" );
         this.se.dash.setVolume(0.4);
 

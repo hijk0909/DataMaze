@@ -12,12 +12,17 @@ export class Enemy_7 extends EnemyGeo {
         this.mass = 0.3;
         this.hp_max = this.hp = 60;
         this.recovery_point = 60;
+        this.score = 100;
 
         this.params.speed.chase = 0.03;
         this.params.speed.accel = 0.003;
         this.params.speed.rush = 0.2;
         this.params.speed.turn = 0.8;
         this.params.territory = 4.0;
+
+        this.params.caption.texts = ["ENEMY : SLIME","Alternate shots and tackles","to confuse them.","same attack repeatedly,","it will rush at you.",""];
+        this.params.caption.color = "#ffff00";
+        this.params.caption.id = "Enemy_7";
     }
 
     create(position, id, type=null){

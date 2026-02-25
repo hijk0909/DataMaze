@@ -1,5 +1,6 @@
 // DrawUtils.js
 import { GLOBALS } from '../GameConst.js';
+import { GameState } from '../GameState.js';
 import { MyMath } from './MathUtils.js';
 
 export class Wipe {
@@ -396,6 +397,13 @@ export class MyDraw {
             // tobj.left = left;
             // tobj.top = top;
             // console.log("left,top:", tobj.left, tobj.top);
+        }
+    }
+
+    static show_scroll_message_once(texts, color, flag) {
+        if (!GameState.scroll_message_flags.has(flag)) {
+            GameState.scroll_message_flags.add(flag);
+            GameState.ui_manager.add_messages(texts, color);
         }
     }
 }
