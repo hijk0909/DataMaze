@@ -24,7 +24,7 @@ export class Enemy_1 extends EnemyAero {
         this.params.anger.thunder_period = 1.5;
         this.params.anger.thunder_area = 3.0;
 
-        this.params.caption.texts = ["ENEMY : FLYING HED","Beware of powerful,","wide-area THUNDER attack",""];
+        this.params.caption.texts = ["ENEMY : FLYING HEAD","Beware of powerful,","wide-area THUNDER attack",""];
         this.params.caption.color = "#ffff00";
         this.params.caption.id = "Enemy_1";
     }
