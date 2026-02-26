@@ -68,12 +68,12 @@ export class Item_Box extends Item {
         } else if (r === 1){
             item = "Auto Recover";
             GameState.ui_manager.add_item(item);
-            GameState.player.add_hp_delta(0.1);
+            GameState.player.add_hp_delta(0.2);
             disp = `GET ${item}`;
         } else if (r === 2){
             item = "HP MAX";
             GameState.player.hp = GameState.player.hp_max;
-            disp = `GET ${item}`;
+            disp = `${item}`;
         } else {
             disp = "ERROR";
         }

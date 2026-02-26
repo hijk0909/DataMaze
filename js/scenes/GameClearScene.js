@@ -75,15 +75,22 @@ export class GameClearScene extends Scene {
         const result_item_ratio = formatPercentage(result_item_collected, GameState.result.item_total);
         const result_gimmick_interacted = GameState.result.gimmick_total - GameState.result.gimmick_missed;
         const result_gimmick_ratio = formatPercentage(result_gimmick_interacted, GameState.result.gimmick_total);
+        const result_shot_ratio = formatPercentage(GameState.result.num_shot_hit, GameState.result.num_shot);
+        const result_chakra_ratio = formatPercentage(GameState.result.num_chakra_collected, GameState.result.num_chakra);
 
         const lines = [
             "RESULT",
             "",
             `Final Score: ${GameState.score}`,
             `Clear Time: ${this.elapsed_time_text}`,
+            `Mass: ${GameState.result.mass.toFixed(1)}`,
+            `HP: ${GameState.result.hp_max}`,
             `Enemy Defeated: ${result_enemy_defeated} / ${GameState.result.enemy_total} (${result_enemy_ratio})`,
+            `Backstub: ${GameState.result.num_backstub}`,
+            `Shot: ${GameState.result.num_shot_hit} / ${GameState.result.num_shot} (${result_shot_ratio})`,
             `Item Collected: ${result_item_collected} / ${GameState.result.item_total} (${result_item_ratio})`,
             `Gimmick Interacted: ${result_gimmick_interacted} / ${GameState.result.gimmick_total} (${result_gimmick_ratio})`,
+            `Chakra: ${GameState.result.num_chakra_collected} / ${GameState.result.num_chakra} (${result_chakra_ratio})`,
             "",
             "",
             "Epilogue",

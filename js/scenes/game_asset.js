@@ -196,6 +196,10 @@ export class GameAsset extends Asset {
         prop_magic_circle_3.hasAlpha = true;
         this.texture.prop_magic_circle_3 = prop_magic_circle_3;
 
+        const gimmick_chakra = new BABYLON.Texture("./assets/textures/chakra.png", this.scene);
+        gimmick_chakra.hasAlpha = true;
+        this.texture.gimmick_chakra = gimmick_chakra;
+
         const gl = new BABYLON.Texture("./assets/textures/goal_light.png", this.scene);
         gl.hasAlpha = true;
         this.texture.goal_light = gl;

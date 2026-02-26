@@ -31,6 +31,7 @@ import { Prop_Mask } from "../objects/prop_mask.js";
 import { Prop_Ego } from "../objects/prop_ego.js";
 import { Gimmick_Diamond} from "../objects/gimmick_diamond.js";
 import { Gimmick_Virus} from "../objects/gimmick_virus.js";
+import { Gimmick_Chakra} from "../objects/gimmick_chakra.js";
 
 const EnemyClassList = {
     'Enemy_1' : Enemy_1,
@@ -69,7 +70,8 @@ const PropClassList = {
 
 const GimmickClassList = {
     'Gimmick_Diamond'   : Gimmick_Diamond,
-    'Gimmick_Virus'     : Gimmick_Virus
+    'Gimmick_Virus'     : Gimmick_Virus,
+    'Gimmick_Chakra'    : Gimmick_Chakra
 }
 
 

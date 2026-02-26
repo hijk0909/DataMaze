@@ -29,7 +29,7 @@ export class Eff_Text extends Effect {
         const tobj = this.textObject;
         tobj.text = text;
         tobj.color = color;
-        tobj.fontSize = 72 * size;
+        tobj.fontSize = 72 * Math.max(1.0, Math.min(size, 5.0));
         tobj.fontFamily = "MyGameFont";
         tobj.shadowBlur = 6;
         tobj.shadowOffsetX = 1;

@@ -201,6 +201,8 @@ export class Player extends Movable {
                         const eff = new Bullet(this.scene);
                         eff.create(this.mesh.position, this.forward, this.shot_power);
                         GameState.bullets.push(eff);
+
+                        GameState.result.num_shot++;
                     }
                 }
             }

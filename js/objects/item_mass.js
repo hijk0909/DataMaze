@@ -29,7 +29,7 @@ export class Item_Mass extends Item {
     activate(){
         this.alive = false;
         GameState.add_score(100);
-        const mass = Math.random() + 0.1;
+        const mass = Math.random() *0.6 + 0.1;
         GameState.player.add_mass(mass);
         const eff = new Eff_Text(this.scene);
         eff.create(this.mesh.position, `MASS +${mass.toFixed(1)}`);

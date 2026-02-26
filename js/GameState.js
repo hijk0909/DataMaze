@@ -74,7 +74,13 @@ export const GameState = {
         item_total : 0,
         item_missed : 0,
         gimmick_total : 0,
-        gimmick_missed : 0
+        gimmick_missed : 0,
+        num_backstub : 0,
+        num_shot : 0,
+        num_shot_hit : 0,
+        num_chakra : 0,
+        hp_max : 0,
+        mass : 0
     },
 
     reset(){
@@ -98,6 +104,13 @@ export const GameState = {
         this.result.item_missed = 0;
         this.result.gimmick_total = 0;
         this.result.gimmick_missed = 0;
+        this.result.num_backstub = 0;
+        this.result.shot = 0;
+        this.result.shot_hit = 0;
+        this.result.num_chakra = 0;
+        this.result.num_chakra_collected = 0;
+        this.result.hp_max;
+        this.result.mass;
     },
 
     add_score(score){

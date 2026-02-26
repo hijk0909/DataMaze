@@ -208,12 +208,7 @@ export class GameScene extends Scene {
         } else if (GameState.stage_state === GLOBALS.STAGE_STATE.CLEAR){
             // ◆ステージクリア
             // RESULT用の集計
-            GameState.result.enemy_total += GameState.num_enemies;
-            GameState.result.enemy_missed += GameState.enemies.length;
-            GameState.result.item_total += GameState.num_items;
-            GameState.result.item_missed += GameState.items.length - 1;
-            GameState.result.gimmick_total += GameState.num_gimmicks;
-            GameState.result.gimmick_missed += GameState.gimmicks.length;
+            this.calculate_result();
             // ステージ数による分岐
             if (GameState.stage === GLOBALS.STAGE_MAX){
                 // [STATUS_MSG]
@@ -287,18 +282,22 @@ export class GameScene extends Scene {
             this.game.sceneManager.changeScene(new GameOverScene(this.game));
         }
         if (GameState.inputKey && GameState.inputKey["c"]){
+            this.calculate_result();
             this.game.sceneManager.changeScene(new GameClearScene(this.game));
         }
 
-        // 空の時間経過（消去予定）
-        // this.sky_time += this.sky_speed * delta / 1000;
-        // console.log("sky_time", this.sky_time);
-        // if (this.sky_time > 1) this.sky_time -= 2;
-        // if (this.skyMaterial){
-        //     this.skyMaterial.inclination = this.sky_time;
-        // }
-
         super.update();
+    }
+
+    calculate_result(){
+        GameState.result.enemy_total += GameState.num_enemies;
+        GameState.result.enemy_missed += GameState.enemies.length;
+        GameState.result.item_total += GameState.num_items;
+        GameState.result.item_missed += GameState.items.length - 1;
+        GameState.result.gimmick_total += GameState.num_gimmicks;
+        GameState.result.gimmick_missed += GameState.gimmicks.length;
+        GameState.result.hp_max = GameState.player.hp_max;
+        GameState.result.mass = GameState.player.mass;
     }
 
     // ポーズ処理

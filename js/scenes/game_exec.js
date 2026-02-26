@@ -77,6 +77,7 @@ export class Exec {
                 const enemy = GameState.enemies[j];
                 if (this.check_bullet_hit(bullet, enemy)){
                     bullet.alive = false;
+                    GameState.result.num_shot_hit++; //命中数
 
                     const eff_ext = new Eff_Extinction(this.scene);
                     eff_ext.create(bullet.sprite.position);
@@ -88,6 +89,7 @@ export class Exec {
                     if (enemy.hp <= 0){
                         enemy.alive = false;
                         GameState.add_score(enemy.score);
+
                         const eff = new Eff_Firework(this.scene);
                         eff.create(enemy.mesh.position);
                         GameState.effects.push(eff);
@@ -105,6 +107,7 @@ export class Exec {
                 if (this.check_hit(bullet.sprite.position, bullet.radius, gimmick.mesh.position, gimmick.radius)){
                     bullet.alive = false;
                     GameState.add_score(gimmick.score);
+                    GameState.result.num_shot_hit++; //命中数
 
                     const eff_ext = new Eff_Extinction(this.scene);
                     eff_ext.create(gimmick.mesh.position);
@@ -279,6 +282,8 @@ export class Exec {
             const eff = new Eff_Text(this.scene);
             eff.create(enemy.mesh.position, `BACKSTUB! +${enemy_backstub}`, "#ffffff", size);
             GameState.effects.push(eff);
+
+            GameState.result.num_backstub++;
         }
         // ◆自機のダメージ処理
         const {damage : player_damage, backstub : player_backstub} = player.add_damage(impulse.scale(-1), enemy.attack_magnification);
