@@ -16,8 +16,8 @@
         { "className":"Enemy_3", "num":1}
       ],
       "items":[
-        { "className":"Item_Box", "num":5},
-        { "className":"Item_Key", "num":5},
+        { "className":"Item_Box", "num":8},
+        { "className":"Item_Key", "num":8},
         { "className":"Item_Feed", "num":10},
         { "className":"Item_Mass", "num":5},
         { "className":"Item_SpeedMax", "num":2},
@@ -29,8 +29,8 @@
         { "className":"Prop_Rain", "num":15}
       ],
       "gimmicks":[
-        { "className":"Gimmick_Diamond", "num":35},
-        { "className":"Gimmick_Chakra", "num":1}
+        { "className":"Gimmick_Chakra", "num":1},
+        { "className":"Gimmick_Diamond", "num":35}
       ]
     },
     {
@@ -50,8 +50,8 @@
         { "className":"Enemy_3", "num":2}
       ],
       "items":[
-        { "className":"Item_Box", "num":4},
-        { "className":"Item_Key", "num":3},
+        { "className":"Item_Box", "num":7},
+        { "className":"Item_Key", "num":6},
         { "className":"Item_Feed", "num":1},
         { "className":"Item_Fluxcore", "num":3}
       ],
@@ -60,9 +60,9 @@
         { "className":"Prop_Rain", "num":8}
       ],
       "gimmicks":[
+        { "className":"Gimmick_Chakra", "num":1},
         { "className":"Gimmick_Diamond", "num":30},
-        { "className":"Gimmick_Virus", "num":1},
-        { "className":"Gimmick_Chakra", "num":1}
+        { "className":"Gimmick_Virus", "num":1}
       ]
     },
     {
@@ -93,9 +93,9 @@
         { "className":"Prop_Lantern", "num":15}
       ],
       "gimmicks":[
+        { "className":"Gimmick_Chakra", "num":1},
         { "className":"Gimmick_Diamond", "num":30},
-        { "className":"Gimmick_Virus", "num":5},
-        { "className":"Gimmick_Chakra", "num":1}
+        { "className":"Gimmick_Virus", "num":5}
       ]
     },
     {
@@ -115,18 +115,18 @@
         { "className":"Enemy_5", "num":1}
       ],
       "items":[
-        { "className":"Item_Box", "num":2},
-        { "className":"Item_Key", "num":2},
-        { "className":"Item_Fluxcore", "num":2}
+        { "className":"Item_Box", "num":4},
+        { "className":"Item_Key", "num":4},
+        { "className":"Item_Fluxcore", "num":3}
       ],
       "props":[
         { "className":"Prop_Cube", "num":15},
         { "className":"Prop_Lantern", "num":15}
       ],
       "gimmicks":[
+        { "className":"Gimmick_Chakra", "num":1},
         { "className":"Gimmick_Diamond", "num":30},
-        { "className":"Gimmick_Virus", "num":10},
-        { "className":"Gimmick_Chakra", "num":1}
+        { "className":"Gimmick_Virus", "num":10}
       ]
     },
     {
@@ -148,17 +148,17 @@
         { "className":"Enemy_8", "num":1}
       ],
       "items":[
-        { "className":"Item_Box", "num":1},
-        { "className":"Item_Key", "num":1}
+        { "className":"Item_Box", "num":3},
+        { "className":"Item_Key", "num":3}
       ],
       "props":[
         { "className":"Prop_Mask", "num":15},
         { "className":"Prop_Ego", "num":15}
       ],
       "gimmicks":[
-        { "className":"Gimmick_Diamond", "num":20},
-        { "className":"Gimmick_Virus", "num":15},
-        { "className":"Gimmick_Chakra", "num":1}
+        { "className":"Gimmick_Chakra", "num":1},
+        { "className":"Gimmick_Diamond", "num":30},
+        { "className":"Gimmick_Virus", "num":15}
       ]
     },
     {
@@ -188,9 +188,9 @@
         { "className":"Prop_Mask", "num":5}
       ],
       "gimmicks":[
-        { "className":"Gimmick_Diamond", "num":15},
-        { "className":"Gimmick_Virus", "num":20},
-        { "className":"Gimmick_Chakra", "num":1}
+        { "className":"Gimmick_Chakra", "num":1},
+        { "className":"Gimmick_Diamond", "num":30},
+        { "className":"Gimmick_Virus", "num":20}
       ]
     },
     {
@@ -208,18 +208,18 @@
         { "className":"Enemy_5", "num":1}
       ],
       "items":[
-        { "className":"Item_Box", "num":1},
-        { "className":"Item_Key", "num":1},
-        { "className":"Item_Feed", "num":1},
-        { "className":"Item_Fluxcore", "num":1}
+        { "className":"Item_Box", "num":2},
+        { "className":"Item_Key", "num":2},
+        { "className":"Item_Feed", "num":3},
+        { "className":"Item_Fluxcore", "num":3}
       ],
       "props":[
         { "className":"Prop_MagicCircle", "num":18}
       ],
       "gimmicks":[
-        { "className":"Gimmick_Diamond", "num":10},
-        { "className":"Gimmick_Virus", "num":20},
-        { "className":"Gimmick_Chakra", "num":1}
+        { "className":"Gimmick_Chakra", "num":1},
+        { "className":"Gimmick_Diamond", "num":20},
+        { "className":"Gimmick_Virus", "num":20}
       ]
     }
   ]

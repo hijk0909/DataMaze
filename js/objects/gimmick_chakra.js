@@ -13,6 +13,7 @@ export class Gimmick_Chakra extends Gimmick {
         super(scene);
         this.score = 100;
         this.chakra_number = GameState.stage - 1;
+        this.radius = 0.1;
     }
 
     create(pos, id){

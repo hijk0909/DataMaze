@@ -4,12 +4,12 @@ import { GameState } from "../GameState.js";
 import { EnemyGeo } from "./base_enemy_geo.js";
 import { ENEMY_STATE } from "./base_enemy.js";
 
-const NUM_OUTER_CUBES = 23;
-const NUM_INNER_CUBES = 17;
+const NUM_OUTER_CUBES = 33;
+const NUM_INNER_CUBES = 23;
 
 const STATE_CHASE_PERIOD    = 3;
 const STATE_CHARGE_PERIOD   = 2;
-const STATE_THUNDER_PERIOD   = 2;
+const STATE_THUNDER_PERIOD   = 3;
 const STATE_IDLE_PERIOD     = 3;
 
 // ラスボス
