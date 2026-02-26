@@ -161,7 +161,7 @@ export class GameScene extends Scene {
             GameState.bgm = BgmLists[GameState.stageInfo.bgm];
             GameState.asset.jingle.stagestart.play(false);
             // メッセージ
-            GameState.ui_manager.add_messages(GameState.stageInfo.messages,"#00ff00");
+            GameState.ui_manager.add_scroll_messages(GameState.stageInfo.messages,"#00ff00");
             // [TRANSIT]
             this.stage_state_count = 2.5;
             GameState.stage_state = GLOBALS.STAGE_STATE.STARTING;

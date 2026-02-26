@@ -161,7 +161,7 @@ export class UI {
         return this.bag.find(name);
     }
 
-    add_messages(texts, color){
+    add_scroll_messages(texts, color){
         this.scroll_message.add_texts(texts, color);
     }
 

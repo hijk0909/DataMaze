@@ -403,7 +403,7 @@ export class MyDraw {
     static show_scroll_message_once(texts, color, flag) {
         if (!GameState.scroll_message_flags.has(flag)) {
             GameState.scroll_message_flags.add(flag);
-            GameState.ui_manager.add_messages(texts, color);
+            GameState.ui_manager.add_scroll_messages(texts, color);
         }
     }
 }

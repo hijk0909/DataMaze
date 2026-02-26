@@ -64,8 +64,11 @@ export class Gimmick_Chakra extends Gimmick {
 
         GameState.player.hp = GameState.player.hp_max;
 
+        const texts = [`${CHAKRA_NAMES[this.chakra_number]} Chakra`,""];
+        GameState.ui_manager.add_scroll_messages(texts, "#ffa080");
+
         const eff = new Eff_Text(this.scene);
-        eff.create(this.mesh.position, `${CHAKRA_NAMES[this.chakra_number]} Chakra`);
+        eff.create(this.mesh.position, "HP MAX");
         GameState.effects.push(eff);
 
         GameState.asset.se.powerup.play_3D(this, this.scene);
