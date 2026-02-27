@@ -5,7 +5,15 @@ import { Eff_Text } from './eff_text.js';
 
 const DISP_SCALE = 1.0;
 
-const CHAKRA_NAMES = ["Muladhara","Swadhisthana","Manipura","Anahata","Vishuddha","Ajna","Sahasrara"];
+const CHAKRA_TEXTS = [
+    ["Muladhara -","located at the perineum", "the space between the anal outlet", "and the genital organ",""],
+    ["Swadhisthana -","just above the genital organ", ""],
+    ["Manipura -","just below the navel", ""],
+    ["Anahata -"," just beneath where", "the rib cage meets", ""],
+    ["Vishuddha -","at the pit of the throat",""],
+    ["Ajna -","between the eyebrows", ""],
+    ["Sahasrara -","at the top of the head,", "where when a child is born",""]
+];
 
 export class Gimmick_Chakra extends Gimmick {
 
@@ -64,7 +72,7 @@ export class Gimmick_Chakra extends Gimmick {
 
         GameState.player.hp = GameState.player.hp_max;
 
-        const texts = [`${CHAKRA_NAMES[this.chakra_number]} Chakra`,""];
+        const texts = CHAKRA_TEXTS[this.chakra_number];
         GameState.ui_manager.add_scroll_messages(texts, "#ffa080");
 
         const eff = new Eff_Text(this.scene);

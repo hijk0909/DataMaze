@@ -46,6 +46,15 @@ export class GameClearScene extends Scene {
         await this.asset.preload();
     }
 
+    resolve_eval_message(value, defs) {
+        for (const def of defs) {
+            if (value >= def.min) {
+                return def.msg;
+            }
+        }
+       return null;
+    }
+
     create(){
         const scene = this.scene;
         scene.clearColor = new BABYLON.Color4(0,0,0,1);
@@ -68,6 +77,7 @@ export class GameClearScene extends Scene {
         this.elapsed_time_text = `${Math.floor(elapsed_sec / 60).toString().padStart(2,'0')}:${(elapsed_sec % 60).toString().padStart(2,'0')}`
 
         const formatPercentage = (a, b) => b ? `${((a / b) * 100).toFixed(1)}%` : '0.0%';
+        const percentage = (a, b) => b ? a / b : 0;
 
         const result_enemy_defeated = GameState.result.enemy_total - GameState.result.enemy_missed;
         const result_enemy_ratio = formatPercentage(result_enemy_defeated, GameState.result.enemy_total);
@@ -78,19 +88,131 @@ export class GameClearScene extends Scene {
         const result_shot_ratio = formatPercentage(GameState.result.num_shot_hit, GameState.result.num_shot);
         const result_chakra_ratio = formatPercentage(GameState.result.num_chakra_collected, GameState.result.num_chakra);
 
-        const lines = [
+        const evalDefs_score = [
+            { min: 85000, msg: "Ruler of the Information Realm" },
+            { min: 80000, msg: "Master of All Artificial Minds" },
+            { min: 70000, msg: "Data Maze Navigator" },
+            { min: 60000, msg: "Data Analysis Specialist" },
+            { min: 50000, msg: "Promising Engineer" },
+            { min: 0,     msg: null }
+        ];
+        const eval_message_score = this.resolve_eval_message(GameState.score, evalDefs_score);
+
+        const evalDefs_elapsed_time = [
+            { min: 45 * 60, msg: null },
+            { min: 40 * 60, msg: "Efficient Debugger" },
+            { min: 35 * 60, msg: "High-Speed Processor" },
+            { min: 30 * 60, msg: "Supersonic Hero" },
+            { min: 0,       msg: "Light-Speed Savior" }
+        ];
+        const eval_message_elapsed_time = this.resolve_eval_message(elapsed_sec, evalDefs_elapsed_time);
+
+        const evalDefs_mass = [
+            { min: 18, msg: "Heavyweight" },
+            { min: 16, msg: "Cruiserweight" },
+            { min: 14, msg: "Middleweight" },
+            { min: 12, msg: "Lightweight" },
+            { min: 10, msg: "Featherweight" },
+            { min: 0,  msg: "Bantamweight"}
+        ];
+        const eval_message_mass = this.resolve_eval_message(GameState.result.mass, evalDefs_mass);
+
+        const evalDefs_hp = [
+            { min: 900, msg: "Aircraft Carrier" },
+            { min: 800, msg: "Battleship" },
+            { min: 700, msg: "Battlecruiser" },
+            { min: 600, msg: "Cruiser" },
+            { min: 500, msg: "Destroyer" },
+            { min: 400, msg: "Frigate" },
+            { min: 0,   msg: "Dinghy"}
+        ];
+        const eval_message_hp = this.resolve_eval_message(GameState.result.hp_max, evalDefs_hp);
+
+        const evalDefs_enemy_ratio = [
+            { min: 1.0, msg: "Relentless Executioner!" },
+            { min: 0.9, msg: "Methodical Attacker" },
+            { min: 0.5, msg: "Steady Adventurer" },
+            { min: 0.0, msg: "The Pacifist" }
+        ];
+        const eval_message_enemy_ratio = this.resolve_eval_message(percentage(result_enemy_defeated, GameState.result.enemy_total), evalDefs_enemy_ratio);
+
+        const evalDefs_backstub = [
+            { min: 100, msg: "Tactical Assassin" },
+            { min: 80 , msg: "Backstab Enthusiast" },
+            { min: 50 , msg: "Expert Maneuverer" },
+            { min: 0  , msg: null }
+        ];
+        const eval_message_backstub = this.resolve_eval_message(GameState.result.num_backstub, evalDefs_backstub);
+
+        const evalDefs_shot_ratio = [
+            { min: 0.95, msg: "Legendary Sharpshooter" },
+            { min: 0.90, msg: "Elite Marksman" },
+            { min: 0.80, msg: "Efficient Gunner" },
+            { min: 0.0,  msg: null }
+        ];
+        const eval_message_shot_ratio = this.resolve_eval_message(percentage(GameState.result.num_shot_hit, GameState.result.num_shot), evalDefs_shot_ratio);
+
+        const evalDefs_item_ratio = [
+            { min: 1.0,  msg: "The Grand Collector!" },
+            { min: 0.9,  msg: "Compulsive Scavenger" },
+            { min: 0.0,  msg: null }
+        ];
+        const eval_message_item_ratio = this.resolve_eval_message(percentage(result_item_collected, GameState.result.item_total), evalDefs_item_ratio);
+
+        const evalDefs_gimmick_ratio = [
+            { min: 1.0,  msg: "The Nothing-Left-Behind!" },
+            { min: 0.90, msg: "The Seasoned Cleaner" },
+            { min: 0.0,  msg: null }
+        ];
+        const eval_message_gimmick_ratio = this.resolve_eval_message(percentage(result_gimmick_interacted, GameState.result.gimmick_total), evalDefs_gimmick_ratio);
+
+        const evalDefs_chakra_ratio = [
+            { min: 1.0,  msg: "Chakra Master!" },
+            { min: 0.0,  msg: null }
+        ];
+        const eval_message_chakra_ratio = this.resolve_eval_message(percentage(GameState.result.num_chakra_collected, GameState.result.num_chakra), evalDefs_chakra_ratio);
+
+        const lines_header = [
             "RESULT",
-            "",
+            ""
+        ];
+
+        const lines_result_1 = [
             `Final Score: ${GameState.score}`,
+            eval_message_score,
+            "",
             `Clear Time: ${this.elapsed_time_text}`,
+            eval_message_elapsed_time,
+            "",
             `Mass: ${GameState.result.mass.toFixed(1)}`,
-            `HP: ${GameState.result.hp_max}`,
+            eval_message_mass,
+            "",
+            `MAX HP: ${GameState.result.hp_max}`,
+            eval_message_hp,
+            "",
             `Enemy Defeated: ${result_enemy_defeated} / ${GameState.result.enemy_total} (${result_enemy_ratio})`,
+            eval_message_enemy_ratio,
+            ""
+        ].filter(line => line !== null);
+
+        const lines_result_2 = [
             `Backstub: ${GameState.result.num_backstub}`,
+            eval_message_backstub,
+            "",
             `Shot: ${GameState.result.num_shot_hit} / ${GameState.result.num_shot} (${result_shot_ratio})`,
+            eval_message_shot_ratio,
+            "",
             `Item Collected: ${result_item_collected} / ${GameState.result.item_total} (${result_item_ratio})`,
+            eval_message_item_ratio,
+            "",
             `Gimmick Interacted: ${result_gimmick_interacted} / ${GameState.result.gimmick_total} (${result_gimmick_ratio})`,
+            eval_message_gimmick_ratio,
+            "",
             `Chakra: ${GameState.result.num_chakra_collected} / ${GameState.result.num_chakra} (${result_chakra_ratio})`,
+            eval_message_chakra_ratio,
+        ].filter(line => line !== null);
+
+        const lines_epilogue = [
             "",
             "",
             "Epilogue",
@@ -142,6 +264,11 @@ export class GameClearScene extends Scene {
             "",
             "","","","","","","","","","","","","","","",""
         ];
+
+        const lines = [...lines_header, ...lines_result_1, ...lines_result_2, ...lines_epilogue];
+
+        // ◆クリア実績の保存
+        GameState.save_storage_results(lines_result_1, lines_result_2);
 
         // ◆スクロールテキスト
         this.scroll_text = new ScrollText(this.ui, this.scene);

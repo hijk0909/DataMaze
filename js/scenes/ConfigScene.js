@@ -216,11 +216,12 @@ export class ConfigScene extends Scene {
         this.update_texts();
 
         this.remove_storage_values();
+        GameState.remove_storage_results();
     }
 
     save_storage_values() {
         const data = {
-            version: 1,
+            version: GLOBALS.VERSION,
             stage: this.config_items[0].current_value,
             player: {
                 hpMax:      this.config_items[1].current_value,

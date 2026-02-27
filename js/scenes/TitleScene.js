@@ -11,7 +11,7 @@ import { MyAudio } from "../utils/AudioUtils.js"
 import { MyInput } from "../utils/InputUtils.js"
 import { MyDraw } from "../utils/DrawUtils.js"
 
-const ATTRACT_TIMER = 8;
+const ATTRACT_TIMER = 12;
 
 export class TitleScene extends Scene {
     constructor(game) {
@@ -57,7 +57,7 @@ export class TitleScene extends Scene {
         panel.isVisible = false; // imageの大きさが確定するまでは非表示
         panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         panel.verticalAlignment   = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        panel.paddingTop  = "10px";
+        panel.paddingTop  = "5px";
         panel.paddingLeft = "10px";
         panel.spacing = FONT_SPACING; //行間(px)
         panel.fontFamily = "MyGameFont";
@@ -77,20 +77,110 @@ export class TitleScene extends Scene {
 
         // Text
         this.text1 = new BABYLON.GUI.TextBlock();
-        this.text1.text = "START GAME\nPUSH SPACE KEY";
+        this.text1.text = "PUSH SPACE KEY";
         this.text1.color = "white";
         this.text1.fontFamily = "MyGameFont";
-        this.text1.fontSize = 64;
-        MyDraw.set_text_center(this.text1, 0, 100);
+        this.text1.fontSize = 40;
+        MyDraw.set_text_center(this.text1, 0, 0);
         this.panel_title.addControl(this.text1);
 
         this.text2 = new BABYLON.GUI.TextBlock();
         this.text2.text = `v${GLOBALS.VERSION} - ${GLOBALS.DATE}`;
         this.text2.color = "white";
         this.text2.fontFamily = "MyGameFont";
-        this.text2.fontSize = 42;
-        MyDraw.set_text_center(this.text2, 0, 240);
+        this.text2.fontSize = 32;
+        MyDraw.set_text_center(this.text2, 0, 0);
         this.panel_title.addControl(this.text2);
+
+        // ◆クリア実績情報
+        const result = GameState.load_storage_results();
+        if (result){
+            const {r1, r2, time} = result;
+
+            const panel_result = new BABYLON.GUI.StackPanel();
+            panel_result.width = "1650px"; 
+            panel_result.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            panel_result.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            this.panel_title.addControl(panel_result);
+
+            const date = new Date(time);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const result_time = `${year}/${month}/${day} ${hours}:${minutes}`;
+
+            const rs_t1 = new BABYLON.GUI.TextBlock();
+            rs_t1.text = `Your Last Clear Result (${result_time})`;
+            rs_t1.color = "yellow";
+            rs_t1.fontSize = 32;
+            rs_t1.height = "40px";
+            rs_t1.width = "1400px";
+            panel_result.addControl(rs_t1);
+
+            const panel_result_row = new BABYLON.GUI.StackPanel();
+            panel_result_row.isVertical = false; 
+            panel_result_row.height = "600px";
+            panel_result_row.width = "1200px";
+            panel_result_row.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            panel_result.addControl(panel_result_row);
+
+            // 左側テキスト
+            const panel_left = new BABYLON.GUI.StackPanel();
+            panel_left.width = "600px";
+            panel_left.height = "600px";
+            panel_left.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            panel_left.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            panel_left.paddingTop = "10px";
+            panel_left.paddingLeft = "10px";
+            panel_left.isVertical = true;
+            panel_result_row.addControl(panel_left);
+
+            r1.forEach(line => {
+                const lineBlock = new BABYLON.GUI.TextBlock();
+                lineBlock.text = line;
+                lineBlock.color = "#80d0c0";
+                lineBlock.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+                if (line.trim() === "") {
+                    // 空行は高さを小さく
+                    lineBlock.height = "8px";
+                    lineBlock.fontSize = 1; // 文字が見えないように
+                } else {
+                    lineBlock.height = "30px";
+                    lineBlock.fontSize = 24;
+                }
+                panel_left.addControl(lineBlock);
+            });
+
+            // 右側テキスト
+            const panel_right = new BABYLON.GUI.StackPanel();
+            panel_right.width = "600px";
+            panel_right.height = "600px";
+            panel_right.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            panel_right.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            panel_right.paddingTop = "10px";
+            panel_right.paddingLeft = "10px";
+            panel_right.isVertical = true;
+            panel_result_row.addControl(panel_right);
+
+            r2.forEach(line => {
+                const lineBlock = new BABYLON.GUI.TextBlock();
+                lineBlock.text = line;
+                lineBlock.color = "#80c0d0";
+                lineBlock.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+                if (line.trim() === "") {
+                    lineBlock.height = "8px";
+                    lineBlock.fontSize = 1;
+                } else {
+                    lineBlock.height = "30px";
+                    lineBlock.fontSize = 24;
+                }
+                panel_right.addControl(lineBlock);
+            });
+        }
 
         // ◆アトラクト画面への自動遷移
         this.attractTimerId = null;
@@ -102,7 +192,7 @@ export class TitleScene extends Scene {
 
         // AudioEngine の強制初期化
         this.audio = new MyAudio();
-    }
+    } // End of create
 
     start_attract_timer(seconds) {
         this.cancel_attract_timer();

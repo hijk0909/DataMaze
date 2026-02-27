@@ -79,6 +79,7 @@ export const GameState = {
         num_shot : 0,
         num_shot_hit : 0,
         num_chakra : 0,
+        num_chakra_collected : 0,
         hp_max : 0,
         mass : 0
     },
@@ -109,11 +110,51 @@ export const GameState = {
         this.result.shot_hit = 0;
         this.result.num_chakra = 0;
         this.result.num_chakra_collected = 0;
-        this.result.hp_max;
-        this.result.mass;
+        this.result.hp_max = 0;
+        this.result.mass = 0;
     },
 
     add_score(score){
         this.score += score;
+    },
+
+    save_storage_results(r1, r2) {
+        const data = {
+            r1 : r1,
+            r2 : r2,
+            time : Date.now(),
+        };
+
+        localStorage.setItem(
+            "DataMaze_Results",
+            JSON.stringify(data)
+        );
+    },
+
+    load_storage_results() {
+        const json = localStorage.getItem("DataMaze_Results");
+        if (!json) {
+            return null;
+        }
+
+        let r1 = null;
+        let r2 = null;
+        let time = null;
+
+        try {
+            const data = JSON.parse(json);
+
+            r1 = data.r1 ?? "";
+            r2 = data.r2 ?? "";
+            time = data.time ?? "";
+        } catch (e) {
+            console.warn("Result load failed.", e);
+        }
+
+        return { r1, r2, time };
+    },
+
+    remove_storage_results() {
+        localStorage.removeItem("DataMaze_Results");
     }
 }
